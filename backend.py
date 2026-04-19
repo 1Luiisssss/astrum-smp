@@ -82,6 +82,25 @@ async def estado():
     except:
         return {"online": False, "jugadores": "0"}
 
+# ─── ENDPOINT: galería (Supabase) ─────────────────
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+@app.get("/gallery")
+async def get_gallery():
+    try:
+        import httpx
+        url = f"{SUPABASE_URL}/rest/v1/gallery?order=created_at.desc&limit=20"
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}"
+        }
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url, headers=headers)
+            return JSONResponse(r.json())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ─── INICIAR ──────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
