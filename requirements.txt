@@ -4,3 +4,4 @@ mcrcon
 python-jose[cryptography]
 httpx
 python-dotenv
+discord.py
