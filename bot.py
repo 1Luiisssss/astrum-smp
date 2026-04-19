@@ -155,55 +155,59 @@ async def whitelist_cmd(interaction: discord.Interaction, nick: str, accion: str
 # ─── COMANDO /galeria-borrar (solo admins) ────────
 @bot.tree.command(
     name="galeria-borrar",
-    description="Borrar una foto de la galería por su ID (solo admins)",
+    description="Borrar una foto de la galeria por su ID (solo admins)",
     guild=discord.Object(id=GUILD_ID)
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def galeria_borrar(interaction: discord.Interaction, id: int):
     await interaction.response.defer(ephemeral=True)
     try:
-        url = f"{SUPABASE_URL}/rest/v1/gallery?id=eq.{id}"
+        url = SUPABASE_URL + "/rest/v1/gallery?id=eq." + str(id)
         headers = {
             "apikey": SUPABASE_KEY,
-            "Authorization": f"Bearer {SUPABASE_KEY}"
+            "Authorization": "Bearer " + SUPABASE_KEY
         }
         async with httpx.AsyncClient() as client:
             r = await client.delete(url, headers=headers)
         if r.status_code in (200, 204):
-            await interaction.followup.send(f"✅ Foto #{id} eliminada de la galería.", ephemeral=True)
-            print(f"🗑️ Foto #{id} eliminada por {interaction.user.name}")
+            await interaction.followup.send("Foto #" + str(id) + " eliminada de la galeria.", ephemeral=True)
+            print("Foto #" + str(id) + " eliminada por " + interaction.user.name)
         else:
-            await interaction.followup.send(f"❌ No se encontró la foto #{id}.", ephemeral=True)
+            await interaction.followup.send("No se encontro la foto #" + str(id), ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ Error: {e}", ephemeral=True)
+        await interaction.followup.send("Error: " + str(e), ephemeral=True)
 
 # ─── COMANDO /galeria-lista (solo admins) ─────────
 @bot.tree.command(
     name="galeria-lista",
-    description="Ver todas las fotos de la galería con sus IDs (solo admins)",
+    description="Ver todas las fotos de la galeria con sus IDs (solo admins)",
     guild=discord.Object(id=GUILD_ID)
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def galeria_lista(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     try:
-        url = f"{SUPABASE_URL}/rest/v1/gallery?order=created_at.desc&limit=20"
+        url = SUPABASE_URL + "/rest/v1/gallery?order=created_at.desc&limit=20"
         headers = {
             "apikey": SUPABASE_KEY,
-            "Authorization": f"Bearer {SUPABASE_KEY}"
+            "Authorization": "Bearer " + SUPABASE_KEY
         }
         async with httpx.AsyncClient() as client:
             r = await client.get(url, headers=headers)
         fotos = r.json()
         if not fotos:
-            await interaction.followup.send("No hay fotos en la galería.", ephemeral=True)
+            await interaction.followup.send("No hay fotos en la galeria.", ephemeral=True)
             return
+        lineas = []
+        for f in fotos:
+            caption = f["caption"] if f["caption"] else "sin descripcion"
+            lineas.append("ID " + str(f["id"]) + " - " + f["author"] + " (" + f["date"] + ") - " + caption)
         lista = "
-".join([f"**ID {f['id']}** — {f['author']} ({f['date']}) — {f['caption'] or 'sin descripción'}" for f in fotos])
-        await interaction.followup.send(f"📸 **Fotos en galería:**
-{lista}", ephemeral=True)
+".join(lineas)
+        await interaction.followup.send("Fotos en galeria:
+" + lista, ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ Error: {e}", ephemeral=True)
+        await interaction.followup.send("Error: " + str(e), ephemeral=True)
 
 # ─── INICIAR ──────────────────────────────────────
 bot.run(TOKEN)
