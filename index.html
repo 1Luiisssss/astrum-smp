@@ -517,14 +517,8 @@
 <!-- COMUNIDAD -->
 <section id="comunidad">
   <div class="section-header"><div class="section-tag">// Aventuras</div><h2 class="section-title">COMUNIDAD</h2></div>
-  <div class="gallery-grid">
-    <div class="gallery-item"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Próximamente</div><div class="gallery-overlay"><span class="gallery-tag">Spawn Principal</span></div></div>
-    <div class="gallery-item"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Próximamente</div><div class="gallery-overlay"><span class="gallery-tag">Granja de Iron</span></div></div>
-    <div class="gallery-item"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Próximamente</div><div class="gallery-overlay"><span class="gallery-tag">Nether Hub</span></div></div>
-    <div class="gallery-item"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Próximamente</div><div class="gallery-overlay"><span class="gallery-tag">Raid End Dragon</span></div></div>
-    <div class="gallery-item"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Próximamente</div><div class="gallery-overlay"><span class="gallery-tag">Mercado Central</span></div></div>
-  </div>
-  <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--white-dim);letter-spacing:0.12em;margin-top:24px;">Comparte tus aventuras en #capturas en Discord.</p>
+  <div class="gallery-grid" id="galleryGrid"></div>
+  <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--white-dim);letter-spacing:0.12em;margin-top:24px;" id="galleryMsg">Cargando capturas...</p>
 </section>
 
 <!-- FORO -->
@@ -605,12 +599,40 @@
         document.querySelector('.status-dot').style.background = '#ef4444';
         document.querySelector('.status-dot').style.boxShadow = '0 0 10px rgba(239,68,68,0.6)';
       }
-    } catch {
-      console.warn('No se pudo obtener el estado del servidor.');
-    }
+    } catch { console.warn('No se pudo obtener el estado del servidor.'); }
     setTimeout(fetchPlayerCount, 60000);
   }
   fetchPlayerCount();
+
+  // ─── GALERÍA REAL ──────────────────────────────────────────────
+  async function loadGallery() {
+    const grid = document.getElementById('galleryGrid');
+    const msg  = document.getElementById('galleryMsg');
+    if (!grid) return;
+    try {
+      const r = await fetch(`${API_BASE}/gallery`);
+      const photos = await r.json();
+      if (!photos.length) {
+        grid.innerHTML = `<div class="gallery-item" style="grid-column:1/-1;min-height:200px"><div class="gallery-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;height:28px;opacity:0.12;display:block;margin:0 auto 10px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Aún no hay capturas</div></div>`;
+        if (msg) msg.textContent = 'Sube la primera foto en #capturas en Discord.';
+        return;
+      }
+      grid.innerHTML = photos.map((p, i) => `
+        <div class="gallery-item${i === 0 ? ' featured' : ''}" onclick="openPhoto('${p.url}')">
+          <img src="${p.url}" alt="${p.caption || 'Captura'}" style="width:100%;height:100%;object-fit:cover;">
+          <div class="gallery-overlay">
+            <div>
+              <span class="gallery-tag">${p.caption || 'Sin descripción'}</span><br>
+              <span style="font-family:var(--font-mono);font-size:0.55rem;color:rgba(240,236,232,0.6);">${p.author} · ${p.date}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      if (msg) msg.textContent = `${photos.length} captura${photos.length !== 1 ? 's' : ''} de la comunidad.`;
+    } catch { if (msg) msg.textContent = 'No se pudieron cargar las capturas.'; }
+  }
+  function openPhoto(url) { window.open(url, '_blank'); }
+  loadGallery();
 
   // ─── RULES ─────────────────────────────────────────────────
   function toggleRule(card) {
