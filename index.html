@@ -584,16 +584,33 @@
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // ─── PLAYER COUNT (simulado) ────────────────────────────────
-  function animateCount() {
-    const target = Math.floor(Math.random() * 8) + 2;
+  // ─── PLAYER COUNT (real — MCSrvStat API) ────────────────────
+  async function fetchPlayerCount() {
     const el = document.getElementById('playerCount');
-    let current = 0;
-    const step = () => { if (current < target) { current++; el.textContent = current; setTimeout(step, 80); } };
-    step();
-    setTimeout(animateCount, 30000);
+    try {
+      const r = await fetch('https://api.mcsrvstat.us/3/mc.hackos.dev:27015');
+      const data = await r.json();
+      if (data.online) {
+        const online = data.players?.online ?? 0;
+        let current = parseInt(el.textContent) || 0;
+        const step = () => {
+          if (current < online) { current++; el.textContent = current; setTimeout(step, 80); }
+          else if (current > online) { current--; el.textContent = current; setTimeout(step, 80); }
+        };
+        step();
+        document.querySelector('.status-dot').style.background = '#22c55e';
+        document.querySelector('.status-dot').style.boxShadow = '0 0 10px rgba(34,197,94,0.6)';
+      } else {
+        el.textContent = '0';
+        document.querySelector('.status-dot').style.background = '#ef4444';
+        document.querySelector('.status-dot').style.boxShadow = '0 0 10px rgba(239,68,68,0.6)';
+      }
+    } catch {
+      console.warn('No se pudo obtener el estado del servidor.');
+    }
+    setTimeout(fetchPlayerCount, 60000);
   }
-  animateCount();
+  fetchPlayerCount();
 
   // ─── RULES ─────────────────────────────────────────────────
   function toggleRule(card) {
