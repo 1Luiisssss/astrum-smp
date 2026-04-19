@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from mcrcon import MCRcon
 from dotenv import load_dotenv
 from oauth_routes import router as auth_router
-import os, re
+import os, re, json
 
 load_dotenv("config.env")
 
@@ -18,15 +19,19 @@ API_PORT   = int(os.getenv("API_PORT", 8000))
 app = FastAPI(title="Astrum SMP API")
 
 # ─── REGISTRAR RUTAS OAUTH2 ───────────────────────
-app.include_router(auth_router)
+app.include_router(auth_router)  # ← NUEVO
 
-# ─── CORS ─────────────────────────────────────────
+# ─── CORS: permite que tu web llame al backend ────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST"],
+    allow_origins=["*"],   # Cambia por tu dominio en producción
+    allow_methods=["GET", "POST"],  # GET añadido para OAuth2
     allow_headers=["*"],
 )
+
+# ─── SERVIR EL HTML ESTÁTICO ──────────────────────
+# Esto permite abrir el HTML desde http://localhost:8000
+app.mount("/", StaticFiles(directory=".", html=True), name="static")  # ← NUEVO
 
 # ─── MODELO DE DATOS ──────────────────────────────
 class WhitelistRequest(BaseModel):
@@ -78,9 +83,6 @@ async def estado():
         return {"online": False, "jugadores": "0"}
 
 # ─── INICIAR ──────────────────────────────────────
-# StaticFiles SIEMPRE al final — es un catch-all
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
-
 if __name__ == "__main__":
     import uvicorn
     print(f"🚀 Backend corriendo en http://0.0.0.0:{API_PORT}")
