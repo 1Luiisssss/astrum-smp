@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+mcrcon
+python-jose[cryptography]
+httpx
+python-dotenv
