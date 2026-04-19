@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 import os
+import json
+from datetime import datetime
 
 load_dotenv("config.env")
 
@@ -10,12 +12,25 @@ TOKEN        = os.getenv("DISCORD_TOKEN")
 GUILD_ID     = int(os.getenv("DISCORD_GUILD_ID"))
 ROLE_ID      = int(os.getenv("DISCORD_VERIFIED_ROLE_ID"))
 CHANNEL_ID   = int(os.getenv("DISCORD_VERIFY_CHANNEL_ID"))
+GALLERY_CHANNEL_ID = int(os.getenv("GALLERY_CHANNEL_ID", "1495267035842613458"))
+GALLERY_FILE = "gallery.json"
 
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# ─── HELPERS GALERÍA ──────────────────────────────
+def load_gallery():
+    if os.path.exists(GALLERY_FILE):
+        with open(GALLERY_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+def save_gallery(data):
+    with open(GALLERY_FILE, "w") as f:
+        json.dump(data, f, indent=2)
 
 # ─── CUANDO EL BOT ENCIENDE ───────────────────────
 @bot.event
@@ -24,6 +39,36 @@ async def on_ready():
     print(f"✅ Bot encendido como {bot.user}")
     print(f"   Servidor: {GUILD_ID}")
     print(f"   Rol verificado: {ROLE_ID}")
+
+# ─── LISTENER DE IMÁGENES EN #capturas ────────────
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    if message.channel.id == GALLERY_CHANNEL_ID:
+        for attachment in message.attachments:
+            if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
+                gallery = load_gallery()
+
+                entry = {
+                    "url":      attachment.url,
+                    "author":   message.author.display_name,
+                    "avatar":   str(message.author.display_avatar.url),
+                    "caption":  message.content or "",
+                    "date":     datetime.utcnow().strftime("%Y-%m-%d"),
+                    "message_id": str(message.id)
+                }
+
+                # Máximo 20 fotos, las más nuevas primero
+                gallery.insert(0, entry)
+                gallery = gallery[:20]
+                save_gallery(gallery)
+
+                await message.add_reaction("📸")
+                print(f"📸 Foto guardada de {message.author.display_name}: {attachment.url}")
+
+    await bot.process_commands(message)
 
 # ─── MENSAJE DE BIENVENIDA EN EL CANAL ────────────
 @bot.event
@@ -39,7 +84,7 @@ async def on_member_join(member):
             ),
             color=0x8B1A1A
         )
-        embed.set_footer(text="Astrum SMP · mc.hackos.dev:27022")
+        embed.set_footer(text="Astrum SMP · mc.hackos.dev")
         await channel.send(embed=embed)
 
 # ─── COMANDO /verificar ───────────────────────────
@@ -53,7 +98,6 @@ async def verificar(interaction: discord.Interaction):
     member = interaction.user
     role   = guild.get_role(ROLE_ID)
 
-    # Si ya tiene el rol
     if role in member.roles:
         await interaction.response.send_message(
             "✅ Ya estás verificado/a. Podés ir a la web y registrar tu nick.",
@@ -61,7 +105,6 @@ async def verificar(interaction: discord.Interaction):
         )
         return
 
-    # Dar el rol
     try:
         await member.add_roles(role)
         embed = discord.Embed(
@@ -70,11 +113,11 @@ async def verificar(interaction: discord.Interaction):
                 "Ya tenés acceso para registrarte.\n\n"
                 "**Siguiente paso:**\n"
                 "Volvé a la web del servidor y registrá tu nick de Minecraft.\n\n"
-                "🌐 `http://TU-IP-O-DOMINIO-DE-LA-WEB`"
+                "🌐 `https://astrum.qzz.io`"
             ),
             color=0x2ecc71
         )
-        embed.set_footer(text="Astrum SMP · mc.hackos.dev:27022")
+        embed.set_footer(text="Astrum SMP · mc.hackos.dev")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         print(f"✅ Verificado: {member.name} ({member.id})")
 
