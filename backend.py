@@ -29,10 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ─── SERVIR EL HTML ESTÁTICO ──────────────────────
-# Esto permite abrir el HTML desde http://localhost:8000
-app.mount("/", StaticFiles(directory=".", html=True), name="static")  # ← NUEVO
-
 # ─── MODELO DE DATOS ──────────────────────────────
 class WhitelistRequest(BaseModel):
     nick: str
@@ -102,6 +98,9 @@ async def get_gallery():
         raise HTTPException(status_code=500, detail=str(e))
 
 # ─── INICIAR ──────────────────────────────────────
+# StaticFiles SIEMPRE al final — es un catch-all
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 if __name__ == "__main__":
     import uvicorn
     print(f"🚀 Backend corriendo en http://0.0.0.0:{API_PORT}")
