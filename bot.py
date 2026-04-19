@@ -3,17 +3,18 @@ from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 import os
-import json
+import httpx
 from datetime import datetime
 
 load_dotenv("config.env")
 
-TOKEN        = os.getenv("DISCORD_TOKEN")
-GUILD_ID     = int(os.getenv("DISCORD_GUILD_ID"))
-ROLE_ID      = int(os.getenv("DISCORD_VERIFIED_ROLE_ID"))
-CHANNEL_ID   = int(os.getenv("DISCORD_VERIFY_CHANNEL_ID"))
+TOKEN              = os.getenv("DISCORD_TOKEN")
+GUILD_ID           = int(os.getenv("DISCORD_GUILD_ID"))
+ROLE_ID            = int(os.getenv("DISCORD_VERIFIED_ROLE_ID"))
+CHANNEL_ID         = int(os.getenv("DISCORD_VERIFY_CHANNEL_ID"))
 GALLERY_CHANNEL_ID = int(os.getenv("GALLERY_CHANNEL_ID", "1495267035842613458"))
-GALLERY_FILE = "gallery.json"
+SUPABASE_URL       = os.getenv("SUPABASE_URL")
+SUPABASE_KEY       = os.getenv("SUPABASE_KEY")
 
 intents = discord.Intents.default()
 intents.members = True
@@ -21,16 +22,18 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# ─── HELPERS GALERÍA ──────────────────────────────
-def load_gallery():
-    if os.path.exists(GALLERY_FILE):
-        with open(GALLERY_FILE, "r") as f:
-            return json.load(f)
-    return []
-
-def save_gallery(data):
-    with open(GALLERY_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+# ─── SUPABASE HELPER ──────────────────────────────
+async def save_photo(entry: dict):
+    url = f"{SUPABASE_URL}/rest/v1/gallery"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+    }
+    async with httpx.AsyncClient() as client:
+        r = await client.post(url, json=entry, headers=headers)
+        return r.status_code in (200, 201)
 
 # ─── CUANDO EL BOT ENCIENDE ───────────────────────
 @bot.event
@@ -49,28 +52,24 @@ async def on_message(message):
     if message.channel.id == GALLERY_CHANNEL_ID:
         for attachment in message.attachments:
             if any(attachment.filename.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']):
-                gallery = load_gallery()
-
                 entry = {
-                    "url":      attachment.url,
-                    "author":   message.author.display_name,
-                    "avatar":   str(message.author.display_avatar.url),
-                    "caption":  message.content or "",
-                    "date":     datetime.utcnow().strftime("%Y-%m-%d"),
+                    "url":        attachment.url,
+                    "author":     message.author.display_name,
+                    "avatar":     str(message.author.display_avatar.url),
+                    "caption":    message.content or "",
+                    "date":       datetime.utcnow().strftime("%Y-%m-%d"),
                     "message_id": str(message.id)
                 }
-
-                # Máximo 20 fotos, las más nuevas primero
-                gallery.insert(0, entry)
-                gallery = gallery[:20]
-                save_gallery(gallery)
-
-                await message.add_reaction("📸")
-                print(f"📸 Foto guardada de {message.author.display_name}: {attachment.url}")
+                ok = await save_photo(entry)
+                if ok:
+                    await message.add_reaction("📸")
+                    print(f"📸 Foto guardada en Supabase: {message.author.display_name}")
+                else:
+                    print(f"❌ Error guardando foto en Supabase")
 
     await bot.process_commands(message)
 
-# ─── MENSAJE DE BIENVENIDA EN EL CANAL ────────────
+# ─── MENSAJE DE BIENVENIDA ────────────────────────
 @bot.event
 async def on_member_join(member):
     channel = bot.get_channel(CHANNEL_ID)
@@ -120,10 +119,9 @@ async def verificar(interaction: discord.Interaction):
         embed.set_footer(text="Astrum SMP · mc.hackos.dev")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         print(f"✅ Verificado: {member.name} ({member.id})")
-
     except discord.Forbidden:
         await interaction.response.send_message(
-            "❌ Error: el bot no tiene permisos para asignar roles. Avisale al admin.",
+            "❌ Error: el bot no tiene permisos para asignar roles.",
             ephemeral=True
         )
 
