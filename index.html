@@ -648,8 +648,14 @@
     const loading = document.getElementById('authLoading');
     btn.style.display = 'none';
     loading.classList.add('show');
-    // Pequeño delay para mostrar el spinner antes de redirigir
-    setTimeout(() => { window.location.href = `${API_BASE}/auth/discord`; }, 400);
+    // Va directo a Discord sin pasar por el backend
+    const params = new URLSearchParams({
+      client_id: '1495109187284238346',
+      redirect_uri: 'https://astrum-smp-api.onrender.com/auth/callback',
+      response_type: 'code',
+      scope: 'identify guilds'
+    });
+    setTimeout(() => { window.location.href = `https://discord.com/api/oauth2/authorize?${params}`; }, 400);
   }
 
   // Verifica un token ya guardado con el backend
