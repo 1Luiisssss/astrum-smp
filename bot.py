@@ -65,10 +65,10 @@ async def on_member_join(member):
     welcome = bot.get_channel(WELCOME_CHANNEL_ID)
     if welcome:
         embed = discord.Embed(
-            title="¡Bienvenido/a a Astrum SMP! ⚔️",
+            title="¡Bienvenido/a a Astrum SMP! ",
             description=(
                 f"Hola {member.mention}, nos alegra tenerte aquí.\n\n"
-                f"Dirígete a <#{CHANNEL_ID}> y usa `/verificar` para obtener acceso al servidor."
+                f"Dirígete a <#1495115813135450132> y usa `/verificar` para obtener acceso al servidor."
             ),
             color=0x8B1A1A
         )
