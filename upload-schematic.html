@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astrum SMP — Subir Schematic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:#050506;--black-2:#0a0a0c;--black-3:#111114;
+    --red:#8B0000;--red-mid:#a31515;--red-bright:#c0392b;
+    --red-glow:rgba(139,0,0,0.4);--red-glass:rgba(139,0,0,0.12);
+    --white:#f0ece8;--white-dim:rgba(240,236,232,0.55);--white-faint:rgba(240,236,232,0.1);
+    --glass:rgba(255,255,255,0.03);--glass-border:rgba(255,255,255,0.07);--glass-border-red:rgba(139,0,0,0.35);
+    --green:#22c55e;--green-glass:rgba(34,197,94,0.08);--green-border:rgba(34,197,94,0.2);
+    --font-display:'Bebas Neue',sans-serif;--font-body:'Syne',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.6;}
+  ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--black);}::-webkit-scrollbar-thumb{background:var(--red);border-radius:2px;}
+
+  /* AUTH SCREEN */
+  .auth-screen{display:flex;flex-direction:column;align-items:center;gap:20px;animation:fadeIn 0.4s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .logo{font-family:var(--font-display);font-size:2rem;letter-spacing:0.12em;color:var(--white);display:flex;align-items:center;gap:10px;}
+  .logo-dot{width:8px;height:8px;background:var(--red-bright);border-radius:50%;box-shadow:0 0 12px var(--red-glow);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(0.8);}}
+  .auth-tag{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--red-bright);}
+  .auth-box{background:var(--black-2);border:1px solid var(--glass-border);border-radius:8px;padding:32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px;}
+  .auth-label{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--white-dim);margin-bottom:6px;display:block;}
+  .auth-input{width:100%;background:var(--black-3);border:1px solid var(--glass-border);border-radius:4px;padding:12px 14px;font-family:var(--font-mono);font-size:0.78rem;color:var(--white);outline:none;transition:border-color 0.2s;letter-spacing:0.05em;}
+  .auth-input:focus{border-color:var(--glass-border-red);}
+  .auth-btn{width:100%;background:var(--red);color:var(--white);font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;padding:13px;border:none;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+  .auth-btn:hover{background:var(--red-bright);box-shadow:0 4px 20px var(--red-glow);}
+  .auth-error{font-family:var(--font-mono);font-size:0.62rem;color:var(--red-bright);letter-spacing:0.1em;text-align:center;display:none;}
+
+  /* UPLOAD PANEL */
+  .panel{display:none;width:100%;max-width:680px;animation:fadeIn 0.4s ease;}
+  .panel.show{display:block;}
+  .panel-header{margin-bottom:32px;}
+  .panel-tag{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--red-bright);margin-bottom:8px;}
+  .panel-title{font-family:var(--font-display);font-size:3.5rem;letter-spacing:0.04em;line-height:1;}
+  .panel-sub{font-family:var(--font-mono);font-size:0.65rem;color:var(--white-dim);letter-spacing:0.1em;margin-top:10px;}
+  .back-link{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.15em;color:var(--white-dim);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;transition:color 0.2s;}
+  .back-link:hover{color:var(--white);}
+
+  /* FORM */
+  .form-card{background:var(--black-2);border:1px solid var(--glass-border);border-radius:8px;padding:32px;display:flex;flex-direction:column;gap:20px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group.full{grid-column:1/-1;}
+  label{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--white-dim);}
+  input[type=text],input[type=number],select,textarea{background:var(--black-3);border:1px solid var(--glass-border);border-radius:4px;padding:11px 14px;font-family:var(--font-mono);font-size:0.75rem;color:var(--white);outline:none;transition:border-color 0.2s;width:100%;}
+  input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--glass-border-red);}
+  select option{background:var(--black-3);}
+  textarea{resize:vertical;min-height:80px;line-height:1.6;}
+
+  /* FILE DROP */
+  .file-drop{border:2px dashed var(--glass-border);border-radius:6px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;}
+  .file-drop:hover,.file-drop.drag{border-color:var(--glass-border-red);background:var(--red-glass);}
+  .file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .file-icon{font-size:2rem;margin-bottom:8px;opacity:0.5;}
+  .file-label{font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;color:var(--white-dim);text-transform:uppercase;}
+  .file-name{font-family:var(--font-mono);font-size:0.72rem;color:var(--red-bright);margin-top:6px;letter-spacing:0.05em;display:none;}
+
+  /* SUBMIT */
+  .submit-btn{width:100%;background:var(--red);color:var(--white);font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;padding:15px;border:none;border-radius:4px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .submit-btn:hover:not(:disabled){background:var(--red-bright);box-shadow:0 4px 24px var(--red-glow);}
+  .submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* PROGRESS */
+  .progress-wrap{display:none;flex-direction:column;gap:8px;}
+  .progress-bar-bg{background:var(--black-3);border-radius:2px;height:3px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:var(--red-bright);border-radius:2px;transition:width 0.3s;width:0%;}
+  .progress-text{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;color:var(--white-dim);}
+
+  /* RESULT */
+  .result{display:none;background:var(--green-glass);border:1px solid var(--green-border);border-radius:6px;padding:20px;font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--green);line-height:1.7;}
+  .result.error{background:var(--red-glass);border-color:var(--glass-border-red);color:var(--red-bright);}
+
+  /* HISTORIAL */
+  .history-title{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--red-bright);margin:32px 0 12px;}
+  .history-list{display:flex;flex-direction:column;gap:8px;}
+  .history-item{background:var(--glass);border:1px solid var(--glass-border);border-radius:4px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .history-name{font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.05em;}
+  .history-meta{font-family:var(--font-mono);font-size:0.58rem;color:var(--white-dim);letter-spacing:0.1em;}
+  .history-cat{font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--red-bright);background:var(--red-glass);border:1px solid var(--glass-border-red);padding:3px 8px;border-radius:2px;}
+  .history-empty{font-family:var(--font-mono);font-size:0.62rem;color:var(--white-dim);letter-spacing:0.1em;text-align:center;padding:20px;}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-screen" id="authScreen">
+  <div class="logo"><div class="logo-dot"></div>ASTRUM SMP</div>
+  <div class="auth-tag">// Panel de Staff</div>
+  <div class="auth-box">
+    <div>
+      <label class="auth-label">Clave de API</label>
+      <input class="auth-input" type="password" id="secretInput" placeholder="API_SECRET" onkeydown="if(event.key==='Enter')checkAuth()">
+    </div>
+    <button class="auth-btn" onclick="checkAuth()">[ Ingresar ]</button>
+    <div class="auth-error" id="authError">Clave incorrecta.</div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="panel" id="panel">
+  <a class="back-link" href="schematics.html">← Volver a Schematics</a>
+  <div class="panel-header">
+    <div class="panel-tag">// Staff · Subir archivo</div>
+    <h1 class="panel-title">NUEVO SCHEMATIC</h1>
+    <p class="panel-sub">Solo accesible para staff. El archivo se sube a Supabase Storage.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="fName" placeholder="Ej: Granja de Creepers">
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="fCategory">
+          <option value="mobs">Granjas de mobs</option>
+          <option value="recursos">Granjas de recursos</option>
+          <option value="redstone">Redstone / Automatización</option>
+          <option value="almacenamiento">Almacenamiento</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group full">
+      <label>Descripción</label>
+      <textarea id="fDesc" placeholder="Describe la granja, su eficiencia, cómo funciona..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Autor</label>
+        <input type="text" id="fAuthor" placeholder="Ej: Staff / NickMC">
+      </div>
+      <div class="form-group">
+        <label>Versión MC</label>
+        <input type="text" id="fVersion" value="1.21.1">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Bloques totales</label>
+        <input type="number" id="fBlocks" placeholder="Ej: 3240" min="0">
+      </div>
+      <div class="form-group">
+        <label>Tamaño (XxYxZ)</label>
+        <input type="text" id="fSize" placeholder="Ej: 16x24x16">
+      </div>
+    </div>
+
+    <!-- FILE DROP -->
+    <div class="form-group full">
+      <label>Archivo .litematic</label>
+      <div class="file-drop" id="fileDrop">
+        <input type="file" id="fFile" accept=".litematic,.schematic,.nbt"
+          onchange="onFileChange(this)"
+          ondragover="document.getElementById('fileDrop').classList.add('drag')"
+          ondragleave="document.getElementById('fileDrop').classList.remove('drag')"
+          ondrop="document.getElementById('fileDrop').classList.remove('drag')">
+        <div class="file-icon">📦</div>
+        <div class="file-label">Arrastra el .litematic aquí o haz click</div>
+        <div class="file-name" id="fileName"></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">Subiendo...</div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result" id="result"></div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitSchematic()">
+      <div class="spinner" id="spinner"></div>
+      <span id="submitLabel">[ Subir Schematic ]</span>
+    </button>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="history-title">// Schematics subidos</div>
+  <div class="history-list" id="historyList">
+    <div class="history-empty">Cargando...</div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://astrum-smp-api.onrender.com';
+let API_SECRET = '';
+
+// ─── AUTH ─────────────────────────────────────────
+function checkAuth(){
+  const val = document.getElementById('secretInput').value.trim();
+  if(!val){ showAuthError('Ingresa la clave.'); return; }
+  API_SECRET = val;
+  // Verificar contra el backend
+  fetch(`${API_BASE}/schematics`, {
+    headers: { 'x-api-secret': API_SECRET }
+  }).then(r => {
+    if(r.ok || r.status === 200){
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('panel').classList.add('show');
+      loadHistory();
+    } else {
+      showAuthError('Clave incorrecta.');
+    }
+  }).catch(() => {
+    // Si el endpoint responde (aunque sea sin auth), es que la API está viva
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('panel').classList.add('show');
+    loadHistory();
+  });
+}
+function showAuthError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+document.getElementById('secretInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') checkAuth();
+});
+
+// ─── FILE ─────────────────────────────────────────
+function onFileChange(input){
+  const fn = document.getElementById('fileName');
+  if(input.files[0]){
+    fn.textContent = input.files[0].name;
+    fn.style.display = 'block';
+    document.querySelector('.file-label').style.display = 'none';
+    document.querySelector('.file-icon').style.display = 'none';
+  }
+}
+
+// ─── SUBMIT ───────────────────────────────────────
+async function submitSchematic(){
+  const name     = document.getElementById('fName').value.trim();
+  const category = document.getElementById('fCategory').value;
+  const desc     = document.getElementById('fDesc').value.trim();
+  const author   = document.getElementById('fAuthor').value.trim();
+  const version  = document.getElementById('fVersion').value.trim();
+  const blocks   = parseInt(document.getElementById('fBlocks').value) || 0;
+  const size     = document.getElementById('fSize').value.trim();
+  const file     = document.getElementById('fFile').files[0];
+
+  if(!name || !desc || !author || !file){
+    showResult('Completa todos los campos y selecciona el archivo.', true);
+    return;
+  }
+
+  setLoading(true);
+  showProgress(0, 'Preparando archivo...');
+
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('category', category);
+  formData.append('desc', desc);
+  formData.append('author', author);
+  formData.append('mc_version', version);
+  formData.append('blocks', blocks);
+  formData.append('size', size);
+  formData.append('file', file);
+
+  try {
+    // XMLHttpRequest para poder mostrar progreso real
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${API_BASE}/schematics/upload`);
+      xhr.setRequestHeader('x-api-secret', API_SECRET);
+
+      xhr.upload.addEventListener('progress', e => {
+        if(e.lengthComputable){
+          const pct = Math.round((e.loaded / e.total) * 100);
+          showProgress(pct, `Subiendo... ${pct}%`);
+        }
+      });
+
+      xhr.onload = () => {
+        if(xhr.status === 200 || xhr.status === 201){
+          resolve(JSON.parse(xhr.responseText));
+        } else {
+          reject(new Error(xhr.responseText));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Error de red'));
+      xhr.send(formData);
+    });
+
+    showProgress(100, 'Completado.');
+    showResult(`✓ "${name}" subido correctamente. Ya aparece en la página de Schematics.`, false);
+    resetForm();
+    loadHistory();
+  } catch(err) {
+    showResult(`✗ Error: ${err.message}`, true);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function setLoading(on){
+  const btn = document.getElementById('submitBtn');
+  const spinner = document.getElementById('spinner');
+  const label = document.getElementById('submitLabel');
+  btn.disabled = on;
+  spinner.style.display = on ? 'block' : 'none';
+  label.textContent = on ? 'Subiendo...' : '[ Subir Schematic ]';
+}
+
+function showProgress(pct, text){
+  const wrap = document.getElementById('progressWrap');
+  wrap.style.display = 'flex';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = text;
+}
+
+function showResult(msg, isError){
+  const el = document.getElementById('result');
+  el.textContent = msg;
+  el.className = 'result' + (isError ? ' error' : '');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function resetForm(){
+  document.getElementById('fName').value = '';
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fAuthor').value = '';
+  document.getElementById('fBlocks').value = '';
+  document.getElementById('fSize').value = '';
+  document.getElementById('fFile').value = '';
+  document.getElementById('fileName').style.display = 'none';
+  document.querySelector('.file-label').style.display = 'block';
+  document.querySelector('.file-icon').style.display = 'block';
+  document.getElementById('progressWrap').style.display = 'none';
+}
+
+// ─── HISTORIAL ────────────────────────────────────
+async function loadHistory(){
+  const list = document.getElementById('historyList');
+  try {
+    const r = await fetch(`${API_BASE}/schematics`);
+    const data = await r.json();
+    if(!data.length){
+      list.innerHTML = '<div class="history-empty">Sin schematics aún.</div>';
+      return;
+    }
+    list.innerHTML = data.map(s => `
+      <div class="history-item">
+        <div>
+          <div class="history-name">${s.name}</div>
+          <div class="history-meta">${s.author} · ${s.mc_version} · ${(s.downloads||0)} descargas</div>
+        </div>
+        <span class="history-cat">${s.category}</span>
+      </div>
+    `).join('');
+  } catch {
+    list.innerHTML = '<div class="history-empty">Error cargando historial.</div>';
+  }
+}
+</script>
+</body>
+</html>
