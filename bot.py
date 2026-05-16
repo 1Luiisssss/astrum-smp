@@ -371,7 +371,83 @@ async def reporte(interaction: discord.Interaction, nick: str, motivo: str):
     await canal_staff.send(embed=embed)
     await interaction.response.send_message("✅ Reporte enviado al staff. Gracias.", ephemeral=True)
 
-@bot.tree.command(name="encuesta", description="Crear una encuesta con dos opciones", guild=discord.Object(id=GUILD_ID))
+@bot.tree.command(name="server-info", description="Ver información del servidor de Minecraft", guild=discord.Object(id=GUILD_ID))
+async def server_info(interaction: discord.Interaction):
+    await interaction.response.defer()
+    try:
+        # Jugadores online via API
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"https://api.mcsrvstat.us/3/{MC_IP}", timeout=10)
+            data = r.json()
+
+        online = data.get("online", False)
+        players = data.get("players", {})
+        jugadores = players.get("online", 0)
+        maximo = players.get("max", 20)
+        version = data.get("version", MC_VERSION)
+        lista = players.get("list", [])
+
+        # TPS via Spark RCON
+        tps_text = "N/A"
+        mspt_text = "N/A"
+        try:
+            spark_resp = rcon_cmd("spark tps")
+            import re
+            clean = re.sub(r'§.', '', spark_resp)
+            nums = re.findall(r'\d+\.?\d*', clean)
+            if nums:
+                tps_text = f"{nums[0]} TPS"
+            mspt_resp = rcon_cmd("spark mspt")
+            clean_mspt = re.sub(r'§.', '', mspt_resp)
+            mspt_nums = re.findall(r'\d+\.?\d*', clean_mspt)
+            if mspt_nums:
+                mspt_text = f"{mspt_nums[0]} ms"
+        except Exception:
+            pass
+
+        if not online:
+            embed = discord.Embed(
+                title="Astrum SMP — Fuera de línea",
+                description="El servidor está caído o en mantenimiento.",
+                color=0x2C2F33,
+                timestamp=datetime.now(timezone.utc)
+            )
+            embed.set_footer(text=f"Astrum SMP · {MC_IP}")
+            await interaction.followup.send(embed=embed)
+            return
+
+        try:
+            tps_val = float(tps_text.split()[0])
+            color = 0x2C2F33
+        except Exception:
+            color = 0x2C2F33
+
+        embed = discord.Embed(
+            title="Astrum SMP",
+            color=color,
+            timestamp=datetime.now(timezone.utc)
+        )
+
+        embed.add_field(name="IP", value=f"`{MC_IP}`", inline=True)
+        embed.add_field(name="Version", value=f"`{version}`", inline=True)
+        embed.add_field(name="Players", value=f"`{jugadores} / {maximo}`", inline=True)
+        embed.add_field(name="TPS", value=f"`{tps_text}`", inline=True)
+        embed.add_field(name="MSPT", value=f"`{mspt_text}`", inline=True)
+        embed.add_field(name="Status", value="`Online`", inline=True)
+
+        if lista:
+            nombres = "\n".join([f"{p['name']}" for p in lista[:10]])
+            embed.add_field(name=f"Online — {jugadores}", value=f"```{nombres}```", inline=False)
+
+        embed.set_footer(text=f"Astrum SMP · {MC_IP}")
+        await interaction.followup.send(embed=embed)
+
+    except Exception as e:
+        await interaction.followup.send(f"Error: {e}")
+
+
+
+
 async def encuesta(interaction: discord.Interaction, pregunta: str, opcion1: str, opcion2: str):
     embed = discord.Embed(title=f"📊 {pregunta}", color=0x9b59b6, timestamp=datetime.now(timezone.utc))
     embed.add_field(name="🅰️ Opción 1", value=opcion1, inline=True)
