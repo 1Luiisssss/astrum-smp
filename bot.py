@@ -439,6 +439,44 @@ async def server_info(interaction: discord.Interaction):
             nombres = "\n".join([f"{p['name']}" for p in lista[:10]])
             embed.add_field(name=f"Online — {jugadores}", value=f"```{nombres}```", inline=False)
 
+        mods = [
+            "Cardboard", "Carpet AMS Addition", "Carpet Extra", "Cloth Config",
+            "Clumps", "Fabric API", "Fabric Carpet", "FerriteCore", "Floodgate",
+            "iCommon", "Lithium", "Potatoptimize", "Quick Pack", "ScalableLux",
+            "ShulkerFix", "Spark"
+        ]
+        embed.add_field(name=f"Mods — {len(mods)}", value=f"```{chr(10).join(mods)}```", inline=False)
+
+        # Carpet rules via RCON
+        try:
+            import re
+            carpet_resp = rcon_cmd("carpet list")
+            clean_carpet = re.sub(r'§.', '', carpet_resp)
+            lines = clean_carpet.splitlines()
+            rules = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split()
+                if len(parts) >= 2 and parts[-1].lower() not in ("false", "carpet"):
+                    rules.append(f"{parts[0]}: {parts[-1]}")
+            if rules:
+                embed.add_field(name="Carpet Rules", value=f"```{chr(10).join(rules[:15])}```", inline=False)
+        except Exception:
+            pass
+
+        # Datapacks via RCON
+        try:
+            dp_resp = rcon_cmd("datapack list enabled")
+            clean_dp = re.sub(r'§.', '', dp_resp)
+            packs = re.findall(r'\[([^\]]+)\]', clean_dp)
+            packs = [p for p in packs if p not in ("vanilla", "file/vanilla")]
+            if packs:
+                embed.add_field(name="Datapacks", value=f"```{chr(10).join(packs[:10])}```", inline=False)
+        except Exception:
+            pass
+
         embed.set_footer(text=f"Astrum SMP · {MC_IP}")
         await interaction.followup.send(embed=embed)
 
