@@ -22,7 +22,7 @@ SUPABASE_KEY       = os.getenv("SUPABASE_KEY")
 RCON_HOST          = os.getenv("RCON_HOST")
 RCON_PASSWORD      = os.getenv("RCON_PASSWORD")
 RCON_PORT          = int(os.getenv("RCON_PORT", "25575"))
-MC_IP              = "mc.hackos.dev:27022"
+MC_IP              = "mc.hackos.dev:27015"
 MC_VERSION         = "1.21.11"
 
 intents = discord.Intents.default()
