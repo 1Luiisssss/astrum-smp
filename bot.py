@@ -69,6 +69,7 @@ muted_db: dict[int, int] = {}          # {user_id: role_id_guardado}
 async def on_ready():
     await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
     print(f"Bot encendido como {bot.user}")
+    bot.loop.create_task(actualizar_estado())
 
 @bot.event
 async def on_message(message):
@@ -641,5 +642,23 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
         await interaction.response.send_message("❌ No tienes permisos para usar este comando.", ephemeral=True)
     else:
         await interaction.response.send_message(f"❌ Error inesperado: {error}", ephemeral=True)
+
+async def actualizar_estado():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(f"https://api.mcsrvstat.us/3/{MC_IP}", timeout=10)
+                data = r.json()
+            if data.get("online"):
+                jugadores = data["players"].get("online", 0)
+                maximo = data["players"].get("max", 100)
+                actividad = discord.Game(name=f"AstrumSMP | {jugadores}/{maximo} jugadores")
+            else:
+                actividad = discord.Game(name="AstrumSMP | Servidor offline")
+            await bot.change_presence(activity=actividad)
+        except Exception:
+            pass
+        await asyncio.sleep(60)
 
 bot.run(TOKEN)
