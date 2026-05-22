@@ -50,9 +50,16 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # HELPERS
 # ──────────────────────────────────────────────
 
-def rcon_cmd(command: str) -> str:
-    with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT) as rcon:
+def _rcon_cmd_sync(command: str) -> str:
+    with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT, timeout=5) as rcon:
         return rcon.command(command)
+
+async def rcon_cmd(command: str) -> str:
+    loop = asyncio.get_event_loop()
+    return await asyncio.wait_for(
+        loop.run_in_executor(None, _rcon_cmd_sync, command),
+        timeout=6
+    )
 
 async def save_photo(entry: dict):
     url = f"{SUPABASE_URL}/rest/v1/gallery"
@@ -292,8 +299,8 @@ async def anunciar(interaction: discord.Interaction, titulo: str, mensaje: str):
 async def ban_mc(interaction: discord.Interaction, nick: str, razon: str = "Sin razón"):
     await interaction.response.defer(ephemeral=True)
     try:
-        rcon_cmd(f"ban {nick} {razon}")
-        rcon_cmd(f"whitelist remove {nick}")
+        await rcon_cmd(f"ban {nick} {razon}")
+        await rcon_cmd(f"whitelist remove {nick}")
         embed = discord.Embed(title="🔨 Jugador baneado", color=0xe74c3c)
         embed.add_field(name="Nick", value=f"`{nick}`", inline=True)
         embed.add_field(name="Razón", value=razon, inline=True)
@@ -307,7 +314,7 @@ async def ban_mc(interaction: discord.Interaction, nick: str, razon: str = "Sin 
 async def kick_mc(interaction: discord.Interaction, nick: str, razon: str = "Sin razón"):
     await interaction.response.defer(ephemeral=True)
     try:
-        rcon_cmd(f"kick {nick} {razon}")
+        await rcon_cmd(f"kick {nick} {razon}")
         embed = discord.Embed(title="👢 Jugador expulsado", color=0xe67e22)
         embed.add_field(name="Nick", value=f"`{nick}`", inline=True)
         embed.add_field(name="Razón", value=razon, inline=True)
@@ -321,7 +328,7 @@ async def kick_mc(interaction: discord.Interaction, nick: str, razon: str = "Sin
 async def whitelist_cmd(interaction: discord.Interaction, nick: str, accion: str = "add"):
     await interaction.response.defer(ephemeral=True)
     try:
-        resp = rcon_cmd(f"whitelist {accion} {nick}")
+        resp = await rcon_cmd(f"whitelist {accion} {nick}")
         await interaction.followup.send(f"✅ RCON: `{resp}`", ephemeral=True)
     except Exception as e:
         await interaction.followup.send(f"Error RCON: {e}", ephemeral=True)
@@ -331,7 +338,7 @@ async def whitelist_cmd(interaction: discord.Interaction, nick: str, accion: str
 async def rcon_command(interaction: discord.Interaction, comando: str):
     await interaction.response.defer(ephemeral=True)
     try:
-        resp = rcon_cmd(comando)
+        resp = await rcon_cmd(comando)
         embed = discord.Embed(title="⚙️ Comando ejecutado", color=0x2ecc71)
         embed.add_field(name="Comando", value=f"`{comando}`", inline=False)
         embed.add_field(name="Respuesta", value=f"```{resp or 'Sin respuesta'}```", inline=False)
@@ -412,7 +419,7 @@ async def jugadores(interaction: discord.Interaction):
 async def tps(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     try:
-        resp = rcon_cmd("tps")
+        resp = await rcon_cmd("tps")
         embed = discord.Embed(title="⚡ TPS del servidor", description=f"```{resp}```", color=0x3498db)
         embed.set_footer(text=f"Astrum SMP · {MC_IP}")
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -453,13 +460,13 @@ async def server_info(interaction: discord.Interaction):
         tps_text = "N/A"
         mspt_text = "N/A"
         try:
-            spark_resp = rcon_cmd("spark tps")
+            spark_resp = await rcon_cmd("spark tps")
             import re
             clean = re.sub(r'§.', '', spark_resp)
             nums = re.findall(r'\d+\.?\d*', clean)
             if nums:
                 tps_text = f"{nums[0]} TPS"
-            mspt_resp = rcon_cmd("spark mspt")
+            mspt_resp = await rcon_cmd("spark mspt")
             clean_mspt = re.sub(r'§.', '', mspt_resp)
             mspt_nums = re.findall(r'\d+\.?\d*', clean_mspt)
             if mspt_nums:
@@ -512,7 +519,7 @@ async def server_info(interaction: discord.Interaction):
         # Carpet rules via RCON
         try:
             import re
-            carpet_resp = rcon_cmd("carpet list")
+            carpet_resp = await rcon_cmd("carpet list")
             clean_carpet = re.sub(r'§.', '', carpet_resp)
             lines = clean_carpet.splitlines()
             rules = []
@@ -530,7 +537,7 @@ async def server_info(interaction: discord.Interaction):
 
         # Datapacks via RCON
         try:
-            dp_resp = rcon_cmd("datapack list enabled")
+            dp_resp = await rcon_cmd("datapack list enabled")
             clean_dp = re.sub(r'§.', '', dp_resp)
             packs = re.findall(r'\[([^\]]+)\]', clean_dp)
             packs = [p for p in packs if p not in ("vanilla", "file/vanilla")]
@@ -660,8 +667,8 @@ async def clearwarns(interaction: discord.Interaction, miembro: discord.Member):
 async def unban_mc(interaction: discord.Interaction, nick: str):
     await interaction.response.defer(ephemeral=True)
     try:
-        resp = rcon_cmd(f"pardon {nick}")
-        rcon_cmd(f"whitelist add {nick}")
+        resp = await rcon_cmd(f"pardon {nick}")
+        await rcon_cmd(f"whitelist add {nick}")
         await interaction.followup.send(f"✅ `{nick}` desbaneado y añadido a whitelist.\nRCON: `{resp}`", ephemeral=True)
     except Exception as e:
         await interaction.followup.send(f"Error RCON: {e}", ephemeral=True)
@@ -671,7 +678,7 @@ async def unban_mc(interaction: discord.Interaction, nick: str):
 async def broadcast(interaction: discord.Interaction, mensaje: str):
     await interaction.response.defer(ephemeral=True)
     try:
-        rcon_cmd(f'say {mensaje}')
+        await rcon_cmd(f'say {mensaje}')
         await interaction.followup.send(f"✅ Mensaje enviado al servidor: `{mensaje}`", ephemeral=True)
     except Exception as e:
         await interaction.followup.send(f"Error RCON: {e}", ephemeral=True)
@@ -685,7 +692,7 @@ async def mantenimiento(interaction: discord.Interaction, estado: str):
         await interaction.followup.send("❌ Usa `on` o `off`.", ephemeral=True)
         return
     try:
-        rcon_cmd(f"whitelist {'on' if estado == 'on' else 'off'}")
+        await rcon_cmd(f"whitelist {'on' if estado == 'on' else 'off'}")
         emoji = "🔧" if estado == "on" else "✅"
         msg = "activado" if estado == "on" else "desactivado"
         await interaction.followup.send(f"{emoji} Mantenimiento **{msg}**. Whitelist: `{estado}`", ephemeral=True)
