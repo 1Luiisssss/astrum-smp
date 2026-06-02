@@ -1,0 +1,646 @@
+<!--
+  AstrumSMP — Chronicle
+  Stack: HTML5 / CSS3 / Vanilla JS
+  Security: CSP meta, XSS prevention
+  Fonts: Cormorant Garamond + IBM Plex Mono
+  Aesthetic: Dark Editorial / Archive
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astrum SMP</title>
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src https://fonts.gstatic.com; img-src 'self' data: https: https://crafatar.com; connect-src 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta name="description" content="AstrumSMP — Registro visual de un mundo construido por sus jugadores.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:           #080808;
+      --surface:      #111111;
+      --surface-2:    #161616;
+      --border:       #1a1a1a;
+      --border-mid:   #262626;
+      --accent:       #8b1a1a;
+      --accent-bright:#cc2222;
+      --text:         #e2ddd6;
+      --text-muted:   #555555;
+      --text-dim:     #2e2e2e;
+      --mono:         'IBM Plex Mono', monospace;
+      --serif:        'Cormorant Garamond', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* CURSOR */
+    .cursor {
+      width: 7px; height: 7px;
+      background: var(--accent-bright);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .2s ease, height .2s ease, background .2s ease;
+      mix-blend-mode: screen;
+    }
+    .cursor.active {
+      width: 22px; height: 22px;
+      background: transparent;
+      border: 1px solid var(--accent-bright);
+    }
+
+    /* WRAPPER */
+    .wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* HEADER */
+    header {
+      padding: 5rem 0 3rem;
+      border-bottom: 0.5px solid var(--border);
+      text-align: center;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .site-title .main {
+      font-family: var(--serif);
+      font-size: clamp(52px, 9vw, 90px);
+      font-weight: 700;
+      letter-spacing: 12px;
+      color: var(--text);
+      display: block;
+      line-height: 1;
+    }
+    .site-title .sub {
+      font-family: var(--serif);
+      font-size: clamp(30px, 5vw, 52px);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 16px;
+      color: var(--accent);
+      display: block;
+      margin-top: -6px;
+      line-height: 1;
+    }
+    .header-tagline {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 4px;
+      margin-top: 20px;
+    }
+
+    /* ABOUT */
+    .about {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 2rem;
+      padding: 2rem 0;
+      border-bottom: 0.5px solid var(--border);
+      align-items: start;
+    }
+    .about-label {
+      font-size: 9px;
+      color: var(--accent-bright);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding-top: 3px;
+      line-height: 1.9;
+    }
+    .about-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 2.1;
+      font-weight: 300;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 2rem 0 1.2rem;
+    }
+    .section-label h2 {
+      font-size: 9px;
+      font-family: var(--mono);
+      font-weight: 400;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .section-label span {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px 14px;
+      padding-bottom: 3rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .grid-item {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .grid-thumb {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--surface-2);
+      border: 0.5px solid var(--border-mid);
+    }
+
+    .grid-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(.5) saturate(.7);
+      transform: scale(1.03);
+      transition: transform .55s cubic-bezier(.25,.46,.45,.94), filter .45s ease;
+    }
+    .grid-thumb .placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .3s;
+    }
+    .grid-thumb .placeholder svg { opacity: .06; transition: opacity .3s; }
+
+    .grid-item:hover .grid-thumb img {
+      filter: brightness(.85) saturate(1);
+      transform: scale(1.09);
+    }
+    .grid-item:hover .placeholder { background: var(--surface); }
+    .grid-item:hover .placeholder svg { opacity: .13; }
+
+    .grid-thumb::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .4s ease;
+    }
+    .grid-item:hover .grid-thumb::after { transform: scaleX(1); }
+
+    .grid-info { display: flex; flex-direction: column; gap: 3px; }
+    .grid-tag  { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+    .grid-name {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.25;
+      transition: color .2s;
+    }
+    .grid-item:hover .grid-name { color: #fff; }
+    .grid-dates { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+
+    /* MIEMBROS */
+    .members { padding: 2rem 0 4rem; }
+
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 0;
+      border-top: 0.5px solid var(--border);
+      transition: padding .2s, background .2s;
+      cursor: default;
+    }
+    .member-row:last-child { border-bottom: 0.5px solid var(--border); }
+    .member-row:hover {
+      background: var(--surface);
+      padding-left: 12px;
+      margin: 0 -12px;
+      padding-right: 12px;
+    }
+
+    .member-head {
+      width: 32px; height: 32px;
+      flex-shrink: 0;
+      image-rendering: pixelated;
+      border-radius: 2px;
+      overflow: hidden;
+      background: var(--surface-2);
+      border: 0.5px solid var(--border-mid);
+    }
+    .member-head img {
+      width: 100%; height: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+    .head-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .member-name { font-size: 12px; color: var(--text-muted); flex: 1; letter-spacing: 1px; }
+    .member-role { font-size: 8px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
+    .member-role.admin { color: var(--accent); }
+    .member-role.owner { color: var(--accent-bright); }
+
+    /* FOOTER */
+    footer {
+      border-top: 0.5px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer p   { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+    footer span { font-size: 9px; color: var(--accent); letter-spacing: 2px; }
+
+    /* MODAL */
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.93);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+      padding: 2rem;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 0.5px solid var(--border-mid);
+      max-width: 700px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      transform: translateY(18px);
+      transition: transform .35s cubic-bezier(.25,.46,.45,.94);
+    }
+    .modal-bg.open .modal { transform: translateY(0); }
+
+    .modal-img {
+      aspect-ratio: 4/3;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .modal-img img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.7); }
+    .modal-img .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .modal-img .placeholder svg { opacity: .05; }
+
+    .modal-body {
+      padding: 2rem 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border-left: 0.5px solid var(--border);
+    }
+    .modal-tag   { font-size: 8px; letter-spacing: 3px; color: var(--accent-bright); text-transform: uppercase; }
+    .modal-title { font-family: var(--serif); font-size: 24px; font-weight: 700; line-height: 1.2; color: var(--text); }
+    .modal-desc  { font-size: 11px; color: var(--text-muted); line-height: 2; font-weight: 300; }
+
+    .modal-timeline {
+      margin-top: auto;
+      border-top: 0.5px solid var(--border);
+      padding-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tl-row   { display: flex; align-items: center; gap: 10px; }
+    .tl-dot   { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-bright); flex-shrink: 0; }
+    .tl-dot.end { background: var(--text-dim); }
+    .tl-label { font-size: 8px; color: var(--text-dim); letter-spacing: 1px; width: 55px; flex-shrink: 0; }
+    .tl-date  { font-size: 11px; color: var(--text-muted); }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none;
+      border: 0.5px solid var(--border-mid);
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .modal-close:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* ANIMACIONES */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    header { animation: fadeIn .6s ease both; }
+    .about { animation: fadeUp .6s .1s ease both; }
+
+    .grid-item { opacity:0; animation: fadeUp .55s ease forwards; }
+    .grid-item:nth-child(1){animation-delay:.12s}
+    .grid-item:nth-child(2){animation-delay:.18s}
+    .grid-item:nth-child(3){animation-delay:.24s}
+    .grid-item:nth-child(4){animation-delay:.3s}
+    .grid-item:nth-child(5){animation-delay:.36s}
+    .grid-item:nth-child(6){animation-delay:.42s}
+    .grid-item:nth-child(7){animation-delay:.48s}
+    .grid-item:nth-child(8){animation-delay:.54s}
+    .grid-item:nth-child(9){animation-delay:.6s}
+
+    .member-row { opacity:0; animation: fadeUp .5s ease forwards; }
+    .member-row:nth-child(1){animation-delay:.2s}
+    .member-row:nth-child(2){animation-delay:.27s}
+    .member-row:nth-child(3){animation-delay:.34s}
+    .member-row:nth-child(4){animation-delay:.41s}
+    .member-row:nth-child(5){animation-delay:.48s}
+
+    @media(max-width:680px){
+      .grid{grid-template-columns:repeat(2,1fr);}
+      .modal{grid-template-columns:1fr;}
+      .about{grid-template-columns:1fr;gap:.8rem;}
+      .header-meta{display:none;}
+    }
+    @media(max-width:420px){
+      .grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- LOGO ESQUINA -->
+<div style="position:fixed; top:1.2rem; left:1.5rem; z-index:500; opacity:0.85; transition:opacity .2s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0.85">
+  <img src="logo.png" alt="Astrum SMP Logo" style="width:36px; height:36px; object-fit:contain; filter:brightness(1) invert(0);">
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-img" id="modal-img">
+      <div class="placeholder">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="0.4">
+          <rect x="3" y="3" width="18" height="18" rx="1"/>
+          <path d="m3 9 4-4 4 4 4-4 4 4"/>
+          <circle cx="8" cy="15" r="2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tag"   id="modal-tag">—</div>
+      <div class="modal-title" id="modal-title">—</div>
+      <div class="modal-desc"  id="modal-desc">—</div>
+      <div class="modal-timeline">
+        <div class="tl-row">
+          <div class="tl-dot"></div>
+          <div class="tl-label">INICIO</div>
+          <div class="tl-date" id="modal-start">—</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-dot end"></div>
+          <div class="tl-label">FIN</div>
+          <div class="tl-date" id="modal-end">—</div>
+        </div>
+      </div>
+    </div>
+    <button class="modal-close" id="modal-close">ESC ×</button>
+  </div>
+</div>
+
+<!-- PÁGINA -->
+<div class="wrapper">
+
+  <header>
+    <div class="header-top">
+      <div class="site-title">
+        <span class="main">ASTRUM</span>
+        <span class="sub">SMP</span>
+      </div>
+      <p class="header-tagline">SURVIVAL · 1.21.4 · FABRIC · EST. 2025</p>
+    </div>
+  </header>
+
+  <div class="about">
+    <div class="about-label">SOBRE EL<br>SERVIDOR</div>
+    <p class="about-text">
+      Un servidor de survival vanilla entre amigos. Sin reglas absurdas, solo construir, explorar y sobrevivir juntos desde el día uno. Cada proyecto aquí tiene historia, cada bloque tiene nombre.
+    </p>
+  </div>
+
+  <div class="section-label">
+    <h2>Proyectos</h2>
+    <span id="count-label"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <div class="section-label" style="padding-top:2.5rem;">
+    <h2>Miembros</h2>
+    <span id="members-count"></span>
+  </div>
+  <div class="members">
+    <div id="members-grid"></div>
+  </div>
+
+  <footer>
+    <p>Astrum SMP · 2025</p>
+    <span>SURVIVAL</span>
+  </footer>
+
+</div>
+
+<script>
+  // ── EDITA AQUÍ ───────────────────────────────────────────────────
+  const projects = [
+    {
+      tag: 'granja',
+      name: 'Granja de Hierro',
+      desc: 'Granja automática con 4 aldeas fusionadas. Genera más de 800 lingotes por hora con sistema de descarte de aldeanos excedentes.',
+      start: '12 Mar 2025',
+      end: '28 Mar 2025',
+      img: ''
+    },
+    {
+      tag: 'build',
+      name: 'Base Principal',
+      desc: 'La base central del servidor. Construida entre todos con materiales de expediciones. Incluye almacén automatizado y zona de encantamiento.',
+      start: '01 Feb 2025',
+      end: 'En curso',
+      img: ''
+    },
+    {
+      tag: 'update',
+      name: 'Upgrade 1.21.4',
+      desc: 'Migración completa de 1.21.1 a 1.21.4. Actualización de mods Fabric y verificación de compatibilidad con el mundo existente.',
+      start: '15 Abr 2025',
+      end: '16 Abr 2025',
+      img: ''
+    },
+    {
+      tag: 'survival',
+      name: 'Exploración del Nether',
+      desc: 'Expedición de 5 días al Nether. Se estableció una red de portales conectando los biomas más importantes con la base principal.',
+      start: '05 Mar 2025',
+      end: '10 Mar 2025',
+      img: ''
+    },
+    {
+      tag: 'granja',
+      name: 'Granja de XP',
+      desc: 'Sistema de XP basado en spawner de esqueletos. Niveles 0 a 30 en menos de 3 minutos. Esencial para el encantamiento del server.',
+      start: '20 Mar 2025',
+      end: '25 Mar 2025',
+      img: ''
+    },
+    {
+      tag: 'build',
+      name: 'Torre de Observación',
+      desc: '80 bloques de altura en el punto más alto del terreno. Desde la cima se ve toda la zona habitada. Incluye ascensor de agua.',
+      start: '08 Abr 2025',
+      end: '14 Abr 2025',
+      img: ''
+    },
+  ];
+
+  const members = [
+    { name: '1Luiissss', role: 'owner', skin: 'avatar.png' },
+  ];
+  // ─────────────────────────────────────────────────────────────────
+
+  const placeholderSVG = `<div class="placeholder">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="0.4">
+      <rect x="3" y="3" width="18" height="18" rx="1"/>
+      <path d="m3 9 4-4 4 4 4-4 4 4"/>
+      <circle cx="8" cy="15" r="2"/>
+    </svg></div>`;
+
+  function headPixel(name) {
+    const palette = ['#6b3d1e','#9b7420','#2d5f9e','#4a7a35','#8b3030','#3d607a'];
+    const c = palette[name.charCodeAt(0) % palette.length];
+    return `<div class="head-placeholder" style="background:${c}18;">
+      <svg width="20" height="20" viewBox="0 0 8 8" style="image-rendering:pixelated;">
+        <rect x="1" y="0" width="6" height="6" fill="${c}"/>
+        <rect x="2" y="2" width="1" height="1" fill="#111"/>
+        <rect x="5" y="2" width="1" height="1" fill="#111"/>
+        <rect x="3" y="4" width="2" height="1" fill="${c}" opacity=".4"/>
+        <rect x="2" y="4" width="4" height="1" fill="#111" opacity=".25"/>
+      </svg>
+    </div>`;
+  }
+
+  // Render proyectos
+  const grid = document.getElementById('grid');
+  document.getElementById('count-label').textContent = `${projects.length} registrados`;
+
+  projects.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'grid-item';
+    el.innerHTML = `
+      <div class="grid-thumb">
+        ${p.img ? `<img src="${p.img}" alt="${p.name}" loading="lazy">` : placeholderSVG}
+      </div>
+      <div class="grid-info">
+        <span class="grid-tag">${p.tag}</span>
+        <span class="grid-name">${p.name}</span>
+        <span class="grid-dates">${p.start} → ${p.end}</span>
+      </div>`;
+    el.addEventListener('click', () => openModal(i));
+    grid.appendChild(el);
+  });
+
+  // Render miembros
+  const mg = document.getElementById('members-grid');
+  document.getElementById('members-count').textContent = `${members.length} jugadores`;
+
+  members.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `
+      <div class="member-head">
+        ${m.skin ? `<img src="${m.skin}" alt="${m.name}">` : headPixel(m.name)}
+      </div>
+      <span class="member-name">${m.name}</span>
+      <span class="member-role ${m.role}">
+        ${m.role === 'owner' ? 'Owner' : m.role === 'admin' ? 'Admin' : 'Miembro'}
+      </span>`;
+    mg.appendChild(row);
+  });
+
+  // Modal
+  const modalBg = document.getElementById('modal-bg');
+
+  function openModal(i) {
+    const p = projects[i];
+    document.getElementById('modal-tag').textContent   = p.tag.toUpperCase();
+    document.getElementById('modal-title').textContent = p.name;
+    document.getElementById('modal-desc').textContent  = p.desc;
+    document.getElementById('modal-start').textContent = p.start;
+    document.getElementById('modal-end').textContent   = p.end;
+
+    const imgEl = document.getElementById('modal-img');
+    imgEl.innerHTML = p.img
+      ? `<img src="${p.img}" alt="${p.name}">`
+      : `<div class="placeholder"><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="0.4"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="m3 9 4-4 4 4 4-4 4 4"/><circle cx="8" cy="15" r="2"/></svg></div>`;
+
+    modalBg.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modalBg.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  modalBg.addEventListener('click', e => { if (e.target === modalBg) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.transform = `translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)`;
+  });
+  document.querySelectorAll('.grid-item, button, .member-row').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+  });
+</script>
+</body>
+</html>
