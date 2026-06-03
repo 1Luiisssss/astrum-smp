@@ -1018,22 +1018,28 @@
   // Cargar iconos de mods desde Modrinth API
   const modsData = [{"name": "Antishadow Patch", "slug": "antishadow"}, {"name": "Architecture", "slug": "architectury-api"}, {"name": "Async Pack Scan", "slug": "async-pack-scan"}, {"name": "BadOptimizations", "slug": "badoptimizations"}, {"name": "bbe-fabric", "slug": "bbe"}, {"name": "c2me-fabric", "slug": "c2me-fabric"}, {"name": "Capes", "slug": "capes"}, {"name": "Carpet AMS Addition", "slug": "carpet-ams-addition"}, {"name": "Carpet Extra", "slug": "carpet-extra"}, {"name": "Carpet Org Addition", "slug": "carpet-org-addition"}, {"name": "Carpet TIS Addition", "slug": "carpet-tis-addition"}, {"name": "Cloth Config", "slug": "cloth-config"}, {"name": "ConfigManager", "slug": "configmanager"}, {"name": "Continuity", "slug": "continuity"}, {"name": "CrashAssistant", "slug": "crashassistant"}, {"name": "Entity Culling", "slug": "entityculling"}, {"name": "Essential", "slug": "essential-mod"}, {"name": "Exordium", "slug": "exordium"}, {"name": "Fabric API", "slug": "fabric-api"}, {"name": "Fabric Carpet", "slug": "carpet"}, {"name": "Fabric Language Kotlin", "slug": "fabric-language-kotlin"}, {"name": "Fast IP Ping", "slug": "fast-ip-ping"}, {"name": "Fconfiglib", "slug": "fconfiglib"}, {"name": "FerriteCore", "slug": "ferrite-core"}, {"name": "Horizon Fabric", "slug": "horizon"}, {"name": "ImmediatelyFast", "slug": "immediatelyfast"}, {"name": "InventoryProfilesNext", "slug": "inventory-profiles-next"}, {"name": "Ixeris", "slug": "ixeris"}, {"name": "Journeymap", "slug": "journeymap"}, {"name": "Krypton", "slug": "krypton"}, {"name": "libIPN", "slug": "libipn"}, {"name": "libjf", "slug": "libjf"}, {"name": "Litematica", "slug": "litematica"}, {"name": "Lithium", "slug": "lithium"}, {"name": "Malilib", "slug": "malilib"}, {"name": "Minihud", "slug": "minihud"}, {"name": "Modernfix", "slug": "modernfix"}, {"name": "ModMenu", "slug": "modmenu"}, {"name": "Noisium", "slug": "noisium"}, {"name": "Placeholder API", "slug": "placeholder-api"}, {"name": "Sodium Extra", "slug": "sodium-extra"}, {"name": "Sodium", "slug": "sodium"}, {"name": "Spark", "slug": "spark"}, {"name": "Too Many Entities", "slug": "too-many-entities"}, {"name": "Tweakeroo", "slug": "tweakeroo"}, {"name": "Yet Another Config Lib", "slug": "yacl"}, {"name": "ZFastNoise", "slug": "zfast-noise"}];
 
+  let modsLoaded = false;
+
   async function loadModIcons() {
+    if (modsLoaded) return;
     const grid = document.getElementById('mods-future-grid');
     if (!grid) return;
-    grid.innerHTML = '<span style="font-size:10px;color:var(--text-dim);">Cargando...</span>';
+    grid.innerHTML = '<span style="font-size:10px;color:var(--text-dim);">Cargando mods...</span>';
 
     const slugs = modsData.map(m => m.slug);
+
     try {
-      // Agregar header para CORS
-      const res = await fetch('https://api.modrinth.com/v2/projects?ids=' + JSON.stringify(slugs), {
-        headers: { 'User-Agent': 'AstrumSMP/1.0' }
-      });
+      const url = 'https://api.modrinth.com/v2/projects?ids=' + encodeURIComponent(JSON.stringify(slugs));
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const projects = await res.json();
 
-      // Crear mapa slug -> icon
       const iconMap = {};
-      projects.forEach(p => { iconMap[p.slug] = p.icon_url || ''; });
+      projects.forEach(p => {
+        iconMap[p.slug] = p.icon_url || '';
+        // algunos tienen id diferente al slug
+        if (p.id) iconMap[p.id] = p.icon_url || '';
+      });
 
       grid.innerHTML = '';
       modsData.forEach(mod => {
@@ -1044,15 +1050,38 @@
         el.rel = 'noopener';
         el.className = 'mod-tag-icon';
         el.title = mod.name;
-        el.innerHTML = icon
-          ? `<img src="${icon}" alt="${mod.name}" class="mod-icon"><span>${mod.name}</span>`
-          : `<span class="mod-icon-placeholder">⬡</span><span>${mod.name}</span>`;
+        if (icon) {
+          const img = document.createElement('img');
+          img.src = icon;
+          img.alt = mod.name;
+          img.className = 'mod-icon';
+          img.onerror = () => { img.style.display = 'none'; };
+          el.appendChild(img);
+        } else {
+          const ph = document.createElement('span');
+          ph.className = 'mod-icon-placeholder';
+          ph.textContent = '▪';
+          el.appendChild(ph);
+        }
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = mod.name;
+        el.appendChild(nameSpan);
         grid.appendChild(el);
       });
+      modsLoaded = true;
+
     } catch(e) {
-      grid.innerHTML = modsData.map(m =>
-        `<span class="mod-tag">${m.name}</span>`
-      ).join('');
+      console.warn('Modrinth API error:', e);
+      grid.innerHTML = '';
+      modsData.forEach(mod => {
+        const el = document.createElement('a');
+        el.href = 'https://modrinth.com/mod/' + mod.slug;
+        el.target = '_blank';
+        el.rel = 'noopener';
+        el.className = 'mod-tag-icon';
+        el.innerHTML = '<span class="mod-icon-placeholder">▪</span><span>' + mod.name + '</span>';
+        grid.appendChild(el);
+      });
     }
   }
 
