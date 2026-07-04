@@ -152,6 +152,35 @@
     #splash-glow, #splash-logo { animation: none; opacity: 1; transform: none; }
     #splash { transition: none; }
   }
+
+  /* Modal "Ver Requisitos" */
+  #requirements-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #requirements-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #requirements-modal .modal-card {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;
+  }
+  #requirements-modal.open .modal-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 </style>
 </head>
 <body class="text-zinc-200 antialiased overflow-x-hidden">
@@ -173,11 +202,7 @@
 
       <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
         <a href="#" class="hover:text-white transition-colors">Changelog</a>
-        <a href="#" class="hover:text-white transition-colors">Perfil</a>
-        <a href="#" class="hover:text-white transition-colors">Instagram</a>
-        <a href="#" class="hover:text-white transition-colors">Modrinth</a>
-        <a href="#" class="hover:text-white transition-colors">YouTube</a>
-        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="hover:text-white transition-colors">Discord</a>
+        <a href="perfil.html" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Perfil</a>
       </nav>
 
       <div class="flex items-center gap-3 text-sm">
@@ -412,7 +437,7 @@
           <li>✓ Entorno Vanilla</li>
           <li>✓ Servidor Privado</li>
         </ul>
-        <a href="#" class="block text-center border border-zinc-700 text-white rounded-full py-2.5 text-sm hover:bg-zinc-900 transition-colors">Ver Requisitos</a>
+        <button type="button" id="requirements-btn" class="block w-full text-center border border-zinc-700 text-white rounded-full py-2.5 text-sm hover:bg-zinc-900 transition-colors">Ver Requisitos</button>
       </div>
 
       <!-- Comunidad -->
@@ -507,6 +532,19 @@
       </div>
     </div>
   </footer>
+
+  <!-- ===================== MODAL: VER REQUISITOS ===================== -->
+  <div id="requirements-modal">
+    <div class="modal-card glass rounded-2xl p-8 max-w-sm w-full text-center relative">
+      <button type="button" id="requirements-close" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar">✕</button>
+      <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
+      </div>
+      <h3 class="text-white font-bold text-lg mb-2">Servidor privado por ahora</h3>
+      <p class="text-zinc-400 text-sm mb-6">AstrumSMP está en fase de desarrollo cerrado. No se están aceptando solicitudes de ingreso por el momento — únete a nuestro Discord para enterarte apenas se abran las postulaciones.</p>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener noreferrer" class="block text-center bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-full py-2.5 text-sm transition-colors">Ir a Discord</a>
+    </div>
+  </div>
 
   <script id="texture-packs-loader">
     // Trae TODOS los resourcepacks publicados en tu perfil de Modrinth y los muestra
@@ -670,6 +708,24 @@
       };
       // Un pequeño margen sobre la duración de la animación (1.2s) para que se vea completa
       setTimeout(remove, 1250);
+    })();
+  </script>
+
+  <script>
+    // Modal "Ver Requisitos": explica que el servidor está en desarrollo cerrado
+    (function () {
+      const btn = document.getElementById('requirements-btn');
+      const modal = document.getElementById('requirements-modal');
+      const closeBtn = document.getElementById('requirements-close');
+      if (!btn || !modal) return;
+
+      const open = () => modal.classList.add('open');
+      const close = () => modal.classList.remove('open');
+
+      btn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
     })();
   </script>
 
