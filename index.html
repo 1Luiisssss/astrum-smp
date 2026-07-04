@@ -10,8 +10,10 @@
 <style>
   * { font-family: 'Inter', sans-serif; }
 
-  body {
+  html, body {
     background: #050505;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Glow radial principal del hero */
@@ -153,8 +155,8 @@
     #splash { transition: none; }
   }
 
-  /* Modal "Ver Requisitos" */
-  #requirements-modal {
+  /* Modal genérico (usado por "Ver Requisitos" y "Changelog") */
+  .modal-overlay {
     position: fixed;
     inset: 0;
     z-index: 200;
@@ -168,16 +170,16 @@
     pointer-events: none;
     transition: opacity 0.3s ease;
   }
-  #requirements-modal.open {
+  .modal-overlay.open {
     opacity: 1;
     pointer-events: auto;
   }
-  #requirements-modal .modal-card {
+  .modal-overlay .modal-card {
     transform: scale(0.95) translateY(10px);
     opacity: 0;
     transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;
   }
-  #requirements-modal.open .modal-card {
+  .modal-overlay.open .modal-card {
     transform: scale(1) translateY(0);
     opacity: 1;
   }
@@ -201,7 +203,7 @@
       </div>
 
       <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-        <a href="#" class="hover:text-white transition-colors">Changelog</a>
+        <button type="button" id="changelog-btn-nav" class="hover:text-white transition-colors">Changelog</button>
         <a href="perfil.html" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Perfil</a>
       </nav>
 
@@ -235,7 +237,7 @@
   </section>
 
   <!-- ===================== APP SHOWCASE ===================== -->
-  <section class="reveal relative px-6 pb-24">
+  <section class="reveal relative px-6 pb-24 overflow-hidden">
     <div class="max-w-5xl mx-auto text-center mb-10">
       <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ AstrumSMP</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Explora nuestro mundo</h2>
@@ -341,7 +343,7 @@
   </section>
 
   <!-- ===================== FEATURE: INFRAESTRUCTURA (antes Cloud Sync) ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
+  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[400px] h-[400px] bg-red-700/10 top-10 right-1/4"></div>
     <div class="max-w-xl mx-auto text-center relative z-10">
       <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Infraestructura</span>
@@ -507,7 +509,7 @@
       <div>
         <h4 class="text-zinc-300 text-xs font-semibold mb-4">Proyecto</h4>
         <ul class="space-y-2 text-xs text-zinc-500">
-          <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+          <li><button type="button" id="changelog-btn-footer" class="hover:text-white transition-colors">Changelog</button></li>
           <li><a href="#" class="hover:text-white transition-colors">Estado</a></li>
           <li><a href="#" class="hover:text-white transition-colors">Infraestructura</a></li>
         </ul>
@@ -534,7 +536,7 @@
   </footer>
 
   <!-- ===================== MODAL: VER REQUISITOS ===================== -->
-  <div id="requirements-modal">
+  <div id="requirements-modal" class="modal-overlay">
     <div class="modal-card glass rounded-2xl p-8 max-w-sm w-full text-center relative">
       <button type="button" id="requirements-close" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar">✕</button>
       <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-5">
@@ -543,6 +545,18 @@
       <h3 class="text-white font-bold text-lg mb-2">Servidor privado por ahora</h3>
       <p class="text-zinc-400 text-sm mb-6">AstrumSMP está en fase de desarrollo cerrado. No se están aceptando solicitudes de ingreso por el momento — únete a nuestro Discord para enterarte apenas se abran las postulaciones.</p>
       <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener noreferrer" class="block text-center bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-full py-2.5 text-sm transition-colors">Ir a Discord</a>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: CHANGELOG ===================== -->
+  <div id="changelog-modal" class="modal-overlay">
+    <div class="modal-card glass rounded-2xl p-8 max-w-sm w-full text-center relative">
+      <button type="button" id="changelog-close" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar">✕</button>
+      <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7" stroke-linecap="round"/></svg>
+      </div>
+      <h3 class="text-white font-bold text-lg mb-2">Sin cambios por ahora</h3>
+      <p class="text-zinc-400 text-sm">Todavía no hay ningún cambio registrado. El changelog se irá completando a medida que avance el desarrollo del servidor.</p>
     </div>
   </div>
 
@@ -723,6 +737,27 @@
       const close = () => modal.classList.remove('open');
 
       btn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+  </script>
+
+  <script>
+    // Modal "Changelog": indica que todavía no hay cambios registrados
+    (function () {
+      const modal = document.getElementById('changelog-modal');
+      const closeBtn = document.getElementById('changelog-close');
+      const triggers = [
+        document.getElementById('changelog-btn-nav'),
+        document.getElementById('changelog-btn-footer'),
+      ].filter(Boolean);
+      if (!modal || !triggers.length) return;
+
+      const open = () => modal.classList.add('open');
+      const close = () => modal.classList.remove('open');
+
+      triggers.forEach((btn) => btn.addEventListener('click', open));
       closeBtn.addEventListener('click', close);
       modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
