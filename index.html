@@ -4,16 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AstrumSMP</title>
+<script>
+  // Evita que el navegador "recuerde" la posición de scroll al recargar
+  // (por eso la página se quedaba en la lista de blueprints al refrescar).
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.addEventListener('load', () => {
+    if (!window.location.hash) window.scrollTo(0, 0);
+  });
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { font-family: 'Inter', sans-serif; }
 
-  html, body {
+  /* html controla el scroll del documento — es el único que debe declarar
+     overflow y las propiedades de scrollbar, para que no se generen dos
+     contenedores de scroll independientes (bug de doble scrollbar en Firefox). */
+  html {
+    background: #050505;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a #0a0a0a;
+  }
+
+  body {
     background: #050505;
     max-width: 100%;
-    overflow-x: hidden;
   }
 
   /* Glow radial principal del hero */
@@ -185,7 +204,7 @@
   }
 </style>
 </head>
-<body class="text-zinc-200 antialiased overflow-x-hidden">
+<body class="text-zinc-200 antialiased">
 
   <!-- ===================== SPLASH ===================== -->
   <div id="splash">
@@ -380,6 +399,110 @@
     </div>
   </section>
 
+  <!-- ===================== BLUEPRINTS / SCHEMATICS ===================== -->
+  <!-- Cada tarjeta es un diseño descargable (.litematic). Los href apuntan a
+       raw.githubusercontent.com — reemplaza "1Luiisssss/astrum-smp" (Ctrl+F/Reemplazar,
+       aparece 9 veces) por tu usuario y repo reales de GitHub una vez que hayas
+       subido la carpeta /blueprints. Para agregar un diseño nuevo, duplica un
+       bloque <div class="blueprint-card">. -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-12">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Librería de Diseños</h2>
+      <p class="text-zinc-400">Granjas y mecanismos de redstone ya optimizados, listos para importar con Litematica.</p>
+    </div>
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Bambú</h3>
+        <p class="text-zinc-500 text-sm mb-4">Producción automática de bambú — ideal para combustible de hornos y compostaje rápido.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-bambu.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Trueque (Piglins)</h3>
+        <p class="text-zinc-500 text-sm mb-4">Sistema de trueque con piglins para oro, perlas de ender y más, completamente automatizado.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-trueque-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Sistema de Almacenamiento Kayzm</h3>
+        <p class="text-zinc-500 text-sm mb-4">Storage masivo con 3 sistemas de ordenamiento automático por categoría de ítem.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/sistema-almacenamiento-kayzm.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Hierro (Overworld)</h3>
+        <p class="text-zinc-500 text-sm mb-4">Diseño adaptado para overworld, alta tasa de producción sostenida de hierro.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-hierro-overworld.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Cargador de Piglins</h3>
+        <p class="text-zinc-500 text-sm mb-4">Transporta y posiciona piglins automáticamente hacia la zona de trueque.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/cargador-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Almacenamiento de Shulkers</h3>
+        <p class="text-zinc-500 text-sm mb-4">Bodega compacta para cajas shulker, acceso rápido y organizado.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/almacenamiento-shulker.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de XP y Oro</h3>
+        <p class="text-zinc-500 text-sm mb-4">Diseño enfocado en experiencia y oro de forma eficiente y continua.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-xp-oro.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Zona de Creepers + Recolección de Pólvora</h3>
+        <p class="text-zinc-500 text-sm mb-4">Sistema completo: área de spawn controlado de creepers junto con la recolección automática de la pólvora que sueltan.</p>
+        <div class="flex flex-col gap-2">
+          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-generacion-creepers.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+            <span class="link-label">Descargar zona de generación</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-recoleccion-polvora.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+            <span class="link-label">Descargar zona de recolección</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- ===================== COMING SOON ===================== -->
   <section class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-14">
@@ -416,6 +539,59 @@
         </div>
         <h3 class="text-white font-semibold text-sm mb-1">Optimized Vanilla+</h3>
         <p class="text-zinc-500 text-sm">Nueva versión del texture pack oficial, con más optimización y detalle visual.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROADMAP ===================== -->
+  <section id="roadmap" class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-16">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Hacia dónde va AstrumSMP</h2>
+      <p class="text-zinc-400">Transparencia sobre el proceso, sin comprometer la estabilidad del mundo persistente.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto relative">
+      <div class="absolute left-[15px] top-2 bottom-2 w-px bg-zinc-800"></div>
+
+      <div class="space-y-10">
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-2">En curso</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 1 — Base Vanilla 1.12.2</h3>
+          <p class="text-zinc-500 text-sm">Fundación estable del mundo. Primeros perímetros, granjas base y mecanismos core de redstone asegurados antes de escalar.</p>
+        </div>
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Planeado</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 2 — Consolidación Técnica</h3>
+          <p class="text-zinc-500 text-sm">Optimización de granjas existentes, texture pack oficial terminado y montaje de un servidor de staging para probar la migración sin arriesgar el mundo real.</p>
+        </div>
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Proyectado</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 3 — Transición a 1.17x+</h3>
+          <p class="text-zinc-500 text-sm">Migración del mundo persistente sin pérdida de progreso. Pruebas de compatibilidad de chunks y estructuras ya construidas.</p>
+        </div>
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Futuro</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 4 — 1.21.11 con Mods</h3>
+          <p class="text-zinc-500 text-sm">Integración completa del ecosistema de mods planeado, expansión del servidor y apertura gradual a nuevas mecánicas.</p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -560,19 +736,101 @@
     </div>
   </div>
 
+  <script id="modrinth-cache-utils">
+    // Cache compartida para las llamadas a la API de Modrinth (localStorage + TTL).
+    // Objetivo: no pedirle datos a Modrinth en cada carga de página, y si Modrinth
+    // está caído o con rate limit, servir la última respuesta buena conocida en vez
+    // de mostrar un grid vacío o roto.
+    const ModrinthCache = {
+      TTL_MS: 6 * 60 * 60 * 1000, // 6 horas — los mods/texture packs no cambian tan seguido
+
+      read(key) {
+        try {
+          const raw = localStorage.getItem(`mr_cache:${key}`);
+          return raw ? JSON.parse(raw) : null; // { data, timestamp }
+        } catch {
+          return null; // localStorage bloqueado (modo privado) o corrupto: seguimos sin cache
+        }
+      },
+
+      write(key, data) {
+        try {
+          localStorage.setItem(`mr_cache:${key}`, JSON.stringify({ data, timestamp: Date.now() }));
+        } catch {
+          // Sin espacio o sin acceso a localStorage — no es crítico, solo no cacheamos
+        }
+      },
+
+      isFresh(entry) {
+        return !!entry && (Date.now() - entry.timestamp) < ModrinthCache.TTL_MS;
+      },
+
+      // Cache-first: si hay una entrada fresca, la usa sin llamar a la red.
+      // Si no, pide a Modrinth; si la red falla, cae de vuelta a la última cache
+      // guardada aunque esté vencida (mejor mostrar algo desactualizado que nada).
+      async fetchJSON(key, url) {
+        const cached = ModrinthCache.read(key);
+        if (ModrinthCache.isFresh(cached)) return cached.data;
+
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`Modrinth API respondió ${res.status}`);
+          const data = await res.json();
+          ModrinthCache.write(key, data);
+          return data;
+        } catch (err) {
+          if (cached) {
+            console.warn(`Modrinth API falló, usando cache anterior para "${key}":`, err);
+            return cached.data;
+          }
+          throw err;
+        }
+      },
+    };
+  </script>
+
+  <script id="blueprint-link-check">
+    // Verifica en segundo plano si cada archivo .litematic realmente existe en GitHub.
+    // Si da 404 (por ejemplo, todavía no lo subiste o el nombre no coincide), el botón
+    // se deshabilita y muestra "Próximamente" en vez de mandar al visitante a la
+    // página de error genérica de GitHub. Se revisa una sola vez al cargar la página.
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.blueprint-card a[download]');
+
+      links.forEach(async (link) => {
+        const url = link.getAttribute('href');
+        try {
+          const res = await fetch(url, { method: 'HEAD' });
+          if (!res.ok) throw new Error(`Status ${res.status}`);
+          // Archivo confirmado: el link queda tal cual, funcional.
+        } catch (err) {
+          console.warn(`Blueprint no disponible todavía: ${url}`, err);
+          link.removeAttribute('href');
+          link.removeAttribute('download');
+          link.classList.remove('text-rose-300', 'hover:text-rose-200');
+          link.classList.add('text-zinc-600', 'cursor-not-allowed');
+          const label = link.querySelector('.link-label');
+          if (label) label.textContent = 'Próximamente';
+        }
+      });
+    });
+  </script>
+
   <script id="texture-packs-loader">
     // Trae TODOS los resourcepacks publicados en tu perfil de Modrinth y los muestra
     // como tarjetas clicables (ícono + nombre) enlazadas a su página real.
-    // Si publicas un nuevo texture pack, aparece solo la próxima vez que alguien cargue la página.
+    // Si publicas un nuevo texture pack, aparece la próxima vez que la cache expire
+    // (hasta 6h) o cuando alguien recargue tras vaciar localStorage.
     (async () => {
       const grid = document.getElementById('texture-grid');
       if (!grid) return;
       const username = '1Luiiissss';
 
       try {
-        const res = await fetch(`https://api.modrinth.com/v2/user/${username}/projects`);
-        if (!res.ok) throw new Error(`Modrinth API respondió ${res.status}`);
-        const projects = await res.json();
+        const projects = await ModrinthCache.fetchJSON(
+          `texture-packs:${username}`,
+          `https://api.modrinth.com/v2/user/${username}/projects`
+        );
         const packs = projects.filter((p) => p.project_type === 'resourcepack');
 
         if (!packs.length) {
@@ -660,9 +918,10 @@
 
       try {
         const idsParam = encodeURIComponent(JSON.stringify(slugs));
-        const res = await fetch(`https://api.modrinth.com/v2/projects?ids=${idsParam}`);
-        if (!res.ok) throw new Error(`Modrinth API respondió ${res.status}`);
-        const projects = await res.json();
+        const projects = await ModrinthCache.fetchJSON(
+          `mod-icons:${slugs.join(',')}`,
+          `https://api.modrinth.com/v2/projects?ids=${idsParam}`
+        );
 
         const bySlug = {};
         projects.forEach((p) => { bySlug[p.slug] = p; });
