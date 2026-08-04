@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AstrumSMP</title>
 <script>
-  // Evita que el navegador "recuerde" la posición de scroll al recargar
-  // (por eso la página se quedaba en la lista de blueprints al refrescar).
+  // Evita que el navegador "recuerde" la posición de scroll al recargar.
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
@@ -238,7 +237,7 @@
 
     <div class="relative z-10 max-w-3xl mx-auto">
       <span class="inline-flex items-center gap-2 text-xs font-medium text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6">
-        ✦ Servidor 1.12.2 por ahora
+        ✦ Servidor 1.13.2 por ahora
       </span>
 
       <h1 class="text-5xl sm:text-6xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
@@ -246,7 +245,7 @@
       </h1>
 
       <p class="text-zinc-400 text-lg max-w-xl mx-auto mb-8">
-        Entorno privado de supervivencia técnica. Operando temporalmente en Vanilla 1.12.2, con infraestructura escalable diseñada para la futura integración de mods.
+        Entorno privado de supervivencia técnica. Operando temporalmente en Vanilla 1.13.2, con infraestructura escalable diseñada para la futura integración de mods.
       </p>
 
       <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)]">
@@ -283,7 +282,7 @@
       <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">✦</div>
         <h3 class="text-white font-semibold text-sm mb-1">Base Vanilla Estable</h3>
-        <p class="text-zinc-500 text-sm">Ejecutando la versión 1.12.2 sin modificaciones. Un entorno puro y optimizado para establecer los cimientos del mundo.</p>
+        <p class="text-zinc-500 text-sm">Ejecutando la versión 1.13.2 sin modificaciones. Un entorno puro y optimizado para establecer los cimientos del mundo.</p>
       </div>
       <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">◈</div>
@@ -399,113 +398,6 @@
     </div>
   </section>
 
-  <!-- ===================== BLUEPRINTS / SCHEMATICS ===================== -->
-  <!-- Cada tarjeta es un diseño descargable (.litematic). Los href apuntan a
-       raw.githubusercontent.com — reemplaza "1Luiisssss/astrum-smp" (Ctrl+F/Reemplazar,
-       aparece 9 veces) por tu usuario y repo reales de GitHub una vez que hayas
-       subido la carpeta /blueprints. Para agregar un diseño nuevo, duplica un
-       bloque <div class="blueprint-card">. -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
-    <div class="max-w-xl mx-auto text-center mb-12">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">
-        Librería de Diseños
-        <span class="inline-block align-middle ml-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-full">En proceso</span>
-      </h2>
-      <p class="text-zinc-400">Granjas y mecanismos de redstone ya optimizados, listos para importar con Litematica.</p>
-      <p class="text-zinc-600 text-xs mt-2">Estamos terminando de subir los archivos — algunos descargas pueden no estar disponibles todavía.</p>
-    </div>
-
-    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Granja de Bambú</h3>
-        <p class="text-zinc-500 text-sm mb-4">Producción automática de bambú — ideal para combustible de hornos y compostaje rápido.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-bambu.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Granja de Trueque (Piglins)</h3>
-        <p class="text-zinc-500 text-sm mb-4">Sistema de trueque con piglins para oro, perlas de ender y más, completamente automatizado.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-trueque-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Sistema de Almacenamiento Kayzm</h3>
-        <p class="text-zinc-500 text-sm mb-4">Storage masivo con 3 sistemas de ordenamiento automático por categoría de ítem.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/sistema-almacenamiento-kayzm.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Granja de Hierro (Overworld)</h3>
-        <p class="text-zinc-500 text-sm mb-4">Diseño adaptado para overworld, alta tasa de producción sostenida de hierro.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-hierro-overworld.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Cargador de Piglins</h3>
-        <p class="text-zinc-500 text-sm mb-4">Transporta y posiciona piglins automáticamente hacia la zona de trueque.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/cargador-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Almacenamiento de Shulkers</h3>
-        <p class="text-zinc-500 text-sm mb-4">Bodega compacta para cajas shulker, acceso rápido y organizado.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/almacenamiento-shulker.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Granja de XP y Oro</h3>
-        <p class="text-zinc-500 text-sm mb-4">Diseño enfocado en experiencia y oro de forma eficiente y continua.</p>
-        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-xp-oro.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-          <span class="link-label">Descargar .litematic</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
-
-      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
-        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
-        <h3 class="text-white font-semibold text-sm mb-1">Zona de Creepers + Recolección de Pólvora</h3>
-        <p class="text-zinc-500 text-sm mb-4">Sistema completo: área de spawn controlado de creepers junto con la recolección automática de la pólvora que sueltan.</p>
-        <div class="flex flex-col gap-2">
-          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-generacion-creepers.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-            <span class="link-label">Descargar zona de generación</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-recoleccion-polvora.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
-            <span class="link-label">Descargar zona de recolección</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <!-- ===================== COMING SOON ===================== -->
   <section class="reveal relative px-6 py-28 border-t border-white/5">
@@ -565,7 +457,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
           </div>
           <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-2">En curso</span>
-          <h3 class="text-white font-semibold text-base mb-1">Fase 1 — Base Vanilla 1.12.2</h3>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 1 — Base Vanilla 1.13.2</h3>
           <p class="text-zinc-500 text-sm">Fundación estable del mundo. Primeros perímetros, granjas base y mecanismos core de redstone asegurados antes de escalar.</p>
         </div>
 
@@ -615,7 +507,7 @@
         <h3 class="text-white font-semibold mb-1">Java Edition</h3>
         <p class="text-zinc-500 text-sm mb-6">Requisitos técnicos para unirte.</p>
         <ul class="text-sm text-zinc-400 space-y-3 mb-8">
-          <li>✓ Versión actual: 1.12.2</li>
+          <li>✓ Versión actual: 1.13.2</li>
           <li>✓ Entorno Vanilla</li>
           <li>✓ Servidor Privado</li>
         </ul>
@@ -646,7 +538,7 @@
     <div class="max-w-2xl mx-auto divide-y divide-zinc-800">
       <details class="group py-5">
         <summary class="flex items-center justify-between text-white text-sm font-medium">
-          ¿Por qué operar en la versión 1.12.2?
+          ¿Por qué operar en la versión 1.13.2?
           <span class="chev text-zinc-500 transition-transform">⌄</span>
         </summary>
         <p class="text-zinc-500 text-sm mt-3 pr-6">Buscamos máxima estabilidad operativa para establecer la infraestructura base y los primeros perímetros antes de escalar.</p>
@@ -791,33 +683,6 @@
         }
       },
     };
-  </script>
-
-  <script id="blueprint-link-check">
-    // Verifica en segundo plano si cada archivo .litematic realmente existe en GitHub.
-    // Si da 404 (por ejemplo, todavía no lo subiste o el nombre no coincide), el botón
-    // se deshabilita y muestra "Próximamente" en vez de mandar al visitante a la
-    // página de error genérica de GitHub. Se revisa una sola vez al cargar la página.
-    document.addEventListener('DOMContentLoaded', () => {
-      const links = document.querySelectorAll('.blueprint-card a[download]');
-
-      links.forEach(async (link) => {
-        const url = link.getAttribute('href');
-        try {
-          const res = await fetch(url, { method: 'HEAD' });
-          if (!res.ok) throw new Error(`Status ${res.status}`);
-          // Archivo confirmado: el link queda tal cual, funcional.
-        } catch (err) {
-          console.warn(`Blueprint no disponible todavía: ${url}`, err);
-          link.removeAttribute('href');
-          link.removeAttribute('download');
-          link.classList.remove('text-rose-300', 'hover:text-rose-200');
-          link.classList.add('text-zinc-600', 'cursor-not-allowed');
-          const label = link.querySelector('.link-label');
-          if (label) label.textContent = 'Próximamente';
-        }
-      });
-    });
   </script>
 
   <script id="texture-packs-loader">
