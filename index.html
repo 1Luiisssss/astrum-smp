@@ -201,6 +201,125 @@
     transform: scale(1) translateY(0);
     opacity: 1;
   }
+
+  /* ===================== SOCIAL PROOF: marquee de skins ===================== */
+  .skin-marquee-mask {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  }
+  .skin-marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    width: max-content;
+    animation: skin-marquee 26s linear infinite;
+  }
+  .skin-marquee-mask:hover .skin-marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes skin-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .skin-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #0d0d0d;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    animation: skin-pop 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .skin-avatar:hover {
+    transform: translateY(-6px) scale(1.08);
+    border-color: rgba(220,38,68,0.5);
+    box-shadow: 0 10px 30px -10px rgba(220,38,68,0.5);
+  }
+  .skin-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .skin-avatar img.loaded { opacity: 1; }
+  @keyframes skin-pop {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skin-marquee-track { animation: none; }
+    .skin-avatar { animation: none; opacity: 1; transform: none; }
+  }
+
+  /* ===================== TESTIMONIOS: carrusel con crossfade ===================== */
+  .testimonial-viewport {
+    position: relative;
+    min-height: 260px;
+  }
+  .testimonial-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    pointer-events: none;
+  }
+  .testimonial-slide.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .testimonial-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+  .testimonial-dot.active {
+    background: #f43f5e;
+    width: 22px;
+    border-radius: 999px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .testimonial-slide { transition: none; }
+  }
+
+  /* ===================== CTA FINAL ===================== */
+  .cta-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                       linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 30%, transparent 75%);
+    animation: cta-grid-pan 22s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes cta-grid-pan {
+    from { background-position: 0 0, 0 0; }
+    to   { background-position: 42px 42px, 42px 42px; }
+  }
+  .cta-pulse {
+    animation: cta-pulse-glow 3.6s ease-in-out infinite;
+  }
+  @keyframes cta-pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(220,38,68,0.15), 0 20px 60px -20px rgba(220,38,68,0.35); }
+    50%      { box-shadow: 0 0 0 1px rgba(220,38,68,0.35), 0 30px 80px -15px rgba(220,38,68,0.55); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-grid-bg { animation: none; }
+    .cta-pulse { animation: none; }
+  }
 </style>
 </head>
 <body class="text-zinc-200 antialiased">
@@ -251,6 +370,20 @@
       <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)]">
         Discord
       </a>
+    </div>
+  </section>
+
+  <!-- ===================== SOCIAL PROOF ===================== -->
+  <section class="reveal relative px-6 py-14 border-t border-white/5">
+    <div class="max-w-5xl mx-auto text-center mb-8">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Comunidad</span>
+      <h2 class="text-lg sm:text-xl font-semibold text-white mt-3">Ya juegan con nosotros</h2>
+    </div>
+
+    <div class="skin-marquee-mask relative max-w-4xl mx-auto">
+      <div class="skin-marquee-track" id="skin-marquee-track">
+        <!-- Se llena dinámicamente vía JS (ver <script id="skin-marquee"> al final del body) -->
+      </div>
     </div>
   </section>
 
@@ -528,6 +661,41 @@
     </div>
   </section>
 
+  <!-- ===================== TESTIMONIOS ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
+    <div class="glow-soft w-[500px] h-[400px] bg-rose-600/15 top-10 right-1/4"></div>
+
+    <div class="max-w-2xl mx-auto text-center mb-14 relative z-10">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Comunidad</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Lo que dice quien ya juega</h2>
+    </div>
+
+    <div id="testimonial-wrap" class="relative max-w-xl mx-auto z-10">
+      <div class="testimonial-viewport">
+        <div id="testimonial-track">
+          <!-- TODO: reemplaza estas 3 citas por testimonios reales sacados del Discord de AstrumSMP -->
+          <div class="testimonial-slide glass card-noise rounded-2xl p-8 border border-zinc-800 text-center flex flex-col items-center justify-center">
+            <p class="text-zinc-300 text-lg leading-relaxed mb-6">"Escribe aquí una cita corta y real de un jugador sobre por qué le gusta AstrumSMP."</p>
+            <p class="text-white font-semibold text-sm">Nombre_Jugador</p>
+            <p class="text-zinc-600 text-xs">Miembro desde 2026</p>
+          </div>
+          <div class="testimonial-slide glass card-noise rounded-2xl p-8 border border-zinc-800 text-center flex flex-col items-center justify-center">
+            <p class="text-zinc-300 text-lg leading-relaxed mb-6">"Otra cita real, sacada de un mensaje del Discord del server."</p>
+            <p class="text-white font-semibold text-sm">Nombre_Jugador</p>
+            <p class="text-zinc-600 text-xs">Miembro desde 2026</p>
+          </div>
+          <div class="testimonial-slide glass card-noise rounded-2xl p-8 border border-zinc-800 text-center flex flex-col items-center justify-center">
+            <p class="text-zinc-300 text-lg leading-relaxed mb-6">"Una tercera cita corta y genuina de otro miembro del server."</p>
+            <p class="text-white font-semibold text-sm">Nombre_Jugador</p>
+            <p class="text-zinc-600 text-xs">Miembro desde 2026</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 mt-8" id="testimonial-dots"></div>
+    </div>
+  </section>
+
   <!-- ===================== FAQ ===================== -->
   <section class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-2xl mx-auto text-center mb-14">
@@ -568,6 +736,20 @@
   </section>
 
   <!-- ===================== FOOTER ===================== -->
+  <!-- ===================== CTA FINAL ===================== -->
+  <section class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
+    <div class="cta-grid-bg"></div>
+    <div class="glow-soft w-[600px] h-[400px] bg-rose-600/25 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+    <div class="cta-pulse relative z-10 max-w-2xl mx-auto text-center pro-border rounded-3xl px-8 py-16 glass">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">¿Listo para unirte a AstrumSMP?</h2>
+      <p class="text-zinc-400 max-w-md mx-auto mb-8">Entorno privado, técnico y sin wipes. Cupos limitados — entra al Discord y pide tu invitación.</p>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="inline-block bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-zinc-200 transition-all hover:scale-105 shadow-[0_0_50px_-10px_rgba(255,255,255,0.5)]">
+        Unirme al Discord
+      </a>
+    </div>
+  </section>
+
   <footer class="relative px-6 py-16 border-t border-white/5 reveal">
     <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-10">
       <div class="sm:col-span-1">
@@ -889,6 +1071,78 @@
       closeBtn.addEventListener('click', close);
       modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+  </script>
+
+  <script id="skin-marquee">
+    // Fila de skins con auto-scroll infinito (social proof).
+    // TODO: reemplaza estos nombres por los usuarios REALES de Minecraft de tu
+    // comunidad. El skin (cabeza) se carga solo desde mc-heads.net a partir del
+    // username — no hay que subir ninguna imagen a mano.
+    const MEMBER_USERNAMES = ['1Luiissss', 'Jugador_2', 'Jugador_3', 'Jugador_4', 'Jugador_5', 'Jugador_6'];
+
+    (function renderSkinMarquee() {
+      const track = document.getElementById('skin-marquee-track');
+      if (!track) return;
+      const names = MEMBER_USERNAMES.length ? MEMBER_USERNAMES : ['Steve'];
+      const doubled = [...names, ...names]; // duplicado exacto para que el loop no se corte
+
+      track.innerHTML = doubled
+        .map((name, i) => `
+          <div class="skin-avatar" style="animation-delay:${(i % names.length) * 0.06}s" title="${name}">
+            <img src="https://mc-heads.net/head/${encodeURIComponent(name)}/64" alt="Skin de ${name}" loading="lazy" onload="this.classList.add('loaded')">
+          </div>
+        `)
+        .join('');
+    })();
+  </script>
+
+  <script id="testimonial-carousel">
+    // Carrusel de testimonios: crossfade automático + navegación por puntos.
+    (function initTestimonialCarousel() {
+      const wrap = document.getElementById('testimonial-wrap');
+      const track = document.getElementById('testimonial-track');
+      const dotsWrap = document.getElementById('testimonial-dots');
+      if (!wrap || !track || !dotsWrap) return;
+
+      const slides = Array.from(track.querySelectorAll('.testimonial-slide'));
+      if (!slides.length) return;
+
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'testimonial-dot';
+        dot.setAttribute('aria-label', `Ver testimonio ${i + 1}`);
+        dot.addEventListener('click', () => { goTo(i); restartAutoplay(); });
+        dotsWrap.appendChild(dot);
+      });
+      const dots = Array.from(dotsWrap.children);
+
+      let current = 0;
+      let timer = null;
+
+      function goTo(index) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = index;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+      }
+
+      function next() {
+        goTo((current + 1) % slides.length);
+      }
+
+      function restartAutoplay() {
+        clearInterval(timer);
+        timer = setInterval(next, 6000);
+      }
+
+      goTo(0);
+      restartAutoplay();
+
+      wrap.addEventListener('mouseenter', () => clearInterval(timer));
+      wrap.addEventListener('mouseleave', restartAutoplay);
     })();
   </script>
 
