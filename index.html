@@ -1,497 +1,1244 @@
-<!--
-  ASTRUM SMP — Technical Survival Dossier
-  Stack: HTML5 / CSS3 / Vanilla JS — no framework, no utility-CSS CDN
-  Security: CSP + hardening meta tags, no inline scripts, sanitized DOM writes
-  Fonts: Telma (Fontshare, display/numerals) + Inter (Google Fonts, body)
-  Aesthetic: Techno-brutalism editorial — negro + carmesí, líneas 1px, grilla asimétrica
-  Data: estado de servidor (mcsrvstat.us), mods/texturas (Modrinth API, cache local 6h),
-        verificación de blueprints (HEAD check sobre GitHub raw)
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AstrumSMP — Dossier Técnico del Servidor</title>
-
-<!-- Seguridad (best-effort vía meta; replicar también a nivel de servidor/CDN) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://api.fontshare.com; font-src https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: https://cdn.modrinth.com; connect-src 'self' https://api.mcsrvstat.us https://api.modrinth.com https://raw.githubusercontent.com; base-uri 'self'; frame-ancestors 'none';">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-
-<meta name="description" content="AstrumSMP — entorno privado de supervivencia técnica. Estado del servidor en vivo, librería de blueprints y roadmap hacia 1.21.11 con mods.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AstrumSMP — Dossier Técnico">
-<meta property="og:description" content="Entorno privado de supervivencia técnica en Minecraft. Vanilla 1.12.2 por ahora, infraestructura preparada para escalar.">
-<meta name="theme-color" content="#080808">
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23080808'/%3E%3Crect x='2' y='2' width='96' height='96' fill='none' stroke='%23990000' stroke-width='4'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-size='54' fill='%23990000' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
-
+<title>AstrumSMP</title>
+<script>
+  // Evita que el navegador "recuerde" la posición de scroll al recargar
+  // (por eso la página se quedaba en la lista de blueprints al refrescar).
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.addEventListener('load', () => {
+    if (!window.location.hash) window.scrollTo(0, 0);
+  });
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=telma@400,500,700,900&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
 
-<link rel="stylesheet" href="styles.css">
+  /* html controla el scroll del documento — es el único que debe declarar
+     overflow y las propiedades de scrollbar, para que no se generen dos
+     contenedores de scroll independientes (bug de doble scrollbar en Firefox). */
+  html {
+    background: #050505;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a #0a0a0a;
+  }
+
+  body {
+    background: #050505;
+    max-width: 100%;
+  }
+
+  /* Glow radial principal del hero */
+  .hero-glow {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1100px;
+    height: 700px;
+    background: radial-gradient(circle at 50% 30%, rgba(220, 38, 68, 0.35) 0%, rgba(180, 20, 60, 0.18) 35%, rgba(80, 10, 30, 0.06) 60%, transparent 75%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  .glow-soft {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .glass {
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .card-noise {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0) 40%);
+  }
+
+  .nav-blur {
+    backdrop-filter: blur(12px);
+    background: rgba(5,5,5,0.5);
+  }
+
+  .pro-border {
+    border: 1px solid rgba(220, 38, 68, 0.4);
+    box-shadow: 0 0 0 1px rgba(220,38,68,0.15), 0 20px 60px -20px rgba(220,38,68,0.35);
+  }
+
+  /* Placeholder oscuro para <img> de texturas/mods hasta subir las capturas reales */
+  .img-placeholder {
+    background-color: #0d0d0d;
+    color: #52525b;
+    font-size: 11px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+
+  /* Animación de aparición al hacer scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* Transición suave al abrir/cerrar "Ver más mods" */
+  .mods-extra {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transform: translateY(-8px);
+    transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.4s ease,
+                transform 0.4s ease,
+                margin-top 0.5s ease;
+  }
+  .mods-extra.open {
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 1rem;
+    transform: translateY(0);
+  }
+
+  /* ===================== SPLASH SCREEN ===================== */
+  #splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050505;
+    transition: opacity 0.5s ease;
+  }
+  #splash.splash-hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #splash-glow {
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(220,38,68,0.45) 0%, rgba(180,20,60,0.2) 40%, transparent 72%);
+    filter: blur(30px);
+    opacity: 0;
+    animation: splash-glow-pulse 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  #splash-logo {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    opacity: 0;
+    transform: scale(0.85);
+    filter: drop-shadow(0 0 18px rgba(220,38,68,0.55));
+    animation: splash-logo-pop 1.2s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  @keyframes splash-glow-pulse {
+    0%   { opacity: 0;   transform: scale(0.7); }
+    45%  { opacity: 1;   transform: scale(1.15); }
+    100% { opacity: 0;   transform: scale(1.4); }
+  }
+  @keyframes splash-logo-pop {
+    0%   { opacity: 0;   transform: scale(0.85); }
+    35%  { opacity: 1;   transform: scale(1.08); }
+    70%  { opacity: 1;   transform: scale(1); }
+    100% { opacity: 0;   transform: scale(1.12); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #splash-glow, #splash-logo { animation: none; opacity: 1; transform: none; }
+    #splash { transition: none; }
+  }
+
+  /* ===================== ASTRUM — tipografía cinética del hero ===================== */
+  .font-heading-astrum { font-weight: 800; letter-spacing: -0.02em; }
+
+  .astrum-word {
+    display: flex;
+    justify-content: center;
+    font-weight: 800;
+    color: #fff;
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    font-size: clamp(56px, 15vw, 200px);
+  }
+  .astrum-word span {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(50px);
+  }
+  .astrum-word.loaded span {
+    animation: astrum-letter-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes astrum-letter-in {
+    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+  }
+  .astrum-word span:nth-child(1) { animation-delay: 0.05s; }
+  .astrum-word span:nth-child(2) { animation-delay: 0.11s; }
+  .astrum-word span:nth-child(3) { animation-delay: 0.17s; }
+  .astrum-word span:nth-child(4) { animation-delay: 0.23s; }
+  .astrum-word span:nth-child(5) { animation-delay: 0.29s; }
+  .astrum-word span:nth-child(6) { animation-delay: 0.35s; }
+  @media (prefers-reduced-motion: reduce) {
+    .astrum-word span { animation: none !important; opacity: 1; filter: none; transform: none; }
+  }
+
+  /* Barra de progreso de scroll */
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, rgba(220,38,68,0.9), rgba(220,38,68,0.4));
+    z-index: 300; transition: width 0.1s linear;
+  }
+
+  /* Skin viewer */
+  #skin-canvas { display: block; margin: 0 auto; touch-action: none; cursor: grab; }
+  #skin-canvas:active { cursor: grabbing; }
+
+  /* Modal genérico (usado por "Ver Requisitos" y "Changelog") */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-overlay .modal-card {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;
+  }
+  .modal-overlay.open .modal-card {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+</style>
 </head>
-<body>
+<body class="text-zinc-200 antialiased">
 
-  <!-- ===================== PRELOADER ===================== -->
-  <div id="preloader" aria-hidden="true">
-    <div class="preloader__inner">
-      <span class="preloader__label">ASTRUM—SMP</span>
-      <span class="preloader__count" id="preloaderCount">00</span>
-      <div class="preloader__bar"><span id="preloaderFill"></span></div>
-      <span class="preloader__sub">Cargando dossier del servidor</span>
-    </div>
+  <div id="scroll-progress"></div>
+
+  <!-- ===================== SPLASH ===================== -->
+  <div id="splash">
+    <div id="splash-glow"></div>
+    <img id="splash-logo" src="data:image/jpeg;base64,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" alt="AstrumSMP">
   </div>
 
-  <a class="skip-link" href="#main">Saltar al contenido</a>
-
   <!-- ===================== NAV ===================== -->
-  <header class="nav" id="siteNav">
-    <div class="nav__inner">
-      <a href="#home" class="nav__logo">ASTRUM<span>—SMP</span></a>
+  <header class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- LOGO: reemplaza por <img src="logo-astrum.png" alt="AstrumSMP" class="h-6"> cuando tengas el logo final -->
+      <div class="flex items-center gap-2">
+        <img src="data:image/jpeg;base64,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" alt="AstrumSMP" class="w-6 h-6 rounded-md object-cover">
+        <span class="font-semibold text-white text-[15px]">AstrumSMP</span>
+      </div>
 
-      <nav class="nav__links" aria-label="Navegación principal">
-        <a href="#infra">Estado</a>
-        <a href="#mods">Mods</a>
-        <a href="#blueprints">Blueprints</a>
-        <a href="#roadmap">Roadmap</a>
-        <a href="#conectar">Conectar</a>
+      <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
+        <button type="button" id="changelog-btn-nav" class="hover:text-white transition-colors">Changelog</button>
+        <a href="perfil.html" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Perfil</a>
       </nav>
 
-      <div class="nav__right">
-        <span class="nav__status" id="navStatus">
-          <span class="dot" id="navStatusDot"></span>
-          <span id="navStatusText">Consultando…</span>
-        </span>
-        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill">Discord</a>
+      <div class="flex items-center gap-5 text-sm">
+        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="bg-white text-black font-medium px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">Discord</a>
+        <button type="button" id="menu-toggle" aria-expanded="false" aria-controls="menu-overlay" class="text-[11px] uppercase tracking-[0.18em] text-zinc-400 hover:text-white transition-colors">
+          Menú
+        </button>
       </div>
-
-      <button class="nav__burger" id="navBurger" type="button" aria-expanded="false" aria-controls="navMobile" aria-label="Abrir menú">
-        <span></span><span></span>
-      </button>
     </div>
-
-    <nav class="nav__mobile" id="navMobile" aria-label="Navegación móvil">
-      <a href="#infra">Estado</a>
-      <a href="#mods">Mods</a>
-      <a href="#blueprints">Blueprints</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="#conectar">Conectar</a>
-    </nav>
   </header>
 
-  <main id="main">
+  <!-- ===================== MENU OVERLAY ===================== -->
+  <div id="menu-overlay" class="modal-overlay" style="align-items:flex-start; justify-content:flex-end; padding:0;">
+    <nav class="glass h-full w-full sm:w-[340px] flex flex-col gap-1 p-8 pt-24" style="transform:translateX(20px); opacity:0; transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;">
+      <a href="#perfil" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
+      <a href="#stats" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Stats</a>
+      <a href="#mods-section" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Mods</a>
+      <a href="#roadmap" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Roadmap</a>
+      <div class="h-px bg-white/10 my-4"></div>
+      <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Instagram ↗</a>
+      <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Modrinth ↗</a>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Discord ↗</a>
+      <button type="button" id="menu-close" class="absolute top-5 right-6 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar menú">✕</button>
+    </nav>
+  </div>
 
-    <!-- ===================== HERO ===================== -->
-    <section class="hero" id="home">
-      <div class="grid-overlay" aria-hidden="true"></div>
+  <!-- ===================== HERO ===================== -->
+  <section class="relative pt-40 pb-28 px-6 text-center overflow-hidden">
+    <div class="hero-glow"></div>
 
-      <div class="hero__grid">
-        <div class="hero__main">
-          <p class="tag" data-reveal="up">[ SERVIDOR 1.12.2 — DESARROLLO CERRADO ]</p>
+    <div class="relative z-10 max-w-3xl mx-auto">
+      <span class="inline-flex items-center gap-2 text-xs font-medium text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6">
+        ✦ Servidor 1.12.2 por ahora
+      </span>
 
-          <h1 class="hero__title">
-            <span class="reveal-mask" data-reveal="mask"><em>ASTRUM</em></span>
-            <span class="reveal-mask" data-reveal="mask">—SMP</span>
-          </h1>
+      <h1 id="astrum-word" class="astrum-word mb-6" aria-label="ASTRUM">
+        <span>A</span><span>S</span><span>T</span><span>R</span><span>U</span><span>M</span>
+      </h1>
+      <p class="text-zinc-600 text-xs uppercase tracking-[0.3em] -mt-4 mb-8">SMP · Servidor privado</p>
 
-          <p class="hero__desc" data-reveal="up">
-            Entorno privado de supervivencia técnica. Operando temporalmente en
-            Vanilla 1.12.2, con infraestructura escalable diseñada para la futura
-            integración de mods en 1.21.11.
-          </p>
+      <p class="text-zinc-400 text-lg max-w-xl mx-auto mb-8">
+        Entorno privado de supervivencia técnica. Operando temporalmente en Vanilla 1.12.2, con infraestructura escalable diseñada para la futura integración de mods.
+      </p>
 
-          <div class="hero__actions" data-reveal="up">
-            <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill btn--lg">
-              Unirse al Discord <span aria-hidden="true">→</span>
-            </a>
-            <a href="#infra" class="btn btn--ghost btn--lg">Ver estado en vivo</a>
-          </div>
-        </div>
-
-        <aside class="hero__spec" data-reveal="up">
-          <p class="hero__spec-head">Ficha Técnica</p>
-          <ul class="spec-list">
-            <li><span>Versión</span><strong>1.12.2</strong></li>
-            <li><span>Tipo</span><strong>Vanilla</strong></li>
-            <li><span>Acceso</span><strong>Privado</strong></li>
-            <li><span>Uptime</span><strong>24 / 7</strong></li>
-            <li><span>Fase</span><strong>01 — Base</strong></li>
-          </ul>
-          <code class="hero__ip">mc.hackos.dev:27015</code>
-        </aside>
-      </div>
-
-      <a href="#manifest" class="hero__scroll" aria-label="Bajar a la siguiente sección">
-        <span>Scroll</span><i></i>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)]">
+        Discord
       </a>
-    </section>
+    </div>
+  </section>
 
-    <!-- ===================== MANIFEST / BENTO FEATURES ===================== -->
-    <section class="manifest" id="manifest">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 01 — Manifiesto ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Cómo está<br>construido.</h2>
+  <!-- ===================== PERFIL ===================== -->
+  <section id="perfil" class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
+    <div class="glow-soft w-[420px] h-[420px] bg-rose-600/10 top-0 right-1/4"></div>
+    <div class="max-w-4xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-10 items-center">
+      <div class="glass rounded-2xl p-6 flex items-center justify-center">
+        <canvas id="skin-canvas" width="260" height="340"></canvas>
       </div>
-
-      <div class="bento">
-        <article class="bento__card bento__card--lg" data-reveal="up">
-          <span class="bento__num num-outline">01</span>
-          <h3>Base Vanilla Estable</h3>
-          <p>Ejecutando la versión 1.12.2 sin modificaciones. Un entorno puro y
-             optimizado para establecer los cimientos del mundo.</p>
-        </article>
-
-        <article class="bento__card" data-reveal="up">
-          <span class="bento__num num-outline">02</span>
-          <h3>Proyección Técnica</h3>
-          <p>Enfoque absoluto en granjas y redstone. Arquitectura preparada para
-             escalar a versiones modernas (1.17x+) con soporte integral para mods.</p>
-        </article>
-
-        <article class="bento__card" data-reveal="up">
-          <span class="bento__num num-outline">03</span>
-          <h3>Acceso Restringido</h3>
-          <p>Desarrollo a puerta cerrada. Cada mecanismo y perímetro construido
-             forma parte de un ecosistema controlado y persistente.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- ===================== INFRAESTRUCTURA / ESTADO ===================== -->
-    <section class="infra" id="infra">
-      <div class="infra__grid">
-        <div class="section-head section-head--tight" data-reveal="up">
-          <p class="tag">[ 02 — Infraestructura ]</p>
-          <h2 class="reveal-mask" data-reveal="mask">Servidor activo,<br>24 horas al día.</h2>
-          <p class="infra__desc">
-            Hosteado en servidores de alto rendimiento para asegurar que los
-            mecanismos y la carga de chunks funcionen sin interrupciones.
-          </p>
+      <div class="text-center sm:text-left">
+        <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
+        <h2 class="text-3xl font-bold text-white mt-3 mb-2">1Luiisssss</h2>
+        <p class="text-zinc-400 text-sm mb-6">Creador &amp; administración de AstrumSMP. Arrastra el modelo para rotarlo.</p>
+        <div class="flex items-center justify-center sm:justify-start gap-3 text-sm">
+          <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
+          <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
+        <p class="text-zinc-700 text-[11px] mt-4">Skin cargada por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub.</p>
+      </div>
+    </div>
+  </section>
 
-        <div class="dossier" id="serverStatusCard" data-server-address="mc.hackos.dev:27015" data-reveal="up">
-          <p class="dossier__label">Readout en vivo</p>
-          <div class="dossier__row">
-            <span class="dot" id="serverStatusDot"></span>
-            <span class="dossier__status" id="serverStatusText">Consultando estado…</span>
-          </div>
-          <div class="dossier__meta">
-            <div><span>Jugadores</span><strong id="serverStatusPlayers">—</strong></div>
-            <div><span>Versión</span><strong id="serverStatusVersion">—</strong></div>
-          </div>
-          <code class="dossier__ip">mc.hackos.dev:27015</code>
+  <!-- ===================== STATS ===================== -->
+  <section id="stats" class="reveal relative px-6 py-24 border-t border-white/5">
+    <div class="max-w-5xl mx-auto text-center mb-10">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Mundo</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Stats</h2>
+      <p class="text-zinc-400 max-w-lg mx-auto">Se conectan en vivo cuando despliegues tu pipeline de <code class="text-zinc-500">export-stats.js</code>.</p>
+    </div>
+    <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="glass rounded-xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-white">—</p>
+        <p class="text-zinc-500 text-xs mt-1">Días de mundo</p>
+      </div>
+      <div class="glass rounded-xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-white">—</p>
+        <p class="text-zinc-500 text-xs mt-1">Jugadores whitelist</p>
+      </div>
+      <div class="glass rounded-xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-white">—</p>
+        <p class="text-zinc-500 text-xs mt-1">Bloques colocados</p>
+      </div>
+      <div class="glass rounded-xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-white">—</p>
+        <p class="text-zinc-500 text-xs mt-1">Muertes totales</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== APP SHOWCASE ===================== -->
+  <section id="mods-section" class="reveal relative px-6 pb-24 overflow-hidden">
+    <div class="max-w-5xl mx-auto text-center mb-10">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ AstrumSMP</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Explora nuestro mundo</h2>
+      <p class="text-zinc-400 max-w-lg mx-auto">Capturas técnicas y un mapa dinámico del servidor, próximamente.</p>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto">
+      <div class="glow-soft w-[500px] h-[300px] bg-rose-600/20 -top-10 left-1/3"></div>
+      <div class="relative glass rounded-2xl p-3 shadow-2xl">
+        <div class="flex gap-1.5 px-3 py-2">
+          <div class="w-3 h-3 rounded-full bg-zinc-700"></div>
+          <div class="w-3 h-3 rounded-full bg-zinc-700"></div>
+          <div class="w-3 h-3 rounded-full bg-zinc-700"></div>
         </div>
-      </div>
-    </section>
-
-    <!-- ===================== MODS ROADMAP ===================== -->
-    <section class="mods" id="mods">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 03 — Roadmap Técnico ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Mods planeados<br>para 1.21.11.</h2>
-        <p class="section-desc">Íconos obtenidos en vivo desde la API pública de Modrinth.</p>
-      </div>
-
-      <div id="modIconGrid" class="icon-grid" data-reveal="up">
-        <div class="icon-slot" data-slug="sodium"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="lithium"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="journeymap"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="litematica"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="modmenu"><img alt="" loading="lazy"></div>
-      </div>
-
-      <div id="modIconGridExtra" class="icon-grid icon-grid--extra">
-        <div class="icon-slot" data-slug="architectury-api"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="badoptimizations"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="c2me-fabric"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="capes"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="carpet-extra"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="carpet-tis-addition"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="cloth-config"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="continuity"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="entityculling"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="essential-mod"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="exordium"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="fabric-api"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="carpet"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="fabric-language-kotlin"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="ferritecore"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="immediatelyfast"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="inventory-profiles-next"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="krypton"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="libipn"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="libjf"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="malilib"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="minihud"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="modernfix"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="noisium"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="placeholder-api"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="sodium-extra"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="spark"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="tweakeroo"><img alt="" loading="lazy"></div>
-        <div class="icon-slot" data-slug="yacl"><img alt="" loading="lazy"></div>
-      </div>
-
-      <button id="modsToggleBtn" class="btn btn--ghost btn--sm" type="button">Ver más mods</button>
-    </section>
-
-    <!-- ===================== TEXTURE PACK ===================== -->
-    <section class="textures" id="textures">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 04 — Texture Pack ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Optimized<br>Vanilla.</h2>
-        <p class="section-desc">Mejora visual proyectada — paquete oficial en desarrollo para mantener la esencia del juego rindiendo al máximo.</p>
-      </div>
-
-      <div id="textureGrid" class="icon-grid icon-grid--textures" data-reveal="up">
-        <div class="icon-slot icon-slot--loading">Cargando…</div>
-      </div>
-    </section>
-
-    <!-- ===================== BLUEPRINTS ===================== -->
-    <section class="blueprints" id="blueprints">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 05 — Librería ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">
-          Blueprints <em>.litematic</em>
-        </h2>
-        <p class="section-desc">
-          Granjas y mecanismos de redstone ya optimizados, listos para importar
-          con Litematica. <span class="badge">En proceso</span>
-        </p>
-      </div>
-
-      <div id="blueprintList" class="blueprint-list" data-reveal="up">
-        <!-- Filas inyectadas por script.js desde el array BLUEPRINTS -->
-      </div>
-    </section>
-
-    <!-- ===================== COMING SOON ===================== -->
-    <section class="soon">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 06 — Próximamente ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Esto es solo<br>el comienzo.</h2>
-      </div>
-
-      <div class="soon__grid">
-        <article class="soon__card" data-reveal="up">
-          <div class="soon__icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-              <rect x="3" y="4" width="18" height="14" rx="1"/>
-              <path d="M8 10l3 2-3 2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M13 14h4" stroke-linecap="round"/>
-              <path d="M3 20h18" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Astrum Launcher</h3>
-          <p>Launcher propio con login de Microsoft, auto-descarga de Java 21 e instalación de mods en un clic.</p>
-        </article>
-
-        <article class="soon__card" data-reveal="up">
-          <div class="soon__icon">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-              <path d="M4 20V10M12 20V4M20 20v-7" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 20h18" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3>Estadísticas de Jugador</h3>
-          <p>Panel con tu playtime, muertes y bloques minados, directo desde tu perfil.</p>
-        </article>
-
-        <article class="soon__card" data-reveal="up">
-          <div class="soon__icon soon__icon--img">
-            <!-- Vista previa de la v2 del texture pack: se mantiene fija a propósito,
-                 ya que "Optimized Vanilla+" todavía no existe como proyecto publicado
-                 en Modrinth y por lo tanto no se puede cargar en vivo como el resto. -->
-            <img src="https://cdn.modrinth.com/data/1azRPCOA/b46a8a1946a377a02ec1680efc523abdb95b8999_96.webp" alt="Optimized Vanilla+" loading="lazy">
-          </div>
-          <h3>Optimized Vanilla+</h3>
-          <p>Nueva versión del texture pack oficial, con más optimización y detalle visual.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- ===================== ROADMAP ===================== -->
-    <section class="roadmap" id="roadmap">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 07 — Hoja de Ruta ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Hacia dónde<br>va AstrumSMP.</h2>
-        <p class="section-desc">Transparencia sobre el proceso, sin comprometer la estabilidad del mundo persistente.</p>
-      </div>
-
-      <div class="phase-list">
-        <div class="phase" data-reveal="up">
-          <span class="phase__num num-outline">01</span>
-          <div class="phase__body">
-            <span class="badge badge--live">En curso</span>
-            <h3>Base Vanilla 1.12.2</h3>
-            <p>Fundación estable del mundo. Primeros perímetros, granjas base y mecanismos core de redstone asegurados antes de escalar.</p>
-          </div>
-        </div>
-        <div class="phase" data-reveal="up">
-          <span class="phase__num num-outline">02</span>
-          <div class="phase__body">
-            <span class="badge">Planeado</span>
-            <h3>Consolidación Técnica</h3>
-            <p>Optimización de granjas existentes, texture pack oficial terminado y montaje de un servidor de staging para probar la migración sin arriesgar el mundo real.</p>
-          </div>
-        </div>
-        <div class="phase" data-reveal="up">
-          <span class="phase__num num-outline">03</span>
-          <div class="phase__body">
-            <span class="badge">Proyectado</span>
-            <h3>Transición a 1.17x+</h3>
-            <p>Migración del mundo persistente sin pérdida de progreso. Pruebas de compatibilidad de chunks y estructuras ya construidas.</p>
-          </div>
-        </div>
-        <div class="phase" data-reveal="up">
-          <span class="phase__num num-outline">04</span>
-          <div class="phase__body">
-            <span class="badge">Futuro</span>
-            <h3>1.21.11 con Mods</h3>
-            <p>Integración completa del ecosistema de mods planeado, expansión del servidor y apertura gradual a nuevas mecánicas.</p>
-          </div>
+        <!-- Placeholder: inserta aquí un mapa dinámico o captura del mundo -->
+        <div class="bg-zinc-950 rounded-xl h-80 sm:h-96 flex items-center justify-center border border-white/5">
+          <p class="text-zinc-600 text-sm">[ Mapa / Captura del servidor ]</p>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- ===================== CÓMO CONECTARSE ===================== -->
-    <section class="connect" id="conectar">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 08 — Acceso ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">Cómo<br>conectarse.</h2>
+    <!-- Bento cards -->
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">✦</div>
+        <h3 class="text-white font-semibold text-sm mb-1">Base Vanilla Estable</h3>
+        <p class="text-zinc-500 text-sm">Ejecutando la versión 1.12.2 sin modificaciones. Un entorno puro y optimizado para establecer los cimientos del mundo.</p>
+      </div>
+      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">◈</div>
+        <h3 class="text-white font-semibold text-sm mb-1">Proyección Técnica</h3>
+        <p class="text-zinc-500 text-sm">Enfoque absoluto en granjas y redstone. Arquitectura preparada para escalar a versiones modernas (1.17x+) con soporte integral para mods.</p>
+      </div>
+      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">⚡</div>
+        <h3 class="text-white font-semibold text-sm mb-1">Acceso Restringido</h3>
+        <p class="text-zinc-500 text-sm">Desarrollo a puerta cerrada. Cada mecanismo y perímetro construido forma parte de un ecosistema controlado y persistente.</p>
+      </div>
+    </div>
+
+    <!-- Mods planeados (1.21.11) — íconos cargados en vivo desde la API de Modrinth (ver <script id="mod-icons-loader"> al final del body) -->
+    <div class="max-w-5xl mx-auto mt-16 text-center">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
+      <h3 class="text-xl font-semibold text-white mt-3 mb-6">Mods planeados para 1.21.11</h3>
+      <div id="mod-icon-grid" class="flex flex-wrap justify-center gap-4">
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium">
+          <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
+        </div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="lithium">
+          <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
+        </div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="journeymap">
+          <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
+        </div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="litematica">
+          <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
+        </div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modmenu">
+          <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
+        </div>
       </div>
 
-      <div class="connect__grid">
-        <div class="connect__card" data-reveal="up">
-          <h3>Java Edition</h3>
-          <p class="connect__lead">Requisitos técnicos para unirte.</p>
-          <ul class="check-list">
-            <li>Versión actual: 1.12.2</li>
-            <li>Entorno Vanilla</li>
-            <li>Servidor Privado</li>
-          </ul>
-          <button type="button" id="requirementsBtn" class="btn btn--ghost btn--block">Ver Requisitos</button>
+      <!-- Grid extendido: se muestra al presionar "Ver más". Si algún ícono no carga
+           (slug incorrecto o mod no publicado en Modrinth), el script lo oculta solo. -->
+      <div id="mod-icon-grid-extra" class="mods-extra flex flex-wrap justify-center gap-4">
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="architectury-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="badoptimizations"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="c2me-fabric"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="capes"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-extra"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-tis-addition"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="cloth-config"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="continuity"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="entityculling"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="essential-mod"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="exordium"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-language-kotlin"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="ferritecore"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="immediatelyfast"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="inventory-profiles-next"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="krypton"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libipn"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libjf"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="malilib"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="minihud"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modernfix"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="noisium"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="placeholder-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium-extra"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="spark"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="tweakeroo"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="yacl"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+      </div>
+
+      <button id="mods-toggle-btn" class="mt-6 text-xs font-medium text-rose-300 border border-rose-500/20 bg-rose-500/10 px-4 py-2 rounded-full hover:bg-rose-500/20 transition-colors">
+        Ver más mods
+      </button>
+
+      <p class="text-zinc-600 text-xs mt-4">Íconos obtenidos en vivo desde la API pública de Modrinth.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURE: INFRAESTRUCTURA (antes Cloud Sync) ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
+    <div class="glow-soft w-[400px] h-[400px] bg-red-700/10 top-10 right-1/4"></div>
+    <div class="max-w-xl mx-auto text-center relative z-10">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Infraestructura</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Servidor Activo 24/7</h2>
+      <p class="text-zinc-400 mb-10">Hosteado en servidores de alto rendimiento para asegurar que los mecanismos y la carga de chunks funcionen sin interrupciones.</p>
+
+      <!-- Estado en vivo consultado a mcsrvstat.us (API pública, sin auth) -->
+      <div id="server-status-card" class="glass rounded-2xl p-8 flex flex-col items-center gap-4" data-server-address="mc.hackos.dev:27015">
+        <div class="flex items-center gap-3">
+          <span id="server-status-dot" class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          <span id="server-status-text" class="text-white font-semibold text-sm">Consultando estado…</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm text-zinc-400">
+          <span id="server-status-players">— jugadores</span>
+          <span class="text-zinc-700">•</span>
+          <span id="server-status-version">—</span>
+        </div>
+        <code class="text-xs text-zinc-600 tracking-wide">mc.hackos.dev:27015</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURE: TEXTURE PACK (antes Custom Themes) ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-12">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Texture Pack</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Optimized Vanilla</h2>
+      <p class="text-zinc-400">Mejora visual proyectada. Paquete de texturas oficial en desarrollo para mantener la esencia del juego rindiendo al máximo.</p>
+    </div>
+
+    <!-- Se llena en vivo con todos tus resourcepacks publicados en Modrinth (modrinth.com/user/1Luiiissss) -->
+    <div id="texture-grid" class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-5 gap-4">
+      <div class="aspect-square rounded-xl border border-zinc-800 bg-zinc-950 flex items-center justify-center text-zinc-600 text-xs">Cargando…</div>
+    </div>
+  </section>
+
+  <!-- ===================== BLUEPRINTS / SCHEMATICS ===================== -->
+  <!-- Cada tarjeta es un diseño descargable (.litematic). Los href apuntan a
+       raw.githubusercontent.com — reemplaza "1Luiisssss/astrum-smp" (Ctrl+F/Reemplazar,
+       aparece 9 veces) por tu usuario y repo reales de GitHub una vez que hayas
+       subido la carpeta /blueprints. Para agregar un diseño nuevo, duplica un
+       bloque <div class="blueprint-card">. -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-12">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">
+        Librería de Diseños
+        <span class="inline-block align-middle ml-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-full">En proceso</span>
+      </h2>
+      <p class="text-zinc-400">Granjas y mecanismos de redstone ya optimizados, listos para importar con Litematica.</p>
+      <p class="text-zinc-600 text-xs mt-2">Estamos terminando de subir los archivos — algunos descargas pueden no estar disponibles todavía.</p>
+    </div>
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Bambú</h3>
+        <p class="text-zinc-500 text-sm mb-4">Producción automática de bambú — ideal para combustible de hornos y compostaje rápido.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-bambu.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Trueque (Piglins)</h3>
+        <p class="text-zinc-500 text-sm mb-4">Sistema de trueque con piglins para oro, perlas de ender y más, completamente automatizado.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-trueque-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Sistema de Almacenamiento Kayzm</h3>
+        <p class="text-zinc-500 text-sm mb-4">Storage masivo con 3 sistemas de ordenamiento automático por categoría de ítem.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/sistema-almacenamiento-kayzm.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de Hierro (Overworld)</h3>
+        <p class="text-zinc-500 text-sm mb-4">Diseño adaptado para overworld, alta tasa de producción sostenida de hierro.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-hierro-overworld.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Cargador de Piglins</h3>
+        <p class="text-zinc-500 text-sm mb-4">Transporta y posiciona piglins automáticamente hacia la zona de trueque.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/cargador-piglins.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Automatización</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Almacenamiento de Shulkers</h3>
+        <p class="text-zinc-500 text-sm mb-4">Bodega compacta para cajas shulker, acceso rápido y organizado.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/almacenamiento-shulker.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Granja de XP y Oro</h3>
+        <p class="text-zinc-500 text-sm mb-4">Diseño enfocado en experiencia y oro de forma eficiente y continua.</p>
+        <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/granja-xp-oro.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+          <span class="link-label">Descargar .litematic</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="blueprint-card bg-zinc-950 border border-zinc-800 rounded-xl p-6 hover:border-rose-500/40 transition-colors">
+        <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-3">Granja</span>
+        <h3 class="text-white font-semibold text-sm mb-1">Zona de Creepers + Recolección de Pólvora</h3>
+        <p class="text-zinc-500 text-sm mb-4">Sistema completo: área de spawn controlado de creepers junto con la recolección automática de la pólvora que sueltan.</p>
+        <div class="flex flex-col gap-2">
+          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-generacion-creepers.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+            <span class="link-label">Descargar zona de generación</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="https://raw.githubusercontent.com/1Luiisssss/astrum-smp/main/blueprints/zona-recoleccion-polvora.litematic" download class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-300 hover:text-rose-200 transition-colors">
+            <span class="link-label">Descargar zona de recolección</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v13m0 0l-5-5m5 5l5-5M4 20h16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== COMING SOON ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-14">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Coming Soon</h2>
+      <p class="text-zinc-400">Esto es solo el comienzo. Mira lo que se viene para AstrumSMP.</p>
+    </div>
+
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-6">
+        <div class="h-28 rounded-lg bg-zinc-900 border border-zinc-800 mb-5 flex items-center justify-center">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="14" rx="2"/>
+            <path d="M8 10l3 2-3 2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 14h4" stroke-linecap="round"/>
+            <path d="M3 20h18" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold text-sm mb-1">Astrum Launcher</h3>
+        <p class="text-zinc-500 text-sm">Launcher propio con login de Microsoft, auto-descarga de Java 21 e instalación de mods en un clic.</p>
+      </div>
+      <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-6">
+        <div class="h-28 rounded-lg bg-zinc-900 border border-zinc-800 mb-5 flex items-center justify-center">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="1.5">
+            <path d="M4 20V10M12 20V4M20 20v-7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 20h18" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-semibold text-sm mb-1">Estadísticas de Jugador</h3>
+        <p class="text-zinc-500 text-sm">Panel con tu playtime, muertes y bloques minados, directo desde tu perfil.</p>
+      </div>
+      <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-6">
+        <div class="h-28 rounded-lg bg-zinc-900 border border-zinc-800 mb-5 flex items-center justify-center overflow-hidden">
+          <img src="https://cdn.modrinth.com/data/1azRPCOA/b46a8a1946a377a02ec1680efc523abdb95b8999_96.webp" alt="Optimized Vanilla+" class="w-14 h-14 rounded-lg object-cover">
+        </div>
+        <h3 class="text-white font-semibold text-sm mb-1">Optimized Vanilla+</h3>
+        <p class="text-zinc-500 text-sm">Nueva versión del texture pack oficial, con más optimización y detalle visual.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROADMAP ===================== -->
+  <section id="roadmap" class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-xl mx-auto text-center mb-16">
+      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Hacia dónde va AstrumSMP</h2>
+      <p class="text-zinc-400">Transparencia sobre el proceso, sin comprometer la estabilidad del mundo persistente.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto relative">
+      <div class="absolute left-[15px] top-2 bottom-2 w-px bg-zinc-800"></div>
+
+      <div class="space-y-10">
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-rose-300 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full mb-2">En curso</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 1 — Base Vanilla 1.12.2</h3>
+          <p class="text-zinc-500 text-sm">Fundación estable del mundo. Primeros perímetros, granjas base y mecanismos core de redstone asegurados antes de escalar.</p>
         </div>
 
-        <div class="connect__card connect__card--accent" data-reveal="up">
-          <h3>Comunidad</h3>
-          <p class="connect__lead">Mantente al día y forma parte del proyecto.</p>
-          <ul class="check-list">
-            <li>Únete a Discord</li>
-            <li>Lee las normativas</li>
-            <li>Desarrollo en curso</li>
-          </ul>
-          <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill btn--block">Ir a Discord</a>
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Planeado</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 2 — Consolidación Técnica</h3>
+          <p class="text-zinc-500 text-sm">Optimización de granjas existentes, texture pack oficial terminado y montaje de un servidor de staging para probar la migración sin arriesgar el mundo real.</p>
         </div>
-      </div>
-    </section>
 
-    <!-- ===================== FAQ ===================== -->
-    <section class="faq">
-      <div class="section-head" data-reveal="up">
-        <p class="tag">[ 09 — Preguntas ]</p>
-        <h2 class="reveal-mask" data-reveal="mask">FAQ.</h2>
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Proyectado</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 3 — Transición a 1.17x+</h3>
+          <p class="text-zinc-500 text-sm">Migración del mundo persistente sin pérdida de progreso. Pruebas de compatibilidad de chunks y estructuras ya construidas.</p>
+        </div>
+
+        <div class="relative pl-12">
+          <div class="absolute left-0 top-1 w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-600"></span>
+          </div>
+          <span class="inline-block text-[10px] font-semibold uppercase tracking-wider text-zinc-400 bg-zinc-800/60 border border-zinc-700 px-2 py-0.5 rounded-full mb-2">Futuro</span>
+          <h3 class="text-white font-semibold text-base mb-1">Fase 4 — 1.21.11 con Mods</h3>
+          <p class="text-zinc-500 text-sm">Integración completa del ecosistema de mods planeado, expansión del servidor y apertura gradual a nuevas mecánicas.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CÓMO CONECTARSE (antes Pricing) ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
+    <div class="glow-soft w-[500px] h-[500px] bg-rose-600/15 top-0 left-1/2 -translate-x-1/2"></div>
+
+    <div class="max-w-xl mx-auto text-center mb-14 relative z-10">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Cómo Conectarse</h2>
+      <p class="text-zinc-400">Todo lo que necesitas saber antes de entrar al servidor.</p>
+    </div>
+
+    <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center relative z-10">
+      <!-- Java Edition -->
+      <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-7">
+        <h3 class="text-white font-semibold mb-1">Java Edition</h3>
+        <p class="text-zinc-500 text-sm mb-6">Requisitos técnicos para unirte.</p>
+        <ul class="text-sm text-zinc-400 space-y-3 mb-8">
+          <li>✓ Versión actual: 1.12.2</li>
+          <li>✓ Entorno Vanilla</li>
+          <li>✓ Servidor Privado</li>
+        </ul>
+        <button type="button" id="requirements-btn" class="block w-full text-center border border-zinc-700 text-white rounded-full py-2.5 text-sm hover:bg-zinc-900 transition-colors">Ver Requisitos</button>
       </div>
 
-      <div class="faq-list" data-reveal="up">
-        <details class="faq-item">
-          <summary>
-            <span class="faq-item__num">01</span>
-            <span class="faq-item__q">¿Por qué operar en la versión 1.12.2?</span>
-            <span class="faq-item__icon" aria-hidden="true">+</span>
-          </summary>
-          <p>Buscamos máxima estabilidad operativa para establecer la infraestructura base y los primeros perímetros antes de escalar.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="faq-item__num">02</span>
-            <span class="faq-item__q">¿Cuándo se implementarán los mods?</span>
-            <span class="faq-item__icon" aria-hidden="true">+</span>
-          </summary>
-          <p>La transición a 1.17x+ (y posteriormente a 1.21.11) está proyectada una vez que los mecanismos core de redstone estén asegurados.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="faq-item__num">03</span>
-            <span class="faq-item__q">¿Puedo postularme para entrar?</span>
-            <span class="faq-item__icon" aria-hidden="true">+</span>
-          </summary>
-          <p>No. Actualmente es un entorno de desarrollo estricto a puerta cerrada.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="faq-item__num">04</span>
-            <span class="faq-item__q">¿Habrá reinicio de mapa (wipe) con las actualizaciones?</span>
-            <span class="faq-item__icon" aria-hidden="true">+</span>
-          </summary>
-          <p>No. El servidor tiene un enfoque de mundo persistente; la arquitectura está diseñada para migrar sin pérdida de progreso.</p>
-        </details>
+      <!-- Comunidad -->
+      <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-7">
+        <h3 class="text-white font-semibold mb-1">Comunidad</h3>
+        <p class="text-zinc-500 text-sm mb-6">Mantente al día y forma parte del proyecto.</p>
+        <ul class="text-sm text-zinc-400 space-y-3 mb-8">
+          <li>✓ Únete a Discord</li>
+          <li>✓ Lee las normativas</li>
+          <li>✓ Desarrollo en curso</li>
+        </ul>
+        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="block text-center bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-full py-2.5 text-sm transition-colors shadow-[0_0_30px_-8px_rgba(220,38,68,0.6)]">Ir a Discord</a>
       </div>
-    </section>
+    </div>
+  </section>
 
-  </main>
+  <!-- ===================== FAQ ===================== -->
+  <section class="reveal relative px-6 py-28 border-t border-white/5">
+    <div class="max-w-2xl mx-auto text-center mb-14">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">FAQs</h2>
+      <p class="text-zinc-400">Respuestas a las preguntas más frecuentes.</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto divide-y divide-zinc-800">
+      <details class="group py-5">
+        <summary class="flex items-center justify-between text-white text-sm font-medium">
+          ¿Por qué operar en la versión 1.12.2?
+          <span class="chev text-zinc-500 transition-transform">⌄</span>
+        </summary>
+        <p class="text-zinc-500 text-sm mt-3 pr-6">Buscamos máxima estabilidad operativa para establecer la infraestructura base y los primeros perímetros antes de escalar.</p>
+      </details>
+      <details class="group py-5">
+        <summary class="flex items-center justify-between text-white text-sm font-medium">
+          ¿Cuándo se implementarán los mods?
+          <span class="chev text-zinc-500 transition-transform">⌄</span>
+        </summary>
+        <p class="text-zinc-500 text-sm mt-3 pr-6">La transición a 1.17x+ (y posteriormente a 1.21.11) está proyectada una vez que los mecanismos core de redstone estén asegurados.</p>
+      </details>
+      <details class="group py-5">
+        <summary class="flex items-center justify-between text-white text-sm font-medium">
+          ¿Puedo postularme para entrar?
+          <span class="chev text-zinc-500 transition-transform">⌄</span>
+        </summary>
+        <p class="text-zinc-500 text-sm mt-3 pr-6">No. Actualmente es un entorno de desarrollo estricto a puerta cerrada.</p>
+      </details>
+      <details class="group py-5">
+        <summary class="flex items-center justify-between text-white text-sm font-medium">
+          ¿Habrá reinicio de mapa (wipe) con las actualizaciones?
+          <span class="chev text-zinc-500 transition-transform">⌄</span>
+        </summary>
+        <p class="text-zinc-500 text-sm mt-3 pr-6">No. El servidor tiene un enfoque de mundo persistente; la arquitectura está diseñada para migrar sin pérdida de progreso.</p>
+      </details>
+    </div>
+  </section>
 
   <!-- ===================== FOOTER ===================== -->
-  <footer class="footer">
-    <p class="footer__word" aria-hidden="true">ASTRUM</p>
-
-    <div class="footer__grid">
-      <div class="footer__col footer__col--brand">
-        <a href="#home" class="nav__logo">ASTRUM<span>—SMP</span></a>
-        <p>© <span id="year">2026</span> AstrumSMP. Todos los derechos reservados.</p>
+  <footer class="relative px-6 py-16 border-t border-white/5 reveal">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-10">
+      <div class="sm:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <img src="data:image/jpeg;base64,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" alt="AstrumSMP" class="w-5 h-5 rounded-md object-cover">
+          <span class="font-semibold text-white text-sm">AstrumSMP</span>
+        </div>
+        <p class="text-zinc-600 text-xs">© 2026 AstrumSMP.</p>
       </div>
 
-      <div class="footer__col">
-        <p class="footer__label">Proyecto</p>
-        <button type="button" id="changelogBtn" class="footer__link">Changelog</button>
-        <a href="#infra" class="footer__link">Estado</a>
-        <a href="#infra" class="footer__link">Infraestructura</a>
+      <div>
+        <h4 class="text-zinc-300 text-xs font-semibold mb-4">Proyecto</h4>
+        <ul class="space-y-2 text-xs text-zinc-500">
+          <li><button type="button" id="changelog-btn-footer" class="hover:text-white transition-colors">Changelog</button></li>
+          <li><a href="#" class="hover:text-white transition-colors">Estado</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Infraestructura</a></li>
+        </ul>
       </div>
 
-      <div class="footer__col">
-        <p class="footer__label">Redes</p>
-        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="footer__link">Discord</a>
-        <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a>
-        <a href="https://www.youtube.com/@r4iinClips" target="_blank" rel="noopener noreferrer" class="footer__link">YouTube</a>
+      <div>
+        <h4 class="text-zinc-300 text-xs font-semibold mb-4">Redes</h4>
+        <ul class="space-y-2 text-xs text-zinc-500">
+          <li><a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="hover:text-white transition-colors">Discord</a></li>
+          <li><a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Instagram</a></li>
+          <li><a href="https://www.youtube.com/@r4iinClips" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">YouTube</a></li>
+        </ul>
       </div>
 
-      <div class="footer__col">
-        <p class="footer__label">Recursos</p>
-        <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="footer__link">Modrinth</a>
-        <a href="https://modrinth.com/resourcepack/1luiissss-vanilla" target="_blank" rel="noopener noreferrer" class="footer__link">Texturas</a>
+      <div>
+        <h4 class="text-zinc-300 text-xs font-semibold mb-4">Recursos</h4>
+        <ul class="space-y-2 text-xs text-zinc-500">
+          <li><a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Modrinth</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Archivos</a></li>
+          <li><a href="https://modrinth.com/resourcepack/1luiissss-vanilla" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Texturas</a></li>
+        </ul>
       </div>
     </div>
   </footer>
 
-  <!-- ===================== MODAL: REQUISITOS ===================== -->
-  <div id="requirementsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="requirementsTitle">
-    <div class="modal__card">
-      <button type="button" id="requirementsClose" class="modal__close" aria-label="Cerrar">✕</button>
-      <p class="tag">[ Acceso ]</p>
-      <h3 id="requirementsTitle">Servidor privado por ahora</h3>
-      <p>AstrumSMP está en fase de desarrollo cerrado. No se están aceptando
-         solicitudes de ingreso por el momento — únete a nuestro Discord para
-         enterarte apenas se abran las postulaciones.</p>
-      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener noreferrer" class="btn btn--fill btn--block">Ir a Discord</a>
+  <!-- ===================== MODAL: VER REQUISITOS ===================== -->
+  <div id="requirements-modal" class="modal-overlay">
+    <div class="modal-card glass rounded-2xl p-8 max-w-sm w-full text-center relative">
+      <button type="button" id="requirements-close" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar">✕</button>
+      <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/></svg>
+      </div>
+      <h3 class="text-white font-bold text-lg mb-2">Servidor privado por ahora</h3>
+      <p class="text-zinc-400 text-sm mb-6">AstrumSMP está en fase de desarrollo cerrado. No se están aceptando solicitudes de ingreso por el momento — únete a nuestro Discord para enterarte apenas se abran las postulaciones.</p>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener noreferrer" class="block text-center bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-full py-2.5 text-sm transition-colors">Ir a Discord</a>
     </div>
   </div>
 
   <!-- ===================== MODAL: CHANGELOG ===================== -->
-  <div id="changelogModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
-    <div class="modal__card">
-      <button type="button" id="changelogClose" class="modal__close" aria-label="Cerrar">✕</button>
-      <p class="tag">[ Registro ]</p>
-      <h3 id="changelogTitle">Sin cambios por ahora</h3>
-      <p>Todavía no hay ningún cambio registrado. El changelog se irá completando a medida que avance el desarrollo del servidor.</p>
+  <div id="changelog-modal" class="modal-overlay">
+    <div class="modal-card glass rounded-2xl p-8 max-w-sm w-full text-center relative">
+      <button type="button" id="changelog-close" class="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar">✕</button>
+      <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="1.6"><path d="M4 6h16M4 12h10M4 18h7" stroke-linecap="round"/></svg>
+      </div>
+      <h3 class="text-white font-bold text-lg mb-2">Sin cambios por ahora</h3>
+      <p class="text-zinc-400 text-sm">Todavía no hay ningún cambio registrado. El changelog se irá completando a medida que avance el desarrollo del servidor.</p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script id="modrinth-cache-utils">
+    // Cache compartida para las llamadas a la API de Modrinth (localStorage + TTL).
+    // Objetivo: no pedirle datos a Modrinth en cada carga de página, y si Modrinth
+    // está caído o con rate limit, servir la última respuesta buena conocida en vez
+    // de mostrar un grid vacío o roto.
+    const ModrinthCache = {
+      TTL_MS: 6 * 60 * 60 * 1000, // 6 horas — los mods/texture packs no cambian tan seguido
+
+      read(key) {
+        try {
+          const raw = localStorage.getItem(`mr_cache:${key}`);
+          return raw ? JSON.parse(raw) : null; // { data, timestamp }
+        } catch {
+          return null; // localStorage bloqueado (modo privado) o corrupto: seguimos sin cache
+        }
+      },
+
+      write(key, data) {
+        try {
+          localStorage.setItem(`mr_cache:${key}`, JSON.stringify({ data, timestamp: Date.now() }));
+        } catch {
+          // Sin espacio o sin acceso a localStorage — no es crítico, solo no cacheamos
+        }
+      },
+
+      isFresh(entry) {
+        return !!entry && (Date.now() - entry.timestamp) < ModrinthCache.TTL_MS;
+      },
+
+      // Cache-first: si hay una entrada fresca, la usa sin llamar a la red.
+      // Si no, pide a Modrinth; si la red falla, cae de vuelta a la última cache
+      // guardada aunque esté vencida (mejor mostrar algo desactualizado que nada).
+      async fetchJSON(key, url) {
+        const cached = ModrinthCache.read(key);
+        if (ModrinthCache.isFresh(cached)) return cached.data;
+
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`Modrinth API respondió ${res.status}`);
+          const data = await res.json();
+          ModrinthCache.write(key, data);
+          return data;
+        } catch (err) {
+          if (cached) {
+            console.warn(`Modrinth API falló, usando cache anterior para "${key}":`, err);
+            return cached.data;
+          }
+          throw err;
+        }
+      },
+    };
+  </script>
+
+  <script id="blueprint-link-check">
+    // Verifica en segundo plano si cada archivo .litematic realmente existe en GitHub.
+    // Si da 404 (por ejemplo, todavía no lo subiste o el nombre no coincide), el botón
+    // se deshabilita y muestra "Próximamente" en vez de mandar al visitante a la
+    // página de error genérica de GitHub. Se revisa una sola vez al cargar la página.
+    document.addEventListener('DOMContentLoaded', () => {
+      const links = document.querySelectorAll('.blueprint-card a[download]');
+
+      links.forEach(async (link) => {
+        const url = link.getAttribute('href');
+        try {
+          const res = await fetch(url, { method: 'HEAD' });
+          if (!res.ok) throw new Error(`Status ${res.status}`);
+          // Archivo confirmado: el link queda tal cual, funcional.
+        } catch (err) {
+          console.warn(`Blueprint no disponible todavía: ${url}`, err);
+          link.removeAttribute('href');
+          link.removeAttribute('download');
+          link.classList.remove('text-rose-300', 'hover:text-rose-200');
+          link.classList.add('text-zinc-600', 'cursor-not-allowed');
+          const label = link.querySelector('.link-label');
+          if (label) label.textContent = 'Próximamente';
+        }
+      });
+    });
+  </script>
+
+  <script id="texture-packs-loader">
+    // Trae TODOS los resourcepacks publicados en tu perfil de Modrinth y los muestra
+    // como tarjetas clicables (ícono + nombre) enlazadas a su página real.
+    // Si publicas un nuevo texture pack, aparece la próxima vez que la cache expire
+    // (hasta 6h) o cuando alguien recargue tras vaciar localStorage.
+    (async () => {
+      const grid = document.getElementById('texture-grid');
+      if (!grid) return;
+      const username = '1Luiiissss';
+
+      try {
+        const projects = await ModrinthCache.fetchJSON(
+          `texture-packs:${username}`,
+          `https://api.modrinth.com/v2/user/${username}/projects`
+        );
+        const packs = projects.filter((p) => p.project_type === 'resourcepack');
+
+        if (!packs.length) {
+          grid.innerHTML = '<p class="col-span-full text-zinc-600 text-sm">Aún no hay texture packs publicados.</p>';
+          return;
+        }
+
+        grid.innerHTML = '';
+        packs.forEach((pack) => {
+          const link = document.createElement('a');
+          link.href = `https://modrinth.com/resourcepack/${pack.slug}`;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.title = pack.title;
+          link.className = 'group aspect-square rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden relative flex items-center justify-center hover:border-rose-500/40 transition-colors';
+
+          const img = document.createElement('img');
+          img.src = pack.icon_url || '';
+          img.alt = pack.title;
+          img.loading = 'lazy';
+          img.className = 'w-full h-full object-cover';
+
+          const labelBar = document.createElement('span');
+          labelBar.textContent = pack.title;
+          labelBar.className = 'absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[11px] text-center py-1 px-1 truncate opacity-0 group-hover:opacity-100 transition-opacity';
+
+          link.appendChild(img);
+          link.appendChild(labelBar);
+          grid.appendChild(link);
+        });
+      } catch (err) {
+        console.warn('No se pudieron cargar los texture packs de Modrinth:', err);
+        grid.innerHTML = '<p class="col-span-full text-zinc-600 text-sm">No se pudieron cargar los texture packs.</p>';
+      }
+    })();
+  </script>
+
+  <script id="server-status-loader">
+    // Consulta el estado en vivo del servidor con la API pública de mcsrvstat.us (sin auth, CORS habilitado)
+    (async () => {
+      const card = document.getElementById('server-status-card');
+      if (!card) return;
+      const address = card.dataset.serverAddress;
+
+      const dot = document.getElementById('server-status-dot');
+      const text = document.getElementById('server-status-text');
+      const players = document.getElementById('server-status-players');
+      const version = document.getElementById('server-status-version');
+
+      try {
+        const res = await fetch(`https://api.mcsrvstat.us/3/${address}`);
+        if (!res.ok) throw new Error(`mcsrvstat.us respondió ${res.status}`);
+        const data = await res.json();
+
+        if (data.online) {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
+          text.textContent = 'Servidor Online';
+          const onlineCount = data.players?.online ?? 0;
+          const maxCount = data.players?.max ?? '?';
+          players.textContent = `${onlineCount} / ${maxCount} jugadores`;
+          version.textContent = data.version || '—';
+        } else {
+          dot.className = 'w-2.5 h-2.5 rounded-full bg-zinc-600';
+          text.textContent = 'Servidor Offline';
+          players.textContent = '— jugadores';
+          version.textContent = '—';
+        }
+      } catch (err) {
+        console.warn('No se pudo consultar el estado del servidor:', err);
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+        text.textContent = 'Estado no disponible';
+      }
+    })();
+  </script>
+
+  <script id="mod-icons-loader">
+    // Trae los íconos reales de cada mod desde la API pública de Modrinth (v2/projects)
+    // Para agregar/quitar mods, edita los bloques .mod-icon-slot con su atributo
+    // data-slug (el slug es el que aparece en la URL: modrinth.com/mod/<slug>).
+    // Si un slug no existe en Modrinth, ese ícono se oculta solo (no rompe el diseño).
+    (async () => {
+      const slots = Array.from(document.querySelectorAll('.mod-icon-slot'));
+      const slugs = slots.map((el) => el.dataset.slug);
+      if (!slugs.length) return;
+
+      try {
+        const idsParam = encodeURIComponent(JSON.stringify(slugs));
+        const projects = await ModrinthCache.fetchJSON(
+          `mod-icons:${slugs.join(',')}`,
+          `https://api.modrinth.com/v2/projects?ids=${idsParam}`
+        );
+
+        const bySlug = {};
+        projects.forEach((p) => { bySlug[p.slug] = p; });
+
+        slots.forEach((slot) => {
+          const project = bySlug[slot.dataset.slug];
+          const img = slot.querySelector('img');
+          if (project && project.icon_url) {
+            img.src = project.icon_url;
+            img.alt = project.title || slot.dataset.slug;
+          } else {
+            // Slug no encontrado en Modrinth: oculta el ícono en vez de mostrar texto roto
+            slot.style.display = 'none';
+          }
+        });
+      } catch (err) {
+        console.warn('No se pudieron cargar los íconos de Modrinth:', err);
+        slots.forEach((slot) => { slot.style.display = 'none'; });
+      }
+    })();
+
+    // Botón "Ver más mods": muestra/oculta el grid extendido
+    const modsToggleBtn = document.getElementById('mods-toggle-btn');
+    const modsExtraGrid = document.getElementById('mod-icon-grid-extra');
+    if (modsToggleBtn && modsExtraGrid) {
+      modsToggleBtn.addEventListener('click', () => {
+        const isOpening = !modsExtraGrid.classList.contains('open');
+        modsExtraGrid.classList.toggle('open');
+        modsToggleBtn.textContent = isOpening ? 'Ver menos mods' : 'Ver más mods';
+      });
+    }
+  </script>
+
+  <script>
+    // Activa el fade-in + slide-up de cada sección al entrar en el viewport,
+    // y lo revierte al salir — para que la animación se repita al subir y bajar.
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle('in-view', entry.isIntersecting);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    revealEls.forEach((el) => revealObserver.observe(el));
+  </script>
+
+  <script>
+    // Splash con logo: se desvanece tras la animación (~1.2s) y se retira del DOM
+    (function () {
+      const splash = document.getElementById('splash');
+      if (!splash) return;
+      const remove = () => {
+        splash.classList.add('splash-hide');
+        setTimeout(() => splash.remove(), 500);
+      };
+      // Un pequeño margen sobre la duración de la animación (1.2s) para que se vea completa
+      setTimeout(remove, 1250);
+    })();
+  </script>
+
+  <script>
+    // Modal "Ver Requisitos": explica que el servidor está en desarrollo cerrado
+    (function () {
+      const btn = document.getElementById('requirements-btn');
+      const modal = document.getElementById('requirements-modal');
+      const closeBtn = document.getElementById('requirements-close');
+      if (!btn || !modal) return;
+
+      const open = () => modal.classList.add('open');
+      const close = () => modal.classList.remove('open');
+
+      btn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+  </script>
+
+  <script>
+    // Barra de progreso de scroll (arriba de todo)
+    const scrollBar = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+      const doc = document.documentElement;
+      const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+      scrollBar.style.width = pct + '%';
+    }, { passive: true });
+  </script>
+
+  <script>
+    // ASTRUM: revelado por letra al cargar + parallax ligado al scroll del hero
+    (function () {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const word = document.getElementById('astrum-word');
+      if (!word) return;
+
+      window.addEventListener('load', () => {
+        requestAnimationFrame(() => word.classList.add('loaded'));
+      });
+
+      if (!reduceMotion) {
+        const heroSection = word.closest('section');
+        window.addEventListener('scroll', () => {
+          const heroHeight = heroSection.offsetHeight;
+          const progress = Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
+          word.style.transform = `scale(${1 - progress * 0.15}) translateY(${progress * -30}px)`;
+          word.style.opacity = String(1 - progress * 0.7);
+        }, { passive: true });
+      }
+    })();
+  </script>
+
+  <script>
+    // Menú: overlay de navegación (esquina superior derecha)
+    (function () {
+      const toggle = document.getElementById('menu-toggle');
+      const overlay = document.getElementById('menu-overlay');
+      const closeBtn = document.getElementById('menu-close');
+      const panel = overlay ? overlay.querySelector('nav') : null;
+      if (!toggle || !overlay || !panel) return;
+
+      const open = () => {
+        overlay.classList.add('open');
+        requestAnimationFrame(() => { panel.style.transform = 'translateX(0)'; panel.style.opacity = '1'; });
+        toggle.setAttribute('aria-expanded', 'true');
+      };
+      const close = () => {
+        panel.style.transform = 'translateX(20px)';
+        panel.style.opacity = '0';
+        overlay.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      };
+
+      toggle.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+      overlay.querySelectorAll('.menu-link').forEach((link) => link.addEventListener('click', close));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+  </script>
+
+  <script id="skin-viewer-loader">
+    // Visor de skin 3D (skinview3d) — carga la skin por nombre de usuario vía Minotar
+    // (servicio público con CORS habilitado, no requiere API key).
+    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto a tus otros usuarios.
+    (function () {
+      const canvas = document.getElementById('skin-canvas');
+      if (!canvas || typeof skinview3d === 'undefined') return;
+
+      const MC_USERNAME = '1Luiisssss'; // <- edita esto si tu IGN de Minecraft es otro
+
+      const viewer = new skinview3d.SkinViewer({
+        canvas,
+        width: 260,
+        height: 340,
+        skin: `https://minotar.net/skin/${MC_USERNAME}.png`,
+      });
+      viewer.camera.position.set(18, 0, 55);
+      viewer.zoom = 0.9;
+      viewer.fov = 45;
+
+      try {
+        viewer.animation = new skinview3d.IdleAnimation();
+      } catch (err) {
+        console.warn('Animación idle de skinview3d no disponible:', err);
+      }
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduceMotion) {
+        let dragging = false;
+        canvas.addEventListener('pointerdown', () => { dragging = true; });
+        window.addEventListener('pointerup', () => { dragging = false; });
+        (function autoRotate() {
+          if (!dragging) viewer.playerObject.rotation.y += 0.006;
+          requestAnimationFrame(autoRotate);
+        })();
+      }
+    })();
+  </script>
+
+  <script>
+    // Modal "Changelog": indica que todavía no hay cambios registrados
+    (function () {
+      const modal = document.getElementById('changelog-modal');
+      const closeBtn = document.getElementById('changelog-close');
+      const triggers = [
+        document.getElementById('changelog-btn-nav'),
+        document.getElementById('changelog-btn-footer'),
+      ].filter(Boolean);
+      if (!modal || !triggers.length) return;
+
+      const open = () => modal.classList.add('open');
+      const close = () => modal.classList.remove('open');
+
+      triggers.forEach((btn) => btn.addEventListener('click', open));
+      closeBtn.addEventListener('click', close);
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+  </script>
+
 </body>
 </html>
