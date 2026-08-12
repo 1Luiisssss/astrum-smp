@@ -1,0 +1,497 @@
+<!--
+  ASTRUM SMP — Technical Survival Dossier
+  Stack: HTML5 / CSS3 / Vanilla JS — no framework, no utility-CSS CDN
+  Security: CSP + hardening meta tags, no inline scripts, sanitized DOM writes
+  Fonts: Telma (Fontshare, display/numerals) + Inter (Google Fonts, body)
+  Aesthetic: Techno-brutalism editorial — negro + carmesí, líneas 1px, grilla asimétrica
+  Data: estado de servidor (mcsrvstat.us), mods/texturas (Modrinth API, cache local 6h),
+        verificación de blueprints (HEAD check sobre GitHub raw)
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstrumSMP — Dossier Técnico del Servidor</title>
+
+<!-- Seguridad (best-effort vía meta; replicar también a nivel de servidor/CDN) -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://api.fontshare.com; font-src https://fonts.gstatic.com https://cdn.fontshare.com; img-src 'self' data: https://cdn.modrinth.com; connect-src 'self' https://api.mcsrvstat.us https://api.modrinth.com https://raw.githubusercontent.com; base-uri 'self'; frame-ancestors 'none';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+
+<meta name="description" content="AstrumSMP — entorno privado de supervivencia técnica. Estado del servidor en vivo, librería de blueprints y roadmap hacia 1.21.11 con mods.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AstrumSMP — Dossier Técnico">
+<meta property="og:description" content="Entorno privado de supervivencia técnica en Minecraft. Vanilla 1.12.2 por ahora, infraestructura preparada para escalar.">
+<meta name="theme-color" content="#080808">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23080808'/%3E%3Crect x='2' y='2' width='96' height='96' fill='none' stroke='%23990000' stroke-width='4'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-size='54' fill='%23990000' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=telma@400,500,700,900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===================== PRELOADER ===================== -->
+  <div id="preloader" aria-hidden="true">
+    <div class="preloader__inner">
+      <span class="preloader__label">ASTRUM—SMP</span>
+      <span class="preloader__count" id="preloaderCount">00</span>
+      <div class="preloader__bar"><span id="preloaderFill"></span></div>
+      <span class="preloader__sub">Cargando dossier del servidor</span>
+    </div>
+  </div>
+
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <!-- ===================== NAV ===================== -->
+  <header class="nav" id="siteNav">
+    <div class="nav__inner">
+      <a href="#home" class="nav__logo">ASTRUM<span>—SMP</span></a>
+
+      <nav class="nav__links" aria-label="Navegación principal">
+        <a href="#infra">Estado</a>
+        <a href="#mods">Mods</a>
+        <a href="#blueprints">Blueprints</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#conectar">Conectar</a>
+      </nav>
+
+      <div class="nav__right">
+        <span class="nav__status" id="navStatus">
+          <span class="dot" id="navStatusDot"></span>
+          <span id="navStatusText">Consultando…</span>
+        </span>
+        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill">Discord</a>
+      </div>
+
+      <button class="nav__burger" id="navBurger" type="button" aria-expanded="false" aria-controls="navMobile" aria-label="Abrir menú">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <nav class="nav__mobile" id="navMobile" aria-label="Navegación móvil">
+      <a href="#infra">Estado</a>
+      <a href="#mods">Mods</a>
+      <a href="#blueprints">Blueprints</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#conectar">Conectar</a>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="home">
+      <div class="grid-overlay" aria-hidden="true"></div>
+
+      <div class="hero__grid">
+        <div class="hero__main">
+          <p class="tag" data-reveal="up">[ SERVIDOR 1.12.2 — DESARROLLO CERRADO ]</p>
+
+          <h1 class="hero__title">
+            <span class="reveal-mask" data-reveal="mask"><em>ASTRUM</em></span>
+            <span class="reveal-mask" data-reveal="mask">—SMP</span>
+          </h1>
+
+          <p class="hero__desc" data-reveal="up">
+            Entorno privado de supervivencia técnica. Operando temporalmente en
+            Vanilla 1.12.2, con infraestructura escalable diseñada para la futura
+            integración de mods en 1.21.11.
+          </p>
+
+          <div class="hero__actions" data-reveal="up">
+            <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill btn--lg">
+              Unirse al Discord <span aria-hidden="true">→</span>
+            </a>
+            <a href="#infra" class="btn btn--ghost btn--lg">Ver estado en vivo</a>
+          </div>
+        </div>
+
+        <aside class="hero__spec" data-reveal="up">
+          <p class="hero__spec-head">Ficha Técnica</p>
+          <ul class="spec-list">
+            <li><span>Versión</span><strong>1.12.2</strong></li>
+            <li><span>Tipo</span><strong>Vanilla</strong></li>
+            <li><span>Acceso</span><strong>Privado</strong></li>
+            <li><span>Uptime</span><strong>24 / 7</strong></li>
+            <li><span>Fase</span><strong>01 — Base</strong></li>
+          </ul>
+          <code class="hero__ip">mc.hackos.dev:27015</code>
+        </aside>
+      </div>
+
+      <a href="#manifest" class="hero__scroll" aria-label="Bajar a la siguiente sección">
+        <span>Scroll</span><i></i>
+      </a>
+    </section>
+
+    <!-- ===================== MANIFEST / BENTO FEATURES ===================== -->
+    <section class="manifest" id="manifest">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 01 — Manifiesto ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Cómo está<br>construido.</h2>
+      </div>
+
+      <div class="bento">
+        <article class="bento__card bento__card--lg" data-reveal="up">
+          <span class="bento__num num-outline">01</span>
+          <h3>Base Vanilla Estable</h3>
+          <p>Ejecutando la versión 1.12.2 sin modificaciones. Un entorno puro y
+             optimizado para establecer los cimientos del mundo.</p>
+        </article>
+
+        <article class="bento__card" data-reveal="up">
+          <span class="bento__num num-outline">02</span>
+          <h3>Proyección Técnica</h3>
+          <p>Enfoque absoluto en granjas y redstone. Arquitectura preparada para
+             escalar a versiones modernas (1.17x+) con soporte integral para mods.</p>
+        </article>
+
+        <article class="bento__card" data-reveal="up">
+          <span class="bento__num num-outline">03</span>
+          <h3>Acceso Restringido</h3>
+          <p>Desarrollo a puerta cerrada. Cada mecanismo y perímetro construido
+             forma parte de un ecosistema controlado y persistente.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== INFRAESTRUCTURA / ESTADO ===================== -->
+    <section class="infra" id="infra">
+      <div class="infra__grid">
+        <div class="section-head section-head--tight" data-reveal="up">
+          <p class="tag">[ 02 — Infraestructura ]</p>
+          <h2 class="reveal-mask" data-reveal="mask">Servidor activo,<br>24 horas al día.</h2>
+          <p class="infra__desc">
+            Hosteado en servidores de alto rendimiento para asegurar que los
+            mecanismos y la carga de chunks funcionen sin interrupciones.
+          </p>
+        </div>
+
+        <div class="dossier" id="serverStatusCard" data-server-address="mc.hackos.dev:27015" data-reveal="up">
+          <p class="dossier__label">Readout en vivo</p>
+          <div class="dossier__row">
+            <span class="dot" id="serverStatusDot"></span>
+            <span class="dossier__status" id="serverStatusText">Consultando estado…</span>
+          </div>
+          <div class="dossier__meta">
+            <div><span>Jugadores</span><strong id="serverStatusPlayers">—</strong></div>
+            <div><span>Versión</span><strong id="serverStatusVersion">—</strong></div>
+          </div>
+          <code class="dossier__ip">mc.hackos.dev:27015</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MODS ROADMAP ===================== -->
+    <section class="mods" id="mods">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 03 — Roadmap Técnico ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Mods planeados<br>para 1.21.11.</h2>
+        <p class="section-desc">Íconos obtenidos en vivo desde la API pública de Modrinth.</p>
+      </div>
+
+      <div id="modIconGrid" class="icon-grid" data-reveal="up">
+        <div class="icon-slot" data-slug="sodium"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="lithium"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="journeymap"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="litematica"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="modmenu"><img alt="" loading="lazy"></div>
+      </div>
+
+      <div id="modIconGridExtra" class="icon-grid icon-grid--extra">
+        <div class="icon-slot" data-slug="architectury-api"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="badoptimizations"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="c2me-fabric"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="capes"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="carpet-extra"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="carpet-tis-addition"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="cloth-config"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="continuity"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="entityculling"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="essential-mod"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="exordium"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="fabric-api"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="carpet"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="fabric-language-kotlin"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="ferritecore"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="immediatelyfast"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="inventory-profiles-next"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="krypton"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="libipn"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="libjf"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="malilib"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="minihud"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="modernfix"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="noisium"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="placeholder-api"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="sodium-extra"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="spark"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="tweakeroo"><img alt="" loading="lazy"></div>
+        <div class="icon-slot" data-slug="yacl"><img alt="" loading="lazy"></div>
+      </div>
+
+      <button id="modsToggleBtn" class="btn btn--ghost btn--sm" type="button">Ver más mods</button>
+    </section>
+
+    <!-- ===================== TEXTURE PACK ===================== -->
+    <section class="textures" id="textures">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 04 — Texture Pack ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Optimized<br>Vanilla.</h2>
+        <p class="section-desc">Mejora visual proyectada — paquete oficial en desarrollo para mantener la esencia del juego rindiendo al máximo.</p>
+      </div>
+
+      <div id="textureGrid" class="icon-grid icon-grid--textures" data-reveal="up">
+        <div class="icon-slot icon-slot--loading">Cargando…</div>
+      </div>
+    </section>
+
+    <!-- ===================== BLUEPRINTS ===================== -->
+    <section class="blueprints" id="blueprints">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 05 — Librería ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">
+          Blueprints <em>.litematic</em>
+        </h2>
+        <p class="section-desc">
+          Granjas y mecanismos de redstone ya optimizados, listos para importar
+          con Litematica. <span class="badge">En proceso</span>
+        </p>
+      </div>
+
+      <div id="blueprintList" class="blueprint-list" data-reveal="up">
+        <!-- Filas inyectadas por script.js desde el array BLUEPRINTS -->
+      </div>
+    </section>
+
+    <!-- ===================== COMING SOON ===================== -->
+    <section class="soon">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 06 — Próximamente ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Esto es solo<br>el comienzo.</h2>
+      </div>
+
+      <div class="soon__grid">
+        <article class="soon__card" data-reveal="up">
+          <div class="soon__icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="3" y="4" width="18" height="14" rx="1"/>
+              <path d="M8 10l3 2-3 2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M13 14h4" stroke-linecap="round"/>
+              <path d="M3 20h18" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Astrum Launcher</h3>
+          <p>Launcher propio con login de Microsoft, auto-descarga de Java 21 e instalación de mods en un clic.</p>
+        </article>
+
+        <article class="soon__card" data-reveal="up">
+          <div class="soon__icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <path d="M4 20V10M12 20V4M20 20v-7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 20h18" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>Estadísticas de Jugador</h3>
+          <p>Panel con tu playtime, muertes y bloques minados, directo desde tu perfil.</p>
+        </article>
+
+        <article class="soon__card" data-reveal="up">
+          <div class="soon__icon soon__icon--img">
+            <!-- Vista previa de la v2 del texture pack: se mantiene fija a propósito,
+                 ya que "Optimized Vanilla+" todavía no existe como proyecto publicado
+                 en Modrinth y por lo tanto no se puede cargar en vivo como el resto. -->
+            <img src="https://cdn.modrinth.com/data/1azRPCOA/b46a8a1946a377a02ec1680efc523abdb95b8999_96.webp" alt="Optimized Vanilla+" loading="lazy">
+          </div>
+          <h3>Optimized Vanilla+</h3>
+          <p>Nueva versión del texture pack oficial, con más optimización y detalle visual.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== ROADMAP ===================== -->
+    <section class="roadmap" id="roadmap">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 07 — Hoja de Ruta ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Hacia dónde<br>va AstrumSMP.</h2>
+        <p class="section-desc">Transparencia sobre el proceso, sin comprometer la estabilidad del mundo persistente.</p>
+      </div>
+
+      <div class="phase-list">
+        <div class="phase" data-reveal="up">
+          <span class="phase__num num-outline">01</span>
+          <div class="phase__body">
+            <span class="badge badge--live">En curso</span>
+            <h3>Base Vanilla 1.12.2</h3>
+            <p>Fundación estable del mundo. Primeros perímetros, granjas base y mecanismos core de redstone asegurados antes de escalar.</p>
+          </div>
+        </div>
+        <div class="phase" data-reveal="up">
+          <span class="phase__num num-outline">02</span>
+          <div class="phase__body">
+            <span class="badge">Planeado</span>
+            <h3>Consolidación Técnica</h3>
+            <p>Optimización de granjas existentes, texture pack oficial terminado y montaje de un servidor de staging para probar la migración sin arriesgar el mundo real.</p>
+          </div>
+        </div>
+        <div class="phase" data-reveal="up">
+          <span class="phase__num num-outline">03</span>
+          <div class="phase__body">
+            <span class="badge">Proyectado</span>
+            <h3>Transición a 1.17x+</h3>
+            <p>Migración del mundo persistente sin pérdida de progreso. Pruebas de compatibilidad de chunks y estructuras ya construidas.</p>
+          </div>
+        </div>
+        <div class="phase" data-reveal="up">
+          <span class="phase__num num-outline">04</span>
+          <div class="phase__body">
+            <span class="badge">Futuro</span>
+            <h3>1.21.11 con Mods</h3>
+            <p>Integración completa del ecosistema de mods planeado, expansión del servidor y apertura gradual a nuevas mecánicas.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CÓMO CONECTARSE ===================== -->
+    <section class="connect" id="conectar">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 08 — Acceso ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">Cómo<br>conectarse.</h2>
+      </div>
+
+      <div class="connect__grid">
+        <div class="connect__card" data-reveal="up">
+          <h3>Java Edition</h3>
+          <p class="connect__lead">Requisitos técnicos para unirte.</p>
+          <ul class="check-list">
+            <li>Versión actual: 1.12.2</li>
+            <li>Entorno Vanilla</li>
+            <li>Servidor Privado</li>
+          </ul>
+          <button type="button" id="requirementsBtn" class="btn btn--ghost btn--block">Ver Requisitos</button>
+        </div>
+
+        <div class="connect__card connect__card--accent" data-reveal="up">
+          <h3>Comunidad</h3>
+          <p class="connect__lead">Mantente al día y forma parte del proyecto.</p>
+          <ul class="check-list">
+            <li>Únete a Discord</li>
+            <li>Lee las normativas</li>
+            <li>Desarrollo en curso</li>
+          </ul>
+          <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="btn btn--fill btn--block">Ir a Discord</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section class="faq">
+      <div class="section-head" data-reveal="up">
+        <p class="tag">[ 09 — Preguntas ]</p>
+        <h2 class="reveal-mask" data-reveal="mask">FAQ.</h2>
+      </div>
+
+      <div class="faq-list" data-reveal="up">
+        <details class="faq-item">
+          <summary>
+            <span class="faq-item__num">01</span>
+            <span class="faq-item__q">¿Por qué operar en la versión 1.12.2?</span>
+            <span class="faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p>Buscamos máxima estabilidad operativa para establecer la infraestructura base y los primeros perímetros antes de escalar.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="faq-item__num">02</span>
+            <span class="faq-item__q">¿Cuándo se implementarán los mods?</span>
+            <span class="faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p>La transición a 1.17x+ (y posteriormente a 1.21.11) está proyectada una vez que los mecanismos core de redstone estén asegurados.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="faq-item__num">03</span>
+            <span class="faq-item__q">¿Puedo postularme para entrar?</span>
+            <span class="faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p>No. Actualmente es un entorno de desarrollo estricto a puerta cerrada.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="faq-item__num">04</span>
+            <span class="faq-item__q">¿Habrá reinicio de mapa (wipe) con las actualizaciones?</span>
+            <span class="faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p>No. El servidor tiene un enfoque de mundo persistente; la arquitectura está diseñada para migrar sin pérdida de progreso.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <p class="footer__word" aria-hidden="true">ASTRUM</p>
+
+    <div class="footer__grid">
+      <div class="footer__col footer__col--brand">
+        <a href="#home" class="nav__logo">ASTRUM<span>—SMP</span></a>
+        <p>© <span id="year">2026</span> AstrumSMP. Todos los derechos reservados.</p>
+      </div>
+
+      <div class="footer__col">
+        <p class="footer__label">Proyecto</p>
+        <button type="button" id="changelogBtn" class="footer__link">Changelog</button>
+        <a href="#infra" class="footer__link">Estado</a>
+        <a href="#infra" class="footer__link">Infraestructura</a>
+      </div>
+
+      <div class="footer__col">
+        <p class="footer__label">Redes</p>
+        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="footer__link">Discord</a>
+        <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="footer__link">Instagram</a>
+        <a href="https://www.youtube.com/@r4iinClips" target="_blank" rel="noopener noreferrer" class="footer__link">YouTube</a>
+      </div>
+
+      <div class="footer__col">
+        <p class="footer__label">Recursos</p>
+        <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="footer__link">Modrinth</a>
+        <a href="https://modrinth.com/resourcepack/1luiissss-vanilla" target="_blank" rel="noopener noreferrer" class="footer__link">Texturas</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== MODAL: REQUISITOS ===================== -->
+  <div id="requirementsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="requirementsTitle">
+    <div class="modal__card">
+      <button type="button" id="requirementsClose" class="modal__close" aria-label="Cerrar">✕</button>
+      <p class="tag">[ Acceso ]</p>
+      <h3 id="requirementsTitle">Servidor privado por ahora</h3>
+      <p>AstrumSMP está en fase de desarrollo cerrado. No se están aceptando
+         solicitudes de ingreso por el momento — únete a nuestro Discord para
+         enterarte apenas se abran las postulaciones.</p>
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener noreferrer" class="btn btn--fill btn--block">Ir a Discord</a>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: CHANGELOG ===================== -->
+  <div id="changelogModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+    <div class="modal__card">
+      <button type="button" id="changelogClose" class="modal__close" aria-label="Cerrar">✕</button>
+      <p class="tag">[ Registro ]</p>
+      <h3 id="changelogTitle">Sin cambios por ahora</h3>
+      <p>Todavía no hay ningún cambio registrado. El changelog se irá completando a medida que avance el desarrollo del servidor.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
