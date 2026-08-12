@@ -1,0 +1,353 @@
+<!--
+  ONLY — Strategic Branding Agency
+  Stack: HTML5 / CSS3 / Vanilla JS (no build step, no external JS deps)
+  Security: CSP + hardening meta tags, no inline scripts/styles, sanitized DOM writes
+  Fonts: Fraunces (display) + Manrope (body)
+  Aesthetic: Editorial / Luxury Dark — oversized serif type, asymmetric grid, single electric-orange accent
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONLY — Strategic Branding &amp; Design Agency</title>
+
+  <!-- Security headers (best-effort via meta; mirror these at the server/CDN level too) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <meta name="robots" content="index, follow">
+
+  <!-- SEO / social -->
+  <meta name="description" content="ONLY is a strategic branding and design agency for founders who refuse to blend in. Brand strategy, identity systems, and digital experiences built to own the category.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ONLY — Strategic Branding & Design Agency">
+  <meta property="og:description" content="Stop competing. Start owning. Brand strategy, identity, and digital for category leaders.">
+  <meta property="og:image" content="og-cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Favicon: inline SVG monogram, no extra asset needed -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-size='58' fill='%23ff5c1a' text-anchor='middle'%3EO%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Grain overlay: pure CSS/SVG, no image request -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Custom cursor (desktop only, disabled on touch via CSS) -->
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ===================== NAV ===================== -->
+  <header class="nav" id="siteNav">
+    <div class="nav__inner">
+      <a href="#home" class="nav__logo">ONLY<span class="nav__logo-mark">.</span></a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#home">Home</a>
+        <a href="#work">Work</a>
+        <a href="#approach">Approach</a>
+        <a href="#about">About</a>
+        <a href="#contact" class="nav__cta">Contact</a>
+      </nav>
+
+      <button class="nav__burger" id="navBurger" type="button" aria-expanded="false" aria-controls="navMobile" aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <nav class="nav__mobile" id="navMobile" aria-label="Mobile">
+      <a href="#home">Home</a>
+      <a href="#work">Work</a>
+      <a href="#approach">Approach</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="home">
+      <div class="hero__shape" aria-hidden="true"></div>
+
+      <div class="hero__inner">
+        <p class="eyebrow anim d1">✦ Strategy — Identity — Digital</p>
+
+        <h1 class="hero__title">
+          <span class="anim d2">Stop competing.</span>
+          <span class="anim d3"><em>Start owning.</em></span>
+        </h1>
+
+        <div class="hero__foot">
+          <p class="hero__subtitle anim d4">
+            We build brand systems for founders who refuse to blend in — positioning,
+            identity and digital experiences engineered for category ownership, not
+            just another logo refresh.
+          </p>
+          <a href="#contact" class="btn btn--primary anim d4">
+            Start a project <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+
+      <a href="#reel" class="hero__scroll" aria-label="Scroll to next section">
+        <span>Scroll</span>
+        <i></i>
+      </a>
+    </section>
+
+    <!-- ===================== SHOWREEL ===================== -->
+    <section class="reel" id="reel" data-reveal>
+      <div class="reel__frame">
+        <span class="reel__tag">Showreel — 2026</span>
+        <span class="reel__time">02:14</span>
+
+        <button class="reel__play" type="button" aria-label="Play showreel">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 4l14 8-14 8V4z" fill="currentColor"/>
+          </svg>
+        </button>
+
+        <p class="reel__caption">Selected work, 2019 — 2026</p>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT / STATS ===================== -->
+    <section class="about" id="about">
+      <div class="about__grid">
+        <div class="about__text" data-reveal>
+          <p class="eyebrow">✦ About Only</p>
+          <h2>An agency of one belief: <em>average brands don't get remembered.</em></h2>
+          <p class="about__body">
+            Founded by strategists and designers who got tired of pitching decks nobody
+            would act on, ONLY exists to turn ambitious companies into categories of
+            one — brands so specific they become the obvious choice.
+          </p>
+        </div>
+
+        <div class="about__stats" data-reveal>
+          <div class="stat">
+            <span class="stat__num" data-count="140">0</span><span class="stat__plus">+</span>
+            <p>Brands launched</p>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="27">0</span>
+            <p>Countries served</p>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="12">0</span>
+            <p>Years in business</p>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="94">0</span><span class="stat__plus">%</span>
+            <p>Client retention</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SELECTED WORK ===================== -->
+    <section class="work" id="work">
+      <div class="work__head" data-reveal>
+        <p class="eyebrow">✦ Selected Work</p>
+        <h2>Brands we've<br>taken to <em>only</em>.</h2>
+      </div>
+
+      <div class="work__list" id="workList">
+        <a href="#contact" class="work__row" data-reveal data-bg="bg-1">
+          <span class="work__index">01</span>
+          <span class="work__name">Velara</span>
+          <span class="work__meta"><em>Tech</em> — Singapore</span>
+        </a>
+        <a href="#contact" class="work__row" data-reveal data-bg="bg-2">
+          <span class="work__index">02</span>
+          <span class="work__name">Halcyon</span>
+          <span class="work__meta"><em>Fashion</em> — Italy</span>
+        </a>
+        <a href="#contact" class="work__row" data-reveal data-bg="bg-3">
+          <span class="work__index">03</span>
+          <span class="work__name">Neon Root</span>
+          <span class="work__meta"><em>Music</em> — United States</span>
+        </a>
+        <a href="#contact" class="work__row" data-reveal data-bg="bg-4">
+          <span class="work__index">04</span>
+          <span class="work__name">Monarca</span>
+          <span class="work__meta"><em>Finance</em> — Mexico</span>
+        </a>
+        <a href="#contact" class="work__row" data-reveal data-bg="bg-5">
+          <span class="work__index">05</span>
+          <span class="work__name">Drift</span>
+          <span class="work__meta"><em>Hospitality</em> — Portugal</span>
+        </a>
+      </div>
+
+      <!-- Floating preview that follows the cursor, filled via JS on row hover -->
+      <div class="work__preview" id="workPreview" aria-hidden="true"></div>
+    </section>
+
+    <!-- ===================== APPROACH / 3 PILLARS ===================== -->
+    <section class="approach" id="approach">
+      <div class="approach__head" data-reveal>
+        <p class="eyebrow">✦ Our Approach</p>
+        <h2>Three pillars.<br>One outcome.</h2>
+      </div>
+
+      <div class="approach__grid">
+        <article class="pillar pillar--1" data-reveal>
+          <span class="pillar__num">01</span>
+          <h3>Brand Strategy</h3>
+          <ul>
+            <li>Positioning</li>
+            <li>Naming</li>
+            <li>Verbal Identity</li>
+            <li>Market Research</li>
+          </ul>
+        </article>
+
+        <article class="pillar pillar--2" data-reveal>
+          <span class="pillar__num">02</span>
+          <h3>Identity &amp; Design</h3>
+          <ul>
+            <li>Visual Identity</li>
+            <li>Logo Systems</li>
+            <li>Brand Guidelines</li>
+            <li>Packaging</li>
+          </ul>
+        </article>
+
+        <article class="pillar pillar--3" data-reveal>
+          <span class="pillar__num">03</span>
+          <h3>Websites &amp; Campaigns</h3>
+          <ul>
+            <li>Web Design &amp; Dev</li>
+            <li>Motion &amp; Video</li>
+            <li>Social Campaigns</li>
+            <li>Paid Media</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== PAIN POINTS ===================== -->
+    <section class="pain">
+      <div class="pain__head" data-reveal>
+        <p class="eyebrow eyebrow--light">✦ Ready for us?</p>
+      </div>
+
+      <div class="pain__list">
+        <div class="pain__row" data-reveal>
+          <span class="pain__mark">01</span>
+          <p>Your brand looks exactly like everyone else's in the category.</p>
+        </div>
+        <div class="pain__row" data-reveal>
+          <span class="pain__mark">02</span>
+          <p>You're growing fast, but nobody can explain what you actually stand for.</p>
+        </div>
+        <div class="pain__row" data-reveal>
+          <span class="pain__mark">03</span>
+          <p>Your website hasn't changed since the year you launched.</p>
+        </div>
+        <div class="pain__row" data-reveal>
+          <span class="pain__mark">04</span>
+          <p>You're the best-kept secret in your industry — and that's the problem.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TESTIMONIALS ===================== -->
+    <section class="testimonials" id="testimonials">
+      <div class="testimonials__head" data-reveal>
+        <p class="eyebrow">✦ What Leaders Say</p>
+        <h2>Trusted by people<br>who bet their name on it.</h2>
+      </div>
+
+      <div class="testimonials__grid">
+        <blockquote class="quote quote--tall" data-reveal>
+          <span class="quote__mark" aria-hidden="true">“</span>
+          <p>ONLY didn't just redesign our brand — they redefined how we think about
+             our entire category. Revenue followed within two quarters.</p>
+          <footer><strong>Elena Cross</strong><span>CEO, Velara</span></footer>
+        </blockquote>
+
+        <blockquote class="quote" data-reveal>
+          <span class="quote__mark" aria-hidden="true">“</span>
+          <p>The strategy work alone was worth the entire engagement. Everything
+             downstream got easier.</p>
+          <footer><strong>Marco Bellandi</strong><span>Founder, Halcyon</span></footer>
+        </blockquote>
+
+        <blockquote class="quote" data-reveal>
+          <span class="quote__mark" aria-hidden="true">“</span>
+          <p>We interviewed six agencies. ONLY was the only one that told us
+             something we didn't already know about ourselves.</p>
+          <footer><strong>Priya Nandan</strong><span>CMO, Monarca</span></footer>
+        </blockquote>
+
+        <blockquote class="quote quote--tall" data-reveal>
+          <span class="quote__mark" aria-hidden="true">“</span>
+          <p>Sharp, fast, and allergic to generic thinking. Exactly what a
+             category leader needs from a partner.</p>
+          <footer><strong>Diego Faria</strong><span>Director, Drift</span></footer>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ===================== MARQUEE ===================== -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Find your Only ✦ Find your Only ✦ Find your Only ✦ Find your Only ✦ </span>
+        <span>Find your Only ✦ Find your Only ✦ Find your Only ✦ Find your Only ✦ </span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" id="contact">
+    <a href="mailto:hello@only-agency.com" class="footer__cta" data-reveal>
+      <span>Start a project</span>
+      <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+
+    <div class="footer__grid">
+      <div class="footer__col">
+        <p class="footer__label">Email</p>
+        <a href="mailto:hello@only-agency.com">hello@only-agency.com</a>
+      </div>
+      <div class="footer__col">
+        <p class="footer__label">Phone</p>
+        <a href="tel:+15551234567">+1 (555) 123-4567</a>
+      </div>
+      <div class="footer__col">
+        <p class="footer__label">Studio</p>
+        <span>Remote-first — Santiago / NYC / Milan</span>
+      </div>
+      <div class="footer__col footer__col--social">
+        <p class="footer__label">Social</p>
+        <a href="#" rel="noopener noreferrer">Instagram</a>
+        <a href="#" rel="noopener noreferrer">LinkedIn</a>
+        <a href="#" rel="noopener noreferrer">X / Twitter</a>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© <span id="year">2026</span> ONLY Agency. All rights reserved.</p>
+      <button type="button" class="footer__top" id="backToTop">Back to top ↑</button>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
