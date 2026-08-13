@@ -449,8 +449,9 @@
   <section id="perfil" class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[420px] h-[420px] bg-rose-600/10 top-0 right-1/4"></div>
     <div class="max-w-4xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-10 items-center">
-      <div class="glass rounded-2xl p-6 flex items-center justify-center">
+      <div class="glass rounded-2xl p-6 flex flex-col items-center justify-center">
         <canvas id="skin-canvas" width="260" height="340"></canvas>
+        <p id="skin-status" class="text-[11px] text-zinc-600 mt-2 text-center hidden"></p>
       </div>
       <div class="text-center sm:text-left">
         <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
@@ -1483,16 +1484,51 @@
 
   <script type="module" id="skin-viewer-loader">
     // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr.
-    // Para capas OFICIALES de Mojang, buscar solo por username es poco confiable
-    // (Crafatar mismo lo advierte), así que primero resolvemos el UUID real vía
-    // un proxy con CORS habilitado sobre la API de Mojang, y si eso falla,
-    // caemos de vuelta a la búsqueda por nombre (Minotar/Crafatar).
-    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
+    //
+    // ⚠️ BUG QUE SE ESTABA VIENDO: si la textura de la skin no llega a cargar
+    // (red, CORS, username incorrecto, extensión bloqueadora, etc.), Three.js
+    // deja el material con una textura vacía. skinview3d usa `alphaTest` en
+    // ese material para poder recortar el fondo de los PNG — con una textura
+    // vacía, TODOS los píxeles fallan ese test y el modelo entero se descarta,
+    // o sea que el visor sigue funcionando (rota, responde al mouse) pero el
+    // personaje queda 100% invisible/transparente en silencio, sin ningún
+    // error visible en pantalla. Por eso abajo cada carga tiene manejo de
+    // errores explícito, varias fuentes de respaldo en cadena, y un mensaje
+    // visible bajo el canvas si absolutamente todo falla.
+    //
+    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto al que
+    // usas en Modrinth/GitHub — vi variantes ligeramente distintas del
+    // usuario en otras partes del proyecto, así que vale la pena confirmarlo.
     import * as skinview3d from 'https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/+esm';
 
     const canvas = document.getElementById('skin-canvas');
+    const statusEl = document.getElementById('skin-status');
+
+    function setStatus(msg, isError = false) {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('hidden', !msg);
+      statusEl.classList.toggle('text-rose-400', isError);
+      statusEl.classList.toggle('text-zinc-600', !isError);
+    }
+
+    // Prueba una lista de URLs en orden hasta que una cargue con éxito.
+    // Devuelve la URL que funcionó, o null si todas fallaron.
+    async function loadFirstWorking(loaderFn, urls, label) {
+      for (const url of urls) {
+        try {
+          await loaderFn(url);
+          console.info(`AstrumSMP: ${label} cargado desde`, url);
+          return url;
+        } catch (err) {
+          console.warn(`AstrumSMP: falló ${label} desde ${url}`, err);
+        }
+      }
+      return null;
+    }
+
     if (canvas) {
-      const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
+      const MC_USERNAME = '1Luiissss'; // <- confirma que este sea tu IGN exacto de Minecraft
 
       let uuid = null;
       try {
@@ -1500,33 +1536,53 @@
         if (res.ok) {
           const data = await res.json();
           uuid = data && data.id ? data.id : null;
+        } else {
+          console.warn(`AstrumSMP: la API de UUID respondió ${res.status}, sigo solo con el nombre de usuario.`);
         }
       } catch (err) {
         console.warn('AstrumSMP: no se pudo resolver el UUID, uso el nombre de usuario como respaldo.', err);
       }
 
-      const skinUrl = uuid
-        ? `https://crafatar.com/skins/${uuid}`
-        : `https://minotar.net/skin/${MC_USERNAME}.png`;
-      const capeUrl = uuid
-        ? `https://crafatar.com/capes/${uuid}`
-        : `https://crafatar.com/capes/${MC_USERNAME}`;
+      // Cadena de fuentes para la skin: si la primera falla (red/CORS/404),
+      // se intenta con la siguiente en vez de quedar en blanco.
+      const skinSources = [
+        ...(uuid ? [`https://crafatar.com/skins/${uuid}`] : []),
+        `https://minotar.net/skin/${encodeURIComponent(MC_USERNAME)}.png`,
+        `https://mc-heads.net/skin/${encodeURIComponent(MC_USERNAME)}`,
+      ];
+      const capeSources = [
+        ...(uuid ? [`https://crafatar.com/capes/${uuid}`] : []),
+        `https://crafatar.com/capes/${encodeURIComponent(MC_USERNAME)}`,
+      ];
 
       try {
-        const viewer = new skinview3d.SkinViewer({
-          canvas,
-          width: 260,
-          height: 340,
-          skin: skinUrl,
-        });
-
+        const viewer = new skinview3d.SkinViewer({ canvas, width: 260, height: 340 });
         viewer.fov = 45;
         viewer.zoom = 0.85;
 
-        // Capa actual (si tienes una equipada). Si no tienes, simplemente no se muestra.
-        viewer.loadCape(capeUrl).catch(() => {
-          console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
-        });
+        setStatus('Cargando skin…');
+        const workingSkin = await loadFirstWorking(
+          (url) => viewer.loadSkin(url, { model: 'auto-detect' }),
+          skinSources,
+          'la skin'
+        );
+
+        if (!workingSkin) {
+          setStatus('No se pudo cargar la skin (revisa la consola o el nombre de usuario configurado).', true);
+        } else {
+          setStatus('');
+
+          // Capa actual (si tienes una equipada). Si ninguna fuente tiene
+          // capa para este usuario, simplemente no se muestra — no es un error.
+          const workingCape = await loadFirstWorking(
+            (url) => viewer.loadCape(url),
+            capeSources,
+            'la capa'
+          );
+          if (!workingCape) {
+            console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
+          }
+        }
 
         try {
           viewer.animation = new skinview3d.IdleAnimation();
@@ -1539,6 +1595,7 @@
         viewer.autoRotateSpeed = 0.8;
       } catch (err) {
         console.error('No se pudo inicializar el visor de skin 3D:', err);
+        setStatus('No se pudo inicializar el visor 3D en este navegador.', true);
       }
     }
   </script>
