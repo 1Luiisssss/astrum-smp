@@ -15,7 +15,6 @@
   });
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1439,43 +1438,41 @@
     })();
   </script>
 
-  <script id="skin-viewer-loader">
-    // Visor de skin 3D (skinview3d) — carga la skin por nombre de usuario vía Minotar
-    // (servicio público con CORS habilitado, no requiere API key).
-    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto a tus otros usuarios.
-    (function () {
-      const canvas = document.getElementById('skin-canvas');
-      if (!canvas || typeof skinview3d === 'undefined') return;
+  <script type="module" id="skin-viewer-loader">
+    // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr,
+    // que es como se distribuye la librería desde su versión 3.x (ya no trae
+    // un bundle global en unpkg como antes, por eso no cargaba).
+    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
+    import * as skinview3d from 'https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/+esm';
 
+    const canvas = document.getElementById('skin-canvas');
+    if (canvas) {
       const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
 
-      const viewer = new skinview3d.SkinViewer({
-        canvas,
-        width: 260,
-        height: 340,
-        skin: `https://minotar.net/skin/${MC_USERNAME}.png`,
-      });
-      viewer.camera.position.set(18, 0, 55);
-      viewer.zoom = 0.9;
-      viewer.fov = 45;
-
       try {
-        viewer.animation = new skinview3d.IdleAnimation();
-      } catch (err) {
-        console.warn('Animación idle de skinview3d no disponible:', err);
-      }
+        const viewer = new skinview3d.SkinViewer({
+          canvas,
+          width: 260,
+          height: 340,
+          skin: `https://minotar.net/skin/${MC_USERNAME}.png`,
+        });
 
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!reduceMotion) {
-        let dragging = false;
-        canvas.addEventListener('pointerdown', () => { dragging = true; });
-        window.addEventListener('pointerup', () => { dragging = false; });
-        (function autoRotate() {
-          if (!dragging) viewer.playerObject.rotation.y += 0.006;
-          requestAnimationFrame(autoRotate);
-        })();
+        viewer.fov = 45;
+        viewer.zoom = 0.85;
+
+        try {
+          viewer.animation = new skinview3d.IdleAnimation();
+        } catch (err) {
+          console.warn('Animación idle no disponible en esta versión:', err);
+        }
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        viewer.autoRotate = !reduceMotion;
+        viewer.autoRotateSpeed = 0.8;
+      } catch (err) {
+        console.error('No se pudo inicializar el visor de skin 3D:', err);
       }
-    })();
+    }
   </script>
 
   <script>
