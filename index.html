@@ -175,15 +175,50 @@
   .reveal {
     opacity: 0;
     transform: translateY(36px);
-    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: opacity, transform;
+    filter: blur(6px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform, filter;
   }
   .reveal.in-view {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  }
+
+  /* ===================== MARQUEE (cinta de texto continua) ===================== */
+  .marquee-band {
+    overflow: hidden;
+    white-space: nowrap;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 18px 0;
+    background: #050505;
+  }
+  .marquee-track {
+    display: inline-block;
+    animation: marquee-scroll 28s linear infinite;
+  }
+  .marquee-track span {
+    display: inline-block;
+    font-weight: 700;
+    font-size: clamp(18px, 3vw, 30px);
+    letter-spacing: -0.01em;
+    padding: 0 28px;
+    color: rgba(255,255,255,0.9);
+  }
+  .marquee-track span:nth-child(even) {
+    color: rgba(220,38,68,0.75);
+    font-style: italic;
+  }
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
   }
 
   /* Transición suave al abrir/cerrar "Ver más mods" */
@@ -401,6 +436,14 @@
       </a>
     </div>
   </section>
+
+  <!-- ===================== MARQUEE ===================== -->
+  <div class="marquee-band" aria-hidden="true">
+    <div class="marquee-track">
+      <span>MUNDO PERSISTENTE</span><span>SIN RESETS</span><span>INVITE ONLY</span><span>V1.13.2 → V1.21.11</span>
+      <span>MUNDO PERSISTENTE</span><span>SIN RESETS</span><span>INVITE ONLY</span><span>V1.13.2 → V1.21.11</span>
+    </div>
+  </div>
 
   <!-- ===================== PERFIL ===================== -->
   <section id="perfil" class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
