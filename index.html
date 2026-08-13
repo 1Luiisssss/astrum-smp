@@ -417,7 +417,7 @@
           <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
           <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
-        <p class="text-zinc-700 text-[11px] mt-4">Skin cargada por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub.</p>
+        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa se cargan por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub. Si no tienes capa equipada, simplemente no se muestra.</p>
       </div>
     </div>
   </section>
@@ -1459,6 +1459,11 @@
 
         viewer.fov = 45;
         viewer.zoom = 0.85;
+
+        // Capa actual (si tienes una equipada). Si no tienes, simplemente no se muestra.
+        viewer.loadCape(`https://crafatar.com/capes/${MC_USERNAME}`).catch(() => {
+          console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
+        });
 
         try {
           viewer.animation = new skinview3d.IdleAnimation();
