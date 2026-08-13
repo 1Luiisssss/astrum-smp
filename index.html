@@ -452,10 +452,6 @@
       <div class="glass rounded-2xl p-6 flex flex-col items-center justify-center">
         <canvas id="skin-canvas" width="260" height="340"></canvas>
         <p id="skin-status" class="text-[11px] text-zinc-600 mt-2 text-center hidden"></p>
-        <details class="mt-2 w-full max-w-[260px]">
-          <summary class="text-[10px] text-zinc-600 cursor-pointer text-center select-none hover:text-zinc-400">Ver diagnóstico</summary>
-          <pre id="skin-diagnostics" class="text-[10px] text-zinc-500 whitespace-pre-wrap mt-2 leading-relaxed">Iniciando…</pre>
-        </details>
       </div>
       <div class="text-center sm:text-left">
         <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
@@ -465,7 +461,7 @@
           <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
           <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
-        <p class="text-zinc-700 text-[11px] mt-4">UUID y skin ya confirmados desde NameMC. Si tu capa actual es una de las cosméticas de NameMC (no oficial de Mojang), súbela como <code class="text-zinc-500">cape.png</code> junto a este archivo y ponle ese nombre a <code class="text-zinc-500">CUSTOM_CAPE_URL</code> en el script — así sí se puede mostrar acá.</p>
+        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa (Builder Cape) confirmadas desde NameMC.</p>
       </div>
     </div>
   </section>
@@ -1489,8 +1485,8 @@
   <script type="module" id="skin-viewer-loader">
     // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr.
     //
-    // Esta versión agrega diagnóstico VISIBLE en pantalla (el bloque
-    // "Ver diagnóstico" bajo el visor), porque el bug de "skin transparente"
+    // Esta versión registra diagnóstico en la consola del navegador (F12),
+    // porque el bug de "skin transparente"
     // puede ocurrir en varios puntos distintos que fallan en silencio:
     //  1) La página se abre con doble clic (file://) en vez de servirse por
     //     http(s) — muchos navegadores bloquean fetch/CORS en ese modo.
@@ -1500,13 +1496,13 @@
     //     (CORS parcial) y WebGL descarta la textura silenciosamente —
     //     esto es invisible incluso para el manejo de errores normal, por
     //     eso hay un listener global de errores más abajo.
+    // El diagnóstico ahora solo va a la consola del navegador (F12) — ya no
+    // se muestra en pantalla, para no dejar texto de depuración en producción.
     const diagLines = [];
-    const diagEl = document.getElementById('skin-diagnostics');
     const statusEl = document.getElementById('skin-status');
 
     function diag(line) {
       diagLines.push(line);
-      if (diagEl) diagEl.textContent = diagLines.join('\n');
       console.info('[AstrumSMP skin]', line);
     }
     function setStatus(msg, isError = false) {
@@ -1590,7 +1586,7 @@
       // sitio — no existen en Crafatar/Minotar porque no son capas oficiales
       // de Mojang, así que si quieres verla en este visor hay que auto-
       // hospedar el PNG. Ver instrucciones abajo del bloque de diagnóstico.
-      const CUSTOM_CAPE_URL = ''; // ej: 'cape.png'
+      const CUSTOM_CAPE_URL = 'cape.png'; // tu capa real (Builder Cape), auto-hospedada
 
       diag(`Usuario configurado: "${MC_USERNAME}" (UUID: ${MC_UUID})`);
       const uuid = MC_UUID;
