@@ -29,6 +29,87 @@
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #2a2a2a #0a0a0a;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  /* ===================== SPOTLIGHT DE CURSOR (tarjetas .glass) ===================== */
+  .glass {
+    position: relative;
+    overflow: hidden;
+  }
+  .glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(220,38,68,0.16), transparent 72%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .glass:hover::after { opacity: 1; }
+
+  /* ===================== BOTÓN MAGNÉTICO + SHINE ===================== */
+  .magnetic {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .shine { position: relative; overflow: hidden; }
+  .shine::before {
+    content: "";
+    position: absolute; top: 0; left: -150%;
+    width: 55%; height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .shine:hover::before { left: 150%; }
+
+  /* ===================== TILT 3D (bento cards) ===================== */
+  .tilt {
+    transition: transform 0.15s ease-out;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  /* ===================== SCROLLSPY (link activo del menú) ===================== */
+  .menu-link {
+    position: relative;
+    padding-left: 0;
+    transition: color 0.25s ease, padding-left 0.25s ease;
+  }
+  .menu-link.active {
+    color: #fda4af !important; /* rose-300 */
+    padding-left: 16px;
+  }
+  .menu-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 50%;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #dc2644;
+    transform: translateY(-50%);
+    box-shadow: 0 0 8px 1px rgba(220,38,68,0.7);
+  }
+
+  /* ===================== REVEAL ESCALONADO (grids) ===================== */
+  .stagger-item {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .stagger-item.in-view { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glass::after { display: none; }
+    .magnetic { transform: none !important; transition: none; }
+    .shine::before { display: none; }
+    .tilt { transform: none !important; transition: none; }
+    .stagger-item { opacity: 1; transform: none; transition: none; }
   }
 
   body {
@@ -275,7 +356,7 @@
       </nav>
 
       <div class="flex items-center gap-5 text-sm">
-        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="bg-white text-black font-medium px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">Discord</a>
+        <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="magnetic shine bg-white text-black font-medium px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors">Discord</a>
         <button type="button" id="menu-toggle" aria-expanded="false" aria-controls="menu-overlay" class="text-[11px] uppercase tracking-[0.18em] text-zinc-400 hover:text-white transition-colors">
           Menú
         </button>
@@ -303,7 +384,7 @@
     <div class="hero-glow"></div>
 
     <div class="relative z-10 max-w-3xl mx-auto">
-      <span class="inline-flex items-center gap-2 text-xs font-medium text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6">
+      <span class="scramble inline-flex items-center gap-2 text-xs font-medium text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3 py-1 rounded-full mb-6">
         ✦ Servidor 1.12.2 por ahora
       </span>
 
@@ -316,7 +397,7 @@
         Entorno privado de supervivencia técnica. Operando temporalmente en Vanilla 1.12.2, con infraestructura escalable diseñada para la futura integración de mods.
       </p>
 
-      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)]">
+      <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="magnetic shine inline-block bg-white text-black font-semibold px-6 py-3 rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_40px_-10px_rgba(255,255,255,0.4)]">
         Discord
       </a>
     </div>
@@ -330,7 +411,7 @@
         <canvas id="skin-canvas" width="260" height="340"></canvas>
       </div>
       <div class="text-center sm:text-left">
-        <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
+        <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
         <h2 class="text-3xl font-bold text-white mt-3 mb-2">1Luiisssss</h2>
         <p class="text-zinc-400 text-sm mb-6">Creador &amp; administración de AstrumSMP. Arrastra el modelo para rotarlo.</p>
         <div class="flex items-center justify-center sm:justify-start gap-3 text-sm">
@@ -345,25 +426,25 @@
   <!-- ===================== STATS ===================== -->
   <section id="stats" class="reveal relative px-6 py-24 border-t border-white/5">
     <div class="max-w-5xl mx-auto text-center mb-10">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Mundo</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Mundo</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Stats</h2>
       <p class="text-zinc-400 max-w-lg mx-auto">Se conectan en vivo cuando despliegues tu pipeline de <code class="text-zinc-500">export-stats.js</code>.</p>
     </div>
-    <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="glass rounded-xl p-5 text-center">
-        <p class="text-3xl font-extrabold text-white">—</p>
+    <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4" data-stagger>
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+        <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Días de mundo</p>
       </div>
-      <div class="glass rounded-xl p-5 text-center">
-        <p class="text-3xl font-extrabold text-white">—</p>
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+        <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Jugadores whitelist</p>
       </div>
-      <div class="glass rounded-xl p-5 text-center">
-        <p class="text-3xl font-extrabold text-white">—</p>
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+        <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Bloques colocados</p>
       </div>
-      <div class="glass rounded-xl p-5 text-center">
-        <p class="text-3xl font-extrabold text-white">—</p>
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+        <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Muertes totales</p>
       </div>
     </div>
@@ -372,7 +453,7 @@
   <!-- ===================== APP SHOWCASE ===================== -->
   <section id="mods-section" class="reveal relative px-6 pb-24 overflow-hidden">
     <div class="max-w-5xl mx-auto text-center mb-10">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ AstrumSMP</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ AstrumSMP</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Explora nuestro mundo</h2>
       <p class="text-zinc-400 max-w-lg mx-auto">Capturas técnicas y un mapa dinámico del servidor, próximamente.</p>
     </div>
@@ -393,18 +474,18 @@
     </div>
 
     <!-- Bento cards -->
-    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6" data-stagger>
+      <div class="tilt glass card-noise rounded-xl p-6 border border-zinc-800">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">✦</div>
         <h3 class="text-white font-semibold text-sm mb-1">Base Vanilla Estable</h3>
         <p class="text-zinc-500 text-sm">Ejecutando la versión 1.12.2 sin modificaciones. Un entorno puro y optimizado para establecer los cimientos del mundo.</p>
       </div>
-      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+      <div class="tilt glass card-noise rounded-xl p-6 border border-zinc-800">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">◈</div>
         <h3 class="text-white font-semibold text-sm mb-1">Proyección Técnica</h3>
         <p class="text-zinc-500 text-sm">Enfoque absoluto en granjas y redstone. Arquitectura preparada para escalar a versiones modernas (1.17x+) con soporte integral para mods.</p>
       </div>
-      <div class="glass card-noise rounded-xl p-6 border border-zinc-800">
+      <div class="tilt glass card-noise rounded-xl p-6 border border-zinc-800">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400 mb-4">⚡</div>
         <h3 class="text-white font-semibold text-sm mb-1">Acceso Restringido</h3>
         <p class="text-zinc-500 text-sm">Desarrollo a puerta cerrada. Cada mecanismo y perímetro construido forma parte de un ecosistema controlado y persistente.</p>
@@ -413,9 +494,9 @@
 
     <!-- Mods planeados (1.21.11) — íconos cargados en vivo desde la API de Modrinth (ver <script id="mod-icons-loader"> al final del body) -->
     <div class="max-w-5xl mx-auto mt-16 text-center">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
       <h3 class="text-xl font-semibold text-white mt-3 mb-6">Mods planeados para 1.21.11</h3>
-      <div id="mod-icon-grid" class="flex flex-wrap justify-center gap-4">
+      <div id="mod-icon-grid" class="flex flex-wrap justify-center gap-4" data-stagger>
         <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
         </div>
@@ -479,7 +560,7 @@
   <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[400px] h-[400px] bg-red-700/10 top-10 right-1/4"></div>
     <div class="max-w-xl mx-auto text-center relative z-10">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Infraestructura</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Infraestructura</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Servidor Activo 24/7</h2>
       <p class="text-zinc-400 mb-10">Hosteado en servidores de alto rendimiento para asegurar que los mecanismos y la carga de chunks funcionen sin interrupciones.</p>
 
@@ -502,7 +583,7 @@
   <!-- ===================== FEATURE: TEXTURE PACK (antes Custom Themes) ===================== -->
   <section class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-12">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Texture Pack</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Texture Pack</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Optimized Vanilla</h2>
       <p class="text-zinc-400">Mejora visual proyectada. Paquete de texturas oficial en desarrollo para mantener la esencia del juego rindiendo al máximo.</p>
     </div>
@@ -521,7 +602,7 @@
        bloque <div class="blueprint-card">. -->
   <section class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-12">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">
         Librería de Diseños
         <span class="inline-block align-middle ml-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2 py-1 rounded-full">En proceso</span>
@@ -664,7 +745,7 @@
   <!-- ===================== ROADMAP ===================== -->
   <section id="roadmap" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-16">
-      <span class="text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Hacia dónde va AstrumSMP</h2>
       <p class="text-zinc-400">Transparencia sobre el proceso, sin comprometer la estabilidad del mundo persistente.</p>
     </div>
@@ -1101,6 +1182,184 @@
   </script>
 
   <script>
+    // Respeta la preferencia del sistema en todos los scripts de animación de abajo
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  </script>
+
+  <script>
+    // Spotlight de cursor sobre cualquier tarjeta .glass (un solo listener delegado,
+    // eficiente aunque haya muchas tarjetas en la página).
+    if (!prefersReducedMotion) {
+      document.addEventListener('mousemove', (e) => {
+        const card = e.target.closest('.glass');
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
+      });
+    }
+  </script>
+
+  <script>
+    // Botones magnéticos: se acercan levemente al cursor dentro de su radio
+    if (!prefersReducedMotion) {
+      document.querySelectorAll('.magnetic').forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const x = e.clientX - r.left - r.width / 2;
+          const y = e.clientY - r.top - r.height / 2;
+          el.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      });
+    }
+  </script>
+
+  <script>
+    // Tilt 3D en las bento cards, según la posición del cursor dentro de cada una
+    if (!prefersReducedMotion) {
+      document.querySelectorAll('.tilt').forEach((el) => {
+        el.addEventListener('mousemove', (e) => {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          el.style.transform = `perspective(700px) rotateX(${py * -7}deg) rotateY(${px * 7}deg)`;
+        });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      });
+    }
+  </script>
+
+  <script>
+    // Reveal escalonado: cada hijo de un contenedor [data-stagger] entra con un
+    // pequeño delay respecto al anterior, en vez de aparecer todos a la vez.
+    document.querySelectorAll('[data-stagger]').forEach((group) => {
+      Array.from(group.children).forEach((child, i) => {
+        child.classList.add('stagger-item');
+        child.style.transitionDelay = (i * 0.06) + 's';
+      });
+    });
+    const staggerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.target.classList.toggle('in-view', entry.isIntersecting));
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.stagger-item').forEach((el) => staggerObserver.observe(el));
+  </script>
+
+  <script>
+    // Text scramble: los badges "✦ ..." se descifran letra por letra la primera
+    // vez que entran en pantalla (estilo terminal).
+    function scrambleText(el, duration = 500) {
+      const finalText = el.textContent;
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*+·';
+      const len = finalText.length;
+      const totalFrames = Math.round(duration / 16);
+      let frame = 0;
+      const tick = () => {
+        frame++;
+        let out = '';
+        for (let i = 0; i < len; i++) {
+          const ch = finalText[i];
+          if (ch === ' ' || i < (frame / totalFrames) * len) out += ch;
+          else out += chars[(Math.random() * chars.length) | 0];
+        }
+        el.textContent = out;
+        if (frame < totalFrames) requestAnimationFrame(tick);
+        else el.textContent = finalText;
+      };
+      tick();
+    }
+
+    if (prefersReducedMotion) {
+      // Sin animación: deja el texto tal cual, sin tocarlo
+    } else {
+      const scrambleObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            scrambleText(entry.target);
+            scrambleObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.6 });
+      document.querySelectorAll('.scramble').forEach((el) => scrambleObserver.observe(el));
+    }
+  </script>
+
+  <script>
+    // Parallax sutil del glow del hero, siguiendo el cursor
+    if (!prefersReducedMotion) {
+      const glow = document.querySelector('.hero-glow');
+      const heroSection = glow ? glow.closest('section') : null;
+      if (glow && heroSection) {
+        heroSection.addEventListener('mousemove', (e) => {
+          const r = heroSection.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - 0.5;
+          const y = (e.clientY - r.top) / r.height - 0.5;
+          glow.style.transform = `translate(calc(-50% + ${x * 30}px), ${y * 20}px)`;
+        });
+        heroSection.addEventListener('mouseleave', () => {
+          glow.style.transform = 'translateX(-50%)';
+        });
+      }
+    }
+  </script>
+
+  <script>
+    // Contador animado en las stats — se activa solo cuando una tarjeta tiene
+    // un data-count-to numérico real. Mientras siga vacío, se queda en "—" sin tocar nada.
+    // Para activarlo: <div class="stat-card" data-count-to="127">
+    function animateCount(el, target, duration = 1400) {
+      const isFloat = !Number.isInteger(target);
+      const startTime = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cúbico
+        const value = target * eased;
+        el.textContent = isFloat ? value.toFixed(1) : Math.round(value).toLocaleString('es-CL');
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = isFloat ? target.toFixed(1) : target.toLocaleString('es-CL');
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target;
+        const target = parseFloat(card.dataset.countTo);
+        if (Number.isNaN(target) || card.dataset.counted === 'true') return;
+        const valueEl = card.querySelector('.stat-value');
+        if (!valueEl) return;
+        card.dataset.counted = 'true';
+        if (prefersReducedMotion) {
+          valueEl.textContent = Number.isInteger(target) ? target.toLocaleString('es-CL') : target.toFixed(1);
+        } else {
+          animateCount(valueEl, target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-card').forEach((el) => countObserver.observe(el));
+  </script>
+
+  <script>
+    // Scrollspy: resalta en el menú el link de la sección que está en pantalla
+    const spySections = ['perfil', 'stats', 'mods-section', 'roadmap']
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    const spyLinks = document.querySelectorAll('#menu-overlay .menu-link[href^="#"]');
+
+    const spyObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const activeHref = '#' + entry.target.id;
+        spyLinks.forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === activeHref);
+        });
+      });
+    }, { threshold: 0.4, rootMargin: '-35% 0px -35% 0px' });
+    spySections.forEach((section) => spyObserver.observe(section));
+  </script>
+
+  <script>
     // Modal "Ver Requisitos": explica que el servidor está en desarrollo cerrado
     (function () {
       const btn = document.getElementById('requirements-btn');
@@ -1188,7 +1447,7 @@
       const canvas = document.getElementById('skin-canvas');
       if (!canvas || typeof skinview3d === 'undefined') return;
 
-      const MC_USERNAME = '1Luiisssss'; // <- edita esto si tu IGN de Minecraft es otro
+      const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
 
       const viewer = new skinview3d.SkinViewer({
         canvas,
