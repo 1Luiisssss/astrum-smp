@@ -15,6 +15,7 @@
   });
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/skin3d@latest/dist/skin3d.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -449,9 +450,8 @@
   <section id="perfil" class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[420px] h-[420px] bg-rose-600/10 top-0 right-1/4"></div>
     <div class="max-w-4xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-10 items-center">
-      <div class="glass rounded-2xl p-6 flex flex-col items-center justify-center">
+      <div class="glass rounded-2xl p-6 flex items-center justify-center">
         <canvas id="skin-canvas" width="260" height="340"></canvas>
-        <p id="skin-status" class="text-[11px] text-zinc-600 mt-2 text-center hidden"></p>
       </div>
       <div class="text-center sm:text-left">
         <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Perfil</span>
@@ -461,7 +461,7 @@
           <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
           <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
-        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa (Builder Cape) confirmadas desde NameMC.</p>
+        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa se cargan por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub. Si no tienes capa equipada, simplemente no se muestra.</p>
       </div>
     </div>
   </section>
@@ -474,19 +474,19 @@
       <p class="text-zinc-400 max-w-lg mx-auto">Se conectan en vivo cuando despliegues tu pipeline de <code class="text-zinc-500">export-stats.js</code>.</p>
     </div>
     <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4" data-stagger>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="5349">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Días de mundo</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="1">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Jugadores whitelist</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="153883">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
-        <p class="text-zinc-500 text-xs mt-1">Bloques colocados</p>
+        <p class="text-zinc-500 text-xs mt-1">Bloques minados</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="4">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Muertes totales</p>
       </div>
@@ -1482,171 +1482,74 @@
     })();
   </script>
 
-  <script type="module" id="skin-viewer-loader">
-    // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr.
-    //
-    // Esta versión registra diagnóstico en la consola del navegador (F12),
-    // porque el bug de "skin transparente"
-    // puede ocurrir en varios puntos distintos que fallan en silencio:
-    //  1) La página se abre con doble clic (file://) en vez de servirse por
-    //     http(s) — muchos navegadores bloquean fetch/CORS en ese modo.
-    //  2) La librería no llega a importarse (CDN bloqueado, sin internet).
-    //  3) La imagen de la skin no carga (red/CORS/nombre de usuario).
-    //  4) La imagen "carga" pero el navegador la marca como contaminada
-    //     (CORS parcial) y WebGL descarta la textura silenciosamente —
-    //     esto es invisible incluso para el manejo de errores normal, por
-    //     eso hay un listener global de errores más abajo.
-    // El diagnóstico ahora solo va a la consola del navegador (F12) — ya no
-    // se muestra en pantalla, para no dejar texto de depuración en producción.
-    const diagLines = [];
-    const statusEl = document.getElementById('skin-status');
+  <script id="skin-viewer-loader">
+    // Visor de skin 3D — usa skin3d (basado en skinview3d, pero con un build
+    // clásico que expone window.SkinViewer directo, sin la capa de ES Modules
+    // que estaba fallando en silencio).
+    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
+    (function () {
+      const canvas = document.getElementById('skin-canvas');
+      if (!canvas) return;
+      if (typeof SkinViewer === 'undefined') {
+        console.error('AstrumSMP: la librería del visor de skin no cargó (revisa el CDN).');
+        return;
+      }
 
-    function diag(line) {
-      diagLines.push(line);
-      console.info('[AstrumSMP skin]', line);
-    }
-    function setStatus(msg, isError = false) {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.classList.toggle('hidden', !msg);
-      statusEl.classList.toggle('text-rose-400', isError);
-      statusEl.classList.toggle('text-zinc-600', !isError);
-    }
+      const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
 
-    diag(`Origen de la página: ${location.protocol}//${location.host || '(vacío — archivo local)'}`);
-    if (location.protocol === 'file:') {
-      diag('⚠ Estás abriendo el archivo directamente (file://). Muchos navegadores bloquean la carga de imágenes externas en este modo.');
-      setStatus('Abre esto desde un servidor local o tu hosting, no con doble clic — ver diagnóstico abajo.', true);
-    }
+      async function resolveUUID(username) {
+        try {
+          const res = await fetch(`https://api.gapple.pw/cors/username/${encodeURIComponent(username)}`);
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data && data.id ? data.id : null;
+        } catch (err) {
+          console.warn('AstrumSMP: no se pudo resolver el UUID, uso el nombre de usuario como respaldo.', err);
+          return null;
+        }
+      }
 
-    const hasWebGL = (() => {
-      try {
-        const c = document.createElement('canvas');
-        return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
-      } catch { return false; }
+      (async () => {
+        const uuid = await resolveUUID(MC_USERNAME);
+        const skinUrl = uuid
+          ? `https://crafatar.com/skins/${uuid}`
+          : `https://minotar.net/skin/${MC_USERNAME}.png`;
+        const capeUrl = uuid
+          ? `https://crafatar.com/capes/${uuid}`
+          : `https://crafatar.com/capes/${MC_USERNAME}`;
+
+        try {
+          const viewer = new SkinViewer({
+            canvas,
+            width: 260,
+            height: 340,
+            skin: skinUrl,
+          });
+
+          viewer.fov = 45;
+          viewer.zoom = 0.85;
+
+          viewer.loadCape(capeUrl).catch(() => {
+            console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
+          });
+
+          // Rotación automática manual — funciona sin depender de clases de
+          // animación específicas de la librería, así que es más a prueba de fallos.
+          const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (!reduceMotion) {
+            let dragging = false;
+            canvas.addEventListener('pointerdown', () => { dragging = true; });
+            window.addEventListener('pointerup', () => { dragging = false; });
+            (function spin() {
+              if (!dragging && viewer.playerObject) viewer.playerObject.rotation.y += 0.007;
+              requestAnimationFrame(spin);
+            })();
+          }
+        } catch (err) {
+          console.error('AstrumSMP: no se pudo inicializar el visor de skin 3D:', err);
+        }
+      })();
     })();
-    diag(`WebGL disponible: ${hasWebGL ? 'sí' : 'NO'}`);
-    if (!hasWebGL) setStatus('Tu navegador no soporta WebGL — el visor 3D no puede iniciar.', true);
-
-    // Cualquier error que se escape de las promesas normales (por ejemplo,
-    // un fallo de textura que ocurre dentro del render loop de Three.js)
-    // igual queda registrado acá, en vez de perderse en silencio.
-    window.addEventListener('error', (e) => diag(`Error global: ${e.message}`));
-    window.addEventListener('unhandledrejection', (e) => diag(`Promesa no manejada: ${e.reason}`));
-
-    let skinview3d;
-    try {
-      skinview3d = await import('https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/+esm');
-      diag('Librería skinview3d importada correctamente.');
-    } catch (err) {
-      diag(`✗ No se pudo importar skinview3d desde jsDelivr: ${err.message}`);
-      setStatus('No se pudo cargar la librería del visor 3D (revisa tu conexión o si algo bloquea jsdelivr.net).', true);
-    }
-
-    const canvas = document.getElementById('skin-canvas');
-
-    // Prueba real (fetch en modo CORS) de cada URL candidata antes de
-    // pasársela al visor — así vemos el código HTTP real o el motivo exacto
-    // del fallo, en vez de solo "funcionó" / "no funcionó".
-    async function probe(url) {
-      try {
-        const res = await fetch(url, { mode: 'cors' });
-        diag(`  → ${url} → HTTP ${res.status}${res.ok ? '' : ' (no OK)'}`);
-        return res.ok;
-      } catch (err) {
-        diag(`  → ${url} → falló (red/CORS): ${err.message}`);
-        return false;
-      }
-    }
-
-    async function loadFirstWorking(loaderFn, urls, label) {
-      for (const url of urls) {
-        const reachable = await probe(url);
-        if (!reachable) continue;
-        try {
-          await loaderFn(url);
-          diag(`✓ ${label} cargado desde ${url}`);
-          return url;
-        } catch (err) {
-          diag(`✗ ${label} respondió pero el visor no pudo usarlo (${url}): ${err.message}`);
-        }
-      }
-      return null;
-    }
-
-    if (canvas && skinview3d) {
-      const MC_USERNAME = '1Luiissss'; // confirmado vía NameMC
-      // UUID confirmado directamente desde tu perfil de NameMC — ya no
-      // dependemos del proxy externo para resolverlo (una fuente de fallas menos).
-      const MC_UUID = 'add82f9b-2c2a-47a1-8a36-4f6980963c2d';
-
-      // Si tienes el archivo PNG de tu capa actual (la que se ve en NameMC,
-      // dentro de "Capas") subido junto a este index.html, pon su nombre
-      // acá. Las "Capas" de NameMC son un cosmético EXCLUSIVO de su propio
-      // sitio — no existen en Crafatar/Minotar porque no son capas oficiales
-      // de Mojang, así que si quieres verla en este visor hay que auto-
-      // hospedar el PNG. Ver instrucciones abajo del bloque de diagnóstico.
-      const CUSTOM_CAPE_URL = 'cape.png'; // tu capa real (Builder Cape), auto-hospedada
-
-      diag(`Usuario configurado: "${MC_USERNAME}" (UUID: ${MC_UUID})`);
-      const uuid = MC_UUID;
-
-      const skinSources = [
-        `https://crafatar.com/skins/${uuid}`,
-        `https://minotar.net/skin/${encodeURIComponent(MC_USERNAME)}.png`,
-        `https://mc-heads.net/skin/${encodeURIComponent(MC_USERNAME)}`,
-      ];
-      const capeSources = [
-        ...(CUSTOM_CAPE_URL ? [CUSTOM_CAPE_URL] : []),
-        `https://crafatar.com/capes/${uuid}`,
-        `https://crafatar.com/capes/${encodeURIComponent(MC_USERNAME)}`,
-      ];
-      if (!CUSTOM_CAPE_URL) {
-        diag('Sin CUSTOM_CAPE_URL configurado: si tu "capa" actual es una de las cosméticas de NameMC (no una capa oficial de Mojang), no se va a encontrar en Crafatar — hay que auto-hospedar el PNG (ver instrucciones bajo el visor).');
-      }
-
-      try {
-        const viewer = new skinview3d.SkinViewer({ canvas, width: 260, height: 340 });
-        viewer.fov = 45;
-        viewer.zoom = 0.85;
-
-        diag('Probando fuentes de la skin…');
-        const workingSkin = await loadFirstWorking(
-          (url) => viewer.loadSkin(url, { model: 'auto-detect' }),
-          skinSources,
-          'skin'
-        );
-
-        if (!workingSkin) {
-          setStatus('Ninguna fuente pudo cargar la skin — revisa el diagnóstico abajo.', true);
-        } else {
-          setStatus('');
-          diag('Probando fuentes de la capa…');
-          const workingCape = await loadFirstWorking(
-            (url) => viewer.loadCape(url),
-            capeSources,
-            'capa'
-          );
-          if (!workingCape) diag('Sin capa disponible para este usuario (normal si no tienes una equipada).');
-        }
-
-        try {
-          viewer.animation = new skinview3d.IdleAnimation();
-        } catch (err) {
-          diag(`Animación idle no disponible: ${err.message}`);
-        }
-
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        viewer.autoRotate = !reduceMotion;
-        viewer.autoRotateSpeed = 0.8;
-        diag('Inicialización del visor completa.');
-      } catch (err) {
-        diag(`✗ No se pudo inicializar el visor de skin 3D: ${err.message}`);
-        setStatus('No se pudo inicializar el visor 3D en este navegador.', true);
-      }
-    } else if (!canvas) {
-      diag('✗ No se encontró el elemento <canvas id="skin-canvas">.');
-    }
   </script>
 
   <script>
