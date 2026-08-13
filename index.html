@@ -199,7 +199,7 @@
   }
   .marquee-track {
     display: inline-block;
-    animation: marquee-scroll 28s linear infinite;
+    animation: marquee-scroll 16s linear infinite;
   }
   .marquee-track span {
     display: inline-block;
@@ -1482,9 +1482,11 @@
   </script>
 
   <script type="module" id="skin-viewer-loader">
-    // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr,
-    // que es como se distribuye la librería desde su versión 3.x (ya no trae
-    // un bundle global en unpkg como antes, por eso no cargaba).
+    // Visor de skin 3D (skinview3d) — se importa como ES Module desde jsDelivr.
+    // Para capas OFICIALES de Mojang, buscar solo por username es poco confiable
+    // (Crafatar mismo lo advierte), así que primero resolvemos el UUID real vía
+    // un proxy con CORS habilitado sobre la API de Mojang, y si eso falla,
+    // caemos de vuelta a la búsqueda por nombre (Minotar/Crafatar).
     // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
     import * as skinview3d from 'https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/+esm';
 
@@ -1492,19 +1494,37 @@
     if (canvas) {
       const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
 
+      let uuid = null;
+      try {
+        const res = await fetch(`https://api.gapple.pw/cors/username/${encodeURIComponent(MC_USERNAME)}`);
+        if (res.ok) {
+          const data = await res.json();
+          uuid = data && data.id ? data.id : null;
+        }
+      } catch (err) {
+        console.warn('AstrumSMP: no se pudo resolver el UUID, uso el nombre de usuario como respaldo.', err);
+      }
+
+      const skinUrl = uuid
+        ? `https://crafatar.com/skins/${uuid}`
+        : `https://minotar.net/skin/${MC_USERNAME}.png`;
+      const capeUrl = uuid
+        ? `https://crafatar.com/capes/${uuid}`
+        : `https://crafatar.com/capes/${MC_USERNAME}`;
+
       try {
         const viewer = new skinview3d.SkinViewer({
           canvas,
           width: 260,
           height: 340,
-          skin: `https://minotar.net/skin/${MC_USERNAME}.png`,
+          skin: skinUrl,
         });
 
         viewer.fov = 45;
         viewer.zoom = 0.85;
 
         // Capa actual (si tienes una equipada). Si no tienes, simplemente no se muestra.
-        viewer.loadCape(`https://crafatar.com/capes/${MC_USERNAME}`).catch(() => {
+        viewer.loadCape(capeUrl).catch(() => {
           console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
         });
 
