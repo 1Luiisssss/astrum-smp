@@ -298,31 +298,55 @@
     display: flex;
     justify-content: center;
     font-weight: 800;
-    color: #fff;
     line-height: 0.85;
     letter-spacing: -0.03em;
     font-size: clamp(56px, 15vw, 200px);
+    perspective: 900px;
+    transform-style: preserve-3d;
   }
   .astrum-word span {
     display: inline-block;
     opacity: 0;
     filter: blur(14px);
-    transform: translateY(50px);
+    transform: translateY(50px) scale(0.55);
+    /* Relleno "cromado" tipo globo inflado: un degradado claro/oscuro
+       clippeado al texto, que se anima solo para simular un brillo
+       recorriendo la superficie. */
+    background: linear-gradient(100deg,
+      #b8b8c2 0%, #ffffff 14%, #dcdce2 24%,
+      #98989e 42%, #ffffff 54%, #c4c4cc 68%,
+      #ffffff 82%, #d6d6dc 100%);
+    background-size: 240% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 6px 24px rgba(0,0,0,0.35);
   }
   .astrum-word.loaded span {
-    animation: astrum-letter-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation:
+      astrum-letter-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+      astrum-shine 7s ease-in-out 1s infinite;
   }
   @keyframes astrum-letter-in {
-    to { opacity: 1; filter: blur(0); transform: translateY(0); }
+    to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
   }
-  .astrum-word span:nth-child(1) { animation-delay: 0.05s; }
-  .astrum-word span:nth-child(2) { animation-delay: 0.11s; }
-  .astrum-word span:nth-child(3) { animation-delay: 0.17s; }
-  .astrum-word span:nth-child(4) { animation-delay: 0.23s; }
-  .astrum-word span:nth-child(5) { animation-delay: 0.29s; }
-  .astrum-word span:nth-child(6) { animation-delay: 0.35s; }
+  @keyframes astrum-shine {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .astrum-word span:nth-child(1) { animation-delay: 0.05s, 1s; }
+  .astrum-word span:nth-child(2) { animation-delay: 0.11s, 1.15s; }
+  .astrum-word span:nth-child(3) { animation-delay: 0.17s, 1.3s; }
+  .astrum-word span:nth-child(4) { animation-delay: 0.23s, 1.45s; }
+  .astrum-word span:nth-child(5) { animation-delay: 0.29s, 1.6s; }
+  .astrum-word span:nth-child(6) { animation-delay: 0.35s, 1.75s; }
   @media (prefers-reduced-motion: reduce) {
-    .astrum-word span { animation: none !important; opacity: 1; filter: none; transform: none; }
+    .astrum-word span {
+      animation: none !important;
+      opacity: 1; filter: none; transform: none;
+      background-position: 30% 50%;
+    }
   }
 
   /* Barra de progreso de scroll */
@@ -474,19 +498,19 @@
       <p class="text-zinc-400 max-w-lg mx-auto">Se conectan en vivo cuando despliegues tu pipeline de <code class="text-zinc-500">export-stats.js</code>.</p>
     </div>
     <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4" data-stagger>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="5349">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="5349" data-stat-key="daysOfWorld">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Días de mundo</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="1">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="1" data-stat-key="whitelistCount">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Jugadores whitelist</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="153883">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="153883" data-stat-key="blocksMined">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Bloques minados</p>
       </div>
-      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="4">
+      <div class="glass stat-card rounded-xl p-5 text-center" data-count-to="4" data-stat-key="deaths">
         <p class="stat-value text-3xl font-extrabold text-white">—</p>
         <p class="text-zinc-500 text-xs mt-1">Muertes totales</p>
       </div>
@@ -1347,19 +1371,19 @@
   </script>
 
   <script>
-    // Contador animado en las stats — se activa solo cuando una tarjeta tiene
-    // un data-count-to numérico real. Mientras siga vacío, se queda en "—" sin tocar nada.
-    // Para activarlo: <div class="stat-card" data-count-to="127">
-    function animateCount(el, target, duration = 1400) {
-      const isFloat = !Number.isInteger(target);
+    // Contador animado en las stats — se activa cuando una tarjeta tiene un
+    // data-count-to numérico real, y también se puede re-llamar más tarde
+    // (con from ≠ 0) para animar de un valor a otro cuando llegan datos en vivo.
+    function animateCount(el, from, to, duration = 1200) {
+      const isFloat = !Number.isInteger(to);
       const startTime = performance.now();
       function tick(now) {
         const progress = Math.min((now - startTime) / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3); // ease-out cúbico
-        const value = target * eased;
+        const value = from + (to - from) * eased;
         el.textContent = isFloat ? value.toFixed(1) : Math.round(value).toLocaleString('es-CL');
         if (progress < 1) requestAnimationFrame(tick);
-        else el.textContent = isFloat ? target.toFixed(1) : target.toLocaleString('es-CL');
+        else el.textContent = isFloat ? to.toFixed(1) : to.toLocaleString('es-CL');
       }
       requestAnimationFrame(tick);
     }
@@ -1376,11 +1400,61 @@
         if (prefersReducedMotion) {
           valueEl.textContent = Number.isInteger(target) ? target.toLocaleString('es-CL') : target.toFixed(1);
         } else {
-          animateCount(valueEl, target);
+          animateCount(valueEl, 0, target);
         }
       });
     }, { threshold: 0.5 });
     document.querySelectorAll('.stat-card').forEach((el) => countObserver.observe(el));
+  </script>
+
+  <script>
+    // Stats en vivo: consulta la API del servicio de Railway (el que corre
+    // pegado al servidor de Minecraft, leyendo level.dat/stats/whitelist
+    // directamente) y actualiza las tarjetas cada cierto tiempo.
+    //
+    // PENDIENTE: reemplaza STATS_API_URL por el dominio público que te dé
+    // Railway cuando expongas el puerto del servicio de stats
+    // (Settings → Networking → Generate Domain). Mientras esté vacío o
+    // falle, la página simplemente se queda con los números fijos de arriba.
+    const STATS_API_URL = ''; // ej: 'https://astrumsmp-stats.up.railway.app/api/stats'
+    const STATS_POLL_MS = 20000; // cada cuánto vuelve a consultar
+
+    async function fetchLiveStats() {
+      if (!STATS_API_URL) return;
+      try {
+        const res = await fetch(STATS_API_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('respuesta no OK: ' + res.status);
+        const data = await res.json();
+
+        document.querySelectorAll('.stat-card[data-stat-key]').forEach((card) => {
+          const key = card.dataset.statKey;
+          if (!(key in data) || data[key] == null) return;
+          const newTarget = Number(data[key]);
+          if (Number.isNaN(newTarget)) return;
+
+          const currentTarget = parseFloat(card.dataset.countTo);
+          if (newTarget === currentTarget) return; // sin cambios, no re-anima porque sí
+
+          const valueEl = card.querySelector('.stat-value');
+          const from = Number.isNaN(currentTarget) ? 0 : currentTarget;
+          card.dataset.countTo = String(newTarget);
+
+          if (prefersReducedMotion) {
+            valueEl.textContent = Number.isInteger(newTarget) ? newTarget.toLocaleString('es-CL') : newTarget.toFixed(1);
+          } else {
+            animateCount(valueEl, from, newTarget, 900);
+          }
+        });
+      } catch (err) {
+        console.warn('AstrumSMP: no se pudieron actualizar las stats en vivo, se mantienen los últimos valores.', err);
+      }
+    }
+
+    if (STATS_API_URL) {
+      // Primer chequeo apenas carga, y de ahí en más cada STATS_POLL_MS
+      window.addEventListener('load', () => setTimeout(fetchLiveStats, 2000));
+      setInterval(fetchLiveStats, STATS_POLL_MS);
+    }
   </script>
 
   <script>
@@ -1446,9 +1520,37 @@
         window.addEventListener('scroll', () => {
           const heroHeight = heroSection.offsetHeight;
           const progress = Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
-          word.style.transform = `scale(${1 - progress * 0.15}) translateY(${progress * -30}px)`;
+          word.style.setProperty('--astrum-scroll-scale', 1 - progress * 0.15);
+          word.style.setProperty('--astrum-scroll-y', (progress * -30) + 'px');
+          word.style.setProperty('--astrum-scroll-rx', (progress * 18) + 'deg');
           word.style.opacity = String(1 - progress * 0.7);
+          applyAstrumTransform();
         }, { passive: true });
+
+        // Inclinación 3D siguiendo el mouse — el efecto "globo/infografía 3D"
+        heroSection.addEventListener('mousemove', (e) => {
+          const r = heroSection.getBoundingClientRect();
+          const relX = (e.clientX - r.left) / r.width - 0.5;
+          const relY = (e.clientY - r.top) / r.height - 0.5;
+          word.style.setProperty('--astrum-mouse-rx', (relY * -10) + 'deg');
+          word.style.setProperty('--astrum-mouse-ry', (relX * 14) + 'deg');
+          applyAstrumTransform();
+        });
+        heroSection.addEventListener('mouseleave', () => {
+          word.style.setProperty('--astrum-mouse-rx', '0deg');
+          word.style.setProperty('--astrum-mouse-ry', '0deg');
+          applyAstrumTransform();
+        });
+
+        function applyAstrumTransform() {
+          const scale = word.style.getPropertyValue('--astrum-scroll-scale') || 1;
+          const ty = word.style.getPropertyValue('--astrum-scroll-y') || '0px';
+          const rx = parseFloat(word.style.getPropertyValue('--astrum-scroll-rx')) || 0;
+          const mrx = parseFloat(word.style.getPropertyValue('--astrum-mouse-rx')) || 0;
+          const mry = parseFloat(word.style.getPropertyValue('--astrum-mouse-ry')) || 0;
+          word.style.transform =
+            `scale(${scale}) translateY(${ty}) rotateX(${rx + mrx}deg) rotateY(${mry}deg)`;
+        }
       }
     })();
   </script>
@@ -1490,8 +1592,16 @@
     (function () {
       const canvas = document.getElementById('skin-canvas');
       if (!canvas) return;
-      if (typeof SkinViewer === 'undefined') {
-        console.error('AstrumSMP: la librería del visor de skin no cargó (revisa el CDN).');
+
+      // skin3d renombró su clase principal de "SkinViewer" a "Render" en
+      // versiones recientes. Probamos ambos nombres para que esto no se
+      // rompa de nuevo si la vuelven a renombrar.
+      const ViewerClass = (typeof Render !== 'undefined') ? Render
+        : (typeof SkinViewer !== 'undefined') ? SkinViewer
+        : null;
+
+      if (!ViewerClass) {
+        console.error('AstrumSMP: la librería del visor de skin no expuso ni "Render" ni "SkinViewer" — revisa si cambió el CDN otra vez.');
         return;
       }
 
@@ -1519,7 +1629,7 @@
           : `https://crafatar.com/capes/${MC_USERNAME}`;
 
         try {
-          const viewer = new SkinViewer({
+          const viewer = new ViewerClass({
             canvas,
             width: 260,
             height: 340,
@@ -1529,9 +1639,12 @@
           viewer.fov = 45;
           viewer.zoom = 0.85;
 
-          viewer.loadCape(capeUrl).catch(() => {
-            console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
-          });
+          const capeResult = viewer.loadCape(capeUrl);
+          if (capeResult && typeof capeResult.catch === 'function') {
+            capeResult.catch(() => {
+              console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
+            });
+          }
 
           // Rotación automática manual — funciona sin depender de clases de
           // animación específicas de la librería, así que es más a prueba de fallos.
