@@ -1650,9 +1650,18 @@
       const word = document.getElementById('astrum-word');
       if (!word) return;
 
-      window.addEventListener('load', () => {
-        requestAnimationFrame(() => word.classList.add('loaded'));
-      });
+      // Antes esto esperaba a "window.load", que no se dispara hasta que
+      // TODOS los recursos externos terminen (Tailwind CDN, skin3d, GSAP,
+      // Lenis, Google Fonts...). Si uno solo se bloquea o tarda (p. ej. un
+      // adblocker frenando unpkg.com), el título se quedaba invisible para
+      // siempre. Ahora se revela apenas el DOM está listo, sin depender de
+      // esos recursos externos.
+      const revealAstrum = () => requestAnimationFrame(() => word.classList.add('loaded'));
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', revealAstrum);
+      } else {
+        revealAstrum();
+      }
 
       if (!reduceMotion) {
         const heroSection = word.closest('section');
