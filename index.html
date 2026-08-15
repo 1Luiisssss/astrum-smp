@@ -1737,18 +1737,6 @@
         }
       }
 
-      function loadSkinWithFallback(viewer, sources, i) {
-        i = i || 0;
-        if (i >= sources.length) {
-          console.warn('AstrumSMP: no se pudo cargar ninguna textura de skin (todas las fuentes fallaron — crafatar/minotar podrían estar caídos).');
-          return;
-        }
-        const result = viewer.loadSkin(sources[i]);
-        if (result && typeof result.catch === 'function') {
-          result.catch(() => loadSkinWithFallback(viewer, sources, i + 1));
-        }
-      }
-
       (async () => {
         const uuid = await resolveUUID(MC_USERNAME);
         // Varias fuentes en cadena: si crafatar falla (lo vimos caído con 521),
@@ -1761,20 +1749,44 @@
           : `https://crafatar.com/capes/${MC_USERNAME}`;
 
         try {
+          // La carga inicial va por la opción `skin` del constructor: es el
+          // único camino con el que confirmamos que esta build arma bien la
+          // geometría del modelo (pasarla después por loadSkin() suelto
+          // rompía la inicialización). El costo es que la promesa interna de
+          // esa carga no queda expuesta para poder capturarla directo — por
+          // eso la manejamos con el listener de unhandledrejection de abajo
+          // en vez de un .catch() normal.
           const viewer = new ViewerClass({
             canvas,
             width: 260,
             height: 340,
+            skin: skinSources[0],
           });
 
           viewer.fov = 45;
           viewer.zoom = 0.85;
 
-          // El texture load va por loadSkin() explícito (no por la opción
-          // `skin` del constructor) porque esa promesa interna no queda
-          // expuesta para poder capturarla — pasarla ahí es justo lo que
-          // producía el "Uncaught (in promise)" cuando crafatar respondía 521.
-          loadSkinWithFallback(viewer, skinSources);
+          // Si la fuente inicial falla (crafatar caído, CORS, etc.), la
+          // librería termina esa carga como una promesa sin capturar — la
+          // interceptamos acá para que no ensucie la consola, y aprovechamos
+          // para reintentar con la siguiente fuente de la lista.
+          let triedFallbackSkin = false;
+          window.addEventListener('unhandledrejection', function onSkinLoadRejection(ev) {
+            const reason = ev.reason;
+            const looksLikeImageLoadError = reason && (
+              reason.target instanceof HTMLImageElement ||
+              (typeof reason.type === 'string' && reason.type === 'error')
+            );
+            if (!looksLikeImageLoadError) return;
+            ev.preventDefault();
+            if (triedFallbackSkin || skinSources.length < 2) return;
+            triedFallbackSkin = true;
+            console.warn('AstrumSMP: la fuente principal de la skin falló, reintentando con', skinSources[1]);
+            const retry = viewer.loadSkin(skinSources[1]);
+            if (retry && typeof retry.catch === 'function') {
+              retry.catch(() => console.warn('AstrumSMP: tampoco se pudo cargar la skin desde la fuente alternativa.'));
+            }
+          });
 
           const capeResult = viewer.loadCape(capeUrl);
           if (capeResult && typeof capeResult.catch === 'function') {
