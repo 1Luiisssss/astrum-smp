@@ -511,7 +511,7 @@
 
       <nav class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
         <button type="button" id="changelog-btn-nav" class="hover:text-white transition-colors">Changelog</button>
-        <a href="perfil.html" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Perfil</a>
+        <a href="#perfil" class="hover:text-white transition-colors">Perfil</a>
       </nav>
 
       <div class="flex items-center gap-5 text-sm">
@@ -525,11 +525,18 @@
 
   <!-- ===================== MENU OVERLAY ===================== -->
   <div id="menu-overlay" class="modal-overlay" style="align-items:flex-start; justify-content:flex-end; padding:0;">
-    <nav class="glass h-full w-full sm:w-[340px] flex flex-col gap-1 p-8 pt-24" style="transform:translateX(20px); opacity:0; transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;">
-      <a href="#perfil" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
-      <a href="#stats" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Stats</a>
-      <a href="#mods-section" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Mods</a>
-      <a href="#roadmap" class="menu-link py-3 text-2xl font-heading-astrum text-white hover:text-rose-300 transition-colors">Roadmap</a>
+    <nav class="glass h-full w-full sm:w-[360px] flex flex-col gap-0.5 p-8 pt-20 overflow-y-auto" style="transform:translateX(20px); opacity:0; transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;">
+      <a href="#sobre-nosotros" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Sobre Nosotros</a>
+      <a href="#perfil" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
+      <a href="#stats" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Stats</a>
+      <a href="#mods-section" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Mods</a>
+      <a href="#infraestructura" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Servidor Activo</a>
+      <a href="#optimized-vanilla" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Optimized Vanilla</a>
+      <a href="#blueprints" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Blueprints</a>
+      <a href="#coming-soon" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Coming Soon</a>
+      <a href="#roadmap" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Roadmap</a>
+      <a href="#conectarse" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Cómo Conectarse</a>
+      <a href="#faqs" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">FAQs</a>
       <div class="h-px bg-white/10 my-4"></div>
       <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Instagram ↗</a>
       <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Modrinth ↗</a>
@@ -569,6 +576,28 @@
       <span>MUNDO PERSISTENTE</span><span>SIN RESETS</span><span>INVITE ONLY</span><span>V1.13.2 → V1.21.11</span>
     </div>
   </div>
+
+  <!-- ===================== SOBRE NOSOTROS ===================== -->
+  <section id="sobre-nosotros" class="reveal relative px-6 py-24 border-t border-white/5">
+    <div class="max-w-2xl mx-auto text-center">
+      <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Sobre nosotros</span>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-6">¿Qué es AstrumSMP?</h2>
+      <p class="text-zinc-400 mb-4">
+        Un servidor privado de Minecraft, por invitación, sin listas de espera masivas.
+        Empezó en la 1.12.2 buscando estabilidad total para la infraestructura base y
+        los primeros perímetros de redstone antes de escalar a nada más.
+      </p>
+      <p class="text-zinc-400 mb-4">
+        No hay resets. El mundo que corre hoy es el mismo desde el día uno — cada
+        granja, cada máquina y cada construcción sigue en pie, temporada tras
+        temporada. La migración a versiones modernas (1.17x y luego 1.21.11) está
+        pensada para no perder ese progreso.
+      </p>
+      <p class="text-zinc-500 text-sm">
+        Creado y administrado por 1Luiissss.
+      </p>
+    </div>
+  </section>
 
   <!-- ===================== PERFIL ===================== -->
   <section id="perfil" class="reveal relative px-6 py-24 border-t border-white/5 overflow-hidden">
@@ -665,55 +694,55 @@
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
       <h3 class="text-xl font-semibold text-white mt-3 mb-6">Mods planeados para 1.21.11</h3>
       <div id="mod-icon-grid" class="flex flex-wrap justify-center gap-4" data-stagger>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium">
+        <a href="https://modrinth.com/mod/sodium" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium" title="Descargar sodium en Modrinth">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
-        </div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="lithium">
+        </a>
+        <a href="https://modrinth.com/mod/lithium" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="lithium" title="Descargar lithium en Modrinth">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
-        </div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="journeymap">
+        </a>
+        <a href="https://modrinth.com/mod/journeymap" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="journeymap" title="Descargar journeymap en Modrinth">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
-        </div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="litematica">
+        </a>
+        <a href="https://modrinth.com/mod/litematica" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="litematica" title="Descargar litematica en Modrinth">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
-        </div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modmenu">
+        </a>
+        <a href="https://modrinth.com/mod/modmenu" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modmenu" title="Descargar modmenu en Modrinth">
           <img alt="Mod" class="w-full h-full object-cover" loading="lazy">
-        </div>
+        </a>
       </div>
 
       <!-- Grid extendido: se muestra al presionar "Ver más". Si algún ícono no carga
            (slug incorrecto o mod no publicado en Modrinth), el script lo oculta solo. -->
       <div id="mod-icon-grid-extra" class="mods-extra flex flex-wrap justify-center gap-4">
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="architectury-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="badoptimizations"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="c2me-fabric"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="capes"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-extra"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-tis-addition"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="cloth-config"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="continuity"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="entityculling"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="essential-mod"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="exordium"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-language-kotlin"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="ferritecore"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="immediatelyfast"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="inventory-profiles-next"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="krypton"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libipn"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libjf"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="malilib"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="minihud"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modernfix"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="noisium"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="placeholder-api"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium-extra"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="spark"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="tweakeroo"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
-        <div class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="yacl"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></div>
+        <a href="https://modrinth.com/mod/architectury-api" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="architectury-api" title="Descargar architectury-api en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/badoptimizations" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="badoptimizations" title="Descargar badoptimizations en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/c2me-fabric" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="c2me-fabric" title="Descargar c2me-fabric en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/capes" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="capes" title="Descargar capes en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/carpet-extra" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-extra" title="Descargar carpet-extra en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/carpet-tis-addition" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet-tis-addition" title="Descargar carpet-tis-addition en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/cloth-config" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="cloth-config" title="Descargar cloth-config en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/continuity" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="continuity" title="Descargar continuity en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/entityculling" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="entityculling" title="Descargar entityculling en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/essential-mod" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="essential-mod" title="Descargar essential-mod en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/exordium" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="exordium" title="Descargar exordium en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/fabric-api" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-api" title="Descargar fabric-api en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/carpet" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="carpet" title="Descargar carpet en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/fabric-language-kotlin" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="fabric-language-kotlin" title="Descargar fabric-language-kotlin en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/ferritecore" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="ferritecore" title="Descargar ferritecore en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/immediatelyfast" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="immediatelyfast" title="Descargar immediatelyfast en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/inventory-profiles-next" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="inventory-profiles-next" title="Descargar inventory-profiles-next en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/krypton" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="krypton" title="Descargar krypton en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/libipn" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libipn" title="Descargar libipn en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/libjf" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="libjf" title="Descargar libjf en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/malilib" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="malilib" title="Descargar malilib en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/minihud" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="minihud" title="Descargar minihud en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/modernfix" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="modernfix" title="Descargar modernfix en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/noisium" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="noisium" title="Descargar noisium en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/placeholder-api" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="placeholder-api" title="Descargar placeholder-api en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/sodium-extra" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="sodium-extra" title="Descargar sodium-extra en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/spark" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="spark" title="Descargar spark en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/tweakeroo" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="tweakeroo" title="Descargar tweakeroo en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
+        <a href="https://modrinth.com/mod/yacl" target="_blank" rel="noopener noreferrer" class="mod-icon-slot w-16 h-16 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden" data-slug="yacl" title="Descargar yacl en Modrinth"><img alt="Mod" class="w-full h-full object-cover" loading="lazy"></a>
       </div>
 
       <button id="mods-toggle-btn" class="mt-6 text-xs font-medium text-rose-300 border border-rose-500/20 bg-rose-500/10 px-4 py-2 rounded-full hover:bg-rose-500/20 transition-colors">
@@ -725,7 +754,7 @@
   </section>
 
   <!-- ===================== FEATURE: INFRAESTRUCTURA (antes Cloud Sync) ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
+  <section id="infraestructura" class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[400px] h-[400px] bg-red-700/10 top-10 right-1/4"></div>
     <div class="max-w-xl mx-auto text-center relative z-10">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Infraestructura</span>
@@ -749,7 +778,7 @@
   </section>
 
   <!-- ===================== FEATURE: TEXTURE PACK (antes Custom Themes) ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
+  <section id="optimized-vanilla" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-12">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Texture Pack</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Optimized Vanilla</h2>
@@ -768,7 +797,7 @@
        aparece 9 veces) por tu usuario y repo reales de GitHub una vez que hayas
        subido la carpeta /blueprints. Para agregar un diseño nuevo, duplica un
        bloque <div class="blueprint-card">. -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
+  <section id="blueprints" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-12">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Blueprints</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">
@@ -871,7 +900,7 @@
   </section>
 
   <!-- ===================== COMING SOON ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
+  <section id="coming-soon" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-14">
       <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Coming Soon</h2>
       <p class="text-zinc-400">Esto es solo el comienzo. Mira lo que se viene para AstrumSMP.</p>
@@ -964,7 +993,7 @@
   </section>
 
   <!-- ===================== CÓMO CONECTARSE (antes Pricing) ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
+  <section id="conectarse" class="reveal relative px-6 py-28 border-t border-white/5 overflow-hidden">
     <div class="glow-soft w-[500px] h-[500px] bg-rose-600/15 top-0 left-1/2 -translate-x-1/2"></div>
 
     <div class="max-w-xl mx-auto text-center mb-14 relative z-10">
@@ -1000,7 +1029,7 @@
   </section>
 
   <!-- ===================== FAQ ===================== -->
-  <section class="reveal relative px-6 py-28 border-t border-white/5">
+  <section id="faqs" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-2xl mx-auto text-center mb-14">
       <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">FAQs</h2>
       <p class="text-zinc-400">Respuestas a las preguntas más frecuentes.</p>
@@ -1221,10 +1250,18 @@
           link.className = 'group aspect-square rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden relative flex items-center justify-center hover:border-rose-500/40 transition-colors';
 
           const img = document.createElement('img');
-          img.src = pack.icon_url || '';
+          // icon_url suele ser un thumbnail chico (a veces 64px) — si el pack
+          // tiene imágenes de galería (screenshots en resolución real), usamos
+          // la primera en vez del ícono, así se ve nítida en la tarjeta grande.
+          const galleryImg = Array.isArray(pack.gallery) && pack.gallery.length
+            ? (pack.gallery.find((g) => g.featured) || pack.gallery[0]).url
+            : null;
+          img.src = galleryImg || pack.icon_url || '';
           img.alt = pack.title;
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.className = 'w-full h-full object-cover';
+          img.style.imageRendering = 'auto';
 
           const labelBar = document.createElement('span');
           labelBar.textContent = pack.title;
@@ -1565,7 +1602,11 @@
 
   <script>
     // Scrollspy: resalta en el menú el link de la sección que está en pantalla
-    const spySections = ['perfil', 'stats', 'mods-section', 'roadmap']
+    const spySections = [
+      'perfil', 'stats', 'mods-section',
+      'infraestructura', 'optimized-vanilla', 'blueprints', 'coming-soon',
+      'roadmap', 'conectarse', 'faqs',
+    ]
       .map((id) => document.getElementById(id))
       .filter(Boolean);
     const spyLinks = document.querySelectorAll('#menu-overlay .menu-link[href^="#"]');
