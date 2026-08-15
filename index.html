@@ -73,7 +73,7 @@
     transform-origin: center;
     will-change: transform, opacity, stroke-dashoffset;
   }
-  .logo-facet[data-facet="3"] { fill: #d4d4d8; }
+  .logo-facet[data-facet="2"] { fill: #9a9aa0; }
   #logo-specular { mix-blend-mode: overlay; pointer-events: none; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -475,12 +475,15 @@
     <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <!-- LOGO: isotipo geométrico en 3 facetas (paths), animado por GSAP al cargar -->
       <div class="flex items-center gap-2">
-        <svg id="logo-svg" viewBox="0 0 100 100" width="26" height="26" aria-hidden="true" focusable="false">
+        <!-- Isotipo vectorizado a partir del logo real (triángulo "A" con
+             muesca gris). Misma estructura de facetas que antes, así que
+             la animación GSAP (trazado -> ensamblado -> brillo especular
+             + tilt 3D al mouse) sigue funcionando sin tocar el script. -->
+        <svg id="logo-svg" viewBox="0 0 100 100" width="30" height="26" aria-hidden="true" focusable="false">
           <defs>
             <clipPath id="logo-clip">
-              <path d="M50,9 L16,90 L33,90 L58,33 Z" />
-              <path d="M58,33 L84,90 L67,90 L50,58 Z" />
-              <path d="M33,90 L44,68 L50,58 L67,90 Z" />
+              <path d="M49.29,23.60 L48.97,24.12 L47.87,25.88 L46.77,27.65 L38.86,40.49 L30.94,53.33 L26.83,59.99 L22.73,66.64 L19.84,71.33 L16.94,76.02 L16.67,76.45 L16.41,76.90 L33.72,76.90 L51.03,76.90 L55.15,70.24 L59.27,63.59 L59.38,63.59 L59.48,63.59 L63.59,70.24 L67.69,76.90 L75.64,76.90 L83.59,76.90 L83.32,76.45 L83.06,76.02 L78.99,69.43 L74.92,62.84 L70.38,55.46 L65.83,48.10 L57.96,48.10 L50.11,48.10 L50.18,47.91 L50.24,47.73 L53.87,41.85 L57.50,35.98 L57.36,35.68 L57.24,35.39 L53.46,29.28 L49.70,23.17 L49.66,23.12 L49.61,23.07 Z" clip-rule="evenodd" />
+              <path d="M32.57,76.36 L32.98,75.88 L34.71,73.03 L36.47,70.18 L37.49,68.55 L38.74,66.51 L40.64,63.27 L45.16,63.45 L44.01,64.65 L42.87,65.83 L41.51,67.26 L40.15,68.68 L37.30,71.67 L34.44,74.66 L33.57,75.57 L32.70,76.49 Z" />
             </clipPath>
             <linearGradient id="logo-shine-gradient" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stop-color="#ffffff" stop-opacity="0" />
@@ -489,9 +492,8 @@
             </linearGradient>
           </defs>
           <g id="logo-facets">
-            <path class="logo-facet" data-facet="1" d="M50,9 L16,90 L33,90 L58,33 Z" />
-            <path class="logo-facet" data-facet="2" d="M58,33 L84,90 L67,90 L50,58 Z" />
-            <path class="logo-facet" data-facet="3" d="M33,90 L44,68 L50,58 L67,90 Z" />
+            <path class="logo-facet" data-facet="1" fill-rule="evenodd" d="M49.29,23.60 L48.97,24.12 L47.87,25.88 L46.77,27.65 L38.86,40.49 L30.94,53.33 L26.83,59.99 L22.73,66.64 L19.84,71.33 L16.94,76.02 L16.67,76.45 L16.41,76.90 L33.72,76.90 L51.03,76.90 L55.15,70.24 L59.27,63.59 L59.38,63.59 L59.48,63.59 L63.59,70.24 L67.69,76.90 L75.64,76.90 L83.59,76.90 L83.32,76.45 L83.06,76.02 L78.99,69.43 L74.92,62.84 L70.38,55.46 L65.83,48.10 L57.96,48.10 L50.11,48.10 L50.18,47.91 L50.24,47.73 L53.87,41.85 L57.50,35.98 L57.36,35.68 L57.24,35.39 L53.46,29.28 L49.70,23.17 L49.66,23.12 L49.61,23.07 Z M52.51,52.20 L54.96,56.17 L55.69,57.39 L56.44,58.63 L57.84,60.92 L59.25,63.21 L59.21,63.25 L59.17,63.29 L49.97,63.34 L40.76,63.41 L40.76,63.30 L40.76,63.18 L42.16,60.91 L43.56,58.63 L44.31,57.39 L45.04,56.17 L47.49,52.20 L49.93,48.23 L50.00,48.23 L50.07,48.23 Z" />
+            <path class="logo-facet" data-facet="2" d="M32.57,76.36 L32.98,75.88 L34.71,73.03 L36.47,70.18 L37.49,68.55 L38.74,66.51 L40.64,63.27 L45.16,63.45 L44.01,64.65 L42.87,65.83 L41.51,67.26 L40.15,68.68 L37.30,71.67 L34.44,74.66 L33.57,75.57 L32.70,76.49 Z" />
           </g>
           <rect id="logo-specular" x="-40" y="0" width="30" height="100" clip-path="url(#logo-clip)" fill="url(#logo-shine-gradient)" opacity="0" />
         </svg>
