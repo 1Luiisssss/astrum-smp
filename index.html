@@ -376,19 +376,7 @@
   }
   .astrum-word span {
     display: inline-block;
-    /* Relleno "cromado" estático: un degradado claro/oscuro clippeado al
-       texto. Antes esto arrancaba invisible y se animaba al cargar; ahora
-       se muestra directo, sin animación de entrada ni brillo en movimiento. */
-    background: linear-gradient(100deg,
-      #b8b8c2 0%, #ffffff 14%, #dcdce2 24%,
-      #98989e 42%, #ffffff 54%, #c4c4cc 68%,
-      #ffffff 82%, #d6d6dc 100%);
-    background-size: 240% 100%;
-    background-position: 30% 50%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
     text-shadow: 0 6px 24px rgba(0,0,0,0.35);
   }
 
@@ -549,7 +537,7 @@
           <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
           <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
-        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa se cargan por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub. Si no tienes capa equipada, simplemente no se muestra.</p>
+        <p class="text-zinc-700 text-[11px] mt-4">Skin y capa se cargan por UUID de Mojang — edita <code class="text-zinc-500">MC_UUID</code> en el script si cambias de cuenta. Si no tienes capa equipada, simplemente no se muestra.</p>
       </div>
     </div>
   </section>
@@ -1657,7 +1645,12 @@
     // silencio. skinview3d expone el namespace global "skinview3d" y trae
     // controles de arrastre + auto-rotación integrados, así que ya no
     // necesitamos simular la rotación a mano.
-    // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
+    //
+    // Usamos el UUID directo (confirmado en NameMC) en vez de resolverlo
+    // por nombre en tiempo real: la API de resolución nombre->UUID puede
+    // fallar por CORS o estar caída, y es un punto de fallo innecesario
+    // cuando ya sabemos el UUID de la cuenta. Si algún día cambias de IGN,
+    // el UUID no cambia, así que esto sigue funcionando igual.
     (function () {
       const canvas = document.getElementById('skin-canvas');
       if (!canvas) return;
@@ -1668,29 +1661,11 @@
       }
       const ViewerClass = skinview3d.SkinViewer;
 
-      const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
-
-      async function resolveUUID(username) {
-        try {
-          const res = await fetch(`https://api.gapple.pw/cors/username/${encodeURIComponent(username)}`);
-          if (!res.ok) return null;
-          const data = await res.json();
-          return data && data.id ? data.id : null;
-        } catch (err) {
-          console.warn('AstrumSMP: no se pudo resolver el UUID, uso el nombre de usuario como respaldo.', err);
-          return null;
-        }
-      }
+      const MC_UUID = 'add82f9b2c2a47a18a364f6980963c2d'; // <- UUID de 1Luiissss (cuenta premium, confirmado en NameMC)
+      const skinUrl = `https://crafatar.com/skins/${MC_UUID}`;
+      const capeUrl = `https://crafatar.com/capes/${MC_UUID}`;
 
       (async () => {
-        const uuid = await resolveUUID(MC_USERNAME);
-        const skinUrl = uuid
-          ? `https://crafatar.com/skins/${uuid}`
-          : `https://minotar.net/skin/${MC_USERNAME}.png`;
-        const capeUrl = uuid
-          ? `https://crafatar.com/capes/${uuid}`
-          : `https://crafatar.com/capes/${MC_USERNAME}`;
-
         try {
           const viewer = new ViewerClass({
             canvas,
