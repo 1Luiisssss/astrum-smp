@@ -15,7 +15,7 @@
   });
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/skin3d@latest/dist/skin3d.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skinview3d@3.4.2/bundles/skinview3d.bundle.js"></script>
 <!-- GSAP + ScrollTrigger + Lenis: motor de la secuencia de marca y las
      microinteracciones de scroll. Todo lo que dependa de esto degrada con
      elegancia si el CDN falla (ver reglas `html:not(.gsap-active)` y los
@@ -1691,8 +1691,8 @@
   </script>
 
   <script id="skin-viewer-loader">
-    // Visor de skin 3D — usa skin3d (build UMD clásico vía <script src>, sin
-    // capa de ES Modules).
+    // Visor de skin 3D — usa skinview3d (bundle UMD autocontenido vía
+    // <script src>, sin capa de ES Modules).
     // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
     (function () {
       const canvas = document.getElementById('skin-canvas');
@@ -1703,22 +1703,24 @@
         canvas.parentElement?.querySelector('[data-skin-fallback]')?.classList.remove('hidden');
       };
 
-      // La documentación oficial de skin3d (skin3d.netlify.app) confirma que
-      // el build UMD de este mismo CDN expone `window.SkinViewer` — el README
-      // de npm habla de una clase "Render", pero esa es solo la exportación
-      // del paquete ES Module (import { Render } from 'skin3d'), no la del
-      // <script> global. Probamos, en orden: el nombre real del UMD, el
-      // namespace `window.skin3d.*` (patrón alterno común en otros builds
-      // UMD) y por último "Render" por si una versión futura vuelve a
-      // renombrarla — así esto no se rompe en silencio otra vez.
+      // Cambiamos de "skin3d" (fork que en su versión 0.2.0 dejó de traer
+      // Three.js incluido, pasó a requerirlo como dependencia externa vía
+      // globals, y además el archivo dist/skin3d.min.js que usábamos ya ni
+      // existe en esa versión) a "skinview3d", la librería original y
+      // activamente mantenida: trae un bundle UMD autocontenido (Three.js
+      // incluido) que expone `window.skinview3d.SkinViewer` — confirmado
+      // inspeccionando el paquete real, no solo la documentación.
+      // Se dejan los nombres viejos como red de seguridad por si el CDN
+      // vuelve a cambiar de forma inesperada.
       const ViewerClass =
-        (typeof SkinViewer !== 'undefined') ? SkinViewer
+        (window.skinview3d && window.skinview3d.SkinViewer) ? window.skinview3d.SkinViewer
+        : (typeof SkinViewer !== 'undefined') ? SkinViewer
         : (window.skin3d && (window.skin3d.SkinViewer || window.skin3d.Render)) ? (window.skin3d.SkinViewer || window.skin3d.Render)
         : (typeof Render !== 'undefined') ? Render
         : null;
 
       if (!ViewerClass) {
-        console.error('AstrumSMP: la librería del visor de skin no expuso "SkinViewer" (ni "Render" ni "window.skin3d") — revisa si cambió el CDN otra vez.');
+        console.error('AstrumSMP: la librería del visor de skin no expuso "skinview3d.SkinViewer" (ni los nombres viejos) — revisa si cambió el CDN otra vez.');
         showFallback();
         return;
       }
