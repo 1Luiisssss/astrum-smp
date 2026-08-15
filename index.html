@@ -399,43 +399,25 @@
     opacity: 0;
     filter: blur(14px);
     transform: translateY(50px) scale(0.55);
-    /* Relleno "cromado" tipo globo inflado: un degradado claro/oscuro
-       clippeado al texto, que se anima solo para simular un brillo
-       recorriendo la superficie. */
-    background: linear-gradient(100deg,
-      #b8b8c2 0%, #ffffff 14%, #dcdce2 24%,
-      #98989e 42%, #ffffff 54%, #c4c4cc 68%,
-      #ffffff 82%, #d6d6dc 100%);
-    background-size: 240% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
     text-shadow: 0 6px 24px rgba(0,0,0,0.35);
   }
   .astrum-word.loaded span {
-    animation:
-      astrum-letter-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-      astrum-shine 7s ease-in-out 1s infinite;
+    animation: astrum-letter-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
   @keyframes astrum-letter-in {
     to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
   }
-  @keyframes astrum-shine {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  .astrum-word span:nth-child(1) { animation-delay: 0.05s, 1s; }
-  .astrum-word span:nth-child(2) { animation-delay: 0.11s, 1.15s; }
-  .astrum-word span:nth-child(3) { animation-delay: 0.17s, 1.3s; }
-  .astrum-word span:nth-child(4) { animation-delay: 0.23s, 1.45s; }
-  .astrum-word span:nth-child(5) { animation-delay: 0.29s, 1.6s; }
-  .astrum-word span:nth-child(6) { animation-delay: 0.35s, 1.75s; }
+  .astrum-word span:nth-child(1) { animation-delay: 0.05s; }
+  .astrum-word span:nth-child(2) { animation-delay: 0.11s; }
+  .astrum-word span:nth-child(3) { animation-delay: 0.17s; }
+  .astrum-word span:nth-child(4) { animation-delay: 0.23s; }
+  .astrum-word span:nth-child(5) { animation-delay: 0.29s; }
+  .astrum-word span:nth-child(6) { animation-delay: 0.35s; }
   @media (prefers-reduced-motion: reduce) {
     .astrum-word span {
       animation: none !important;
       opacity: 1; filter: none; transform: none;
-      background-position: 30% 50%;
     }
   }
 
@@ -2008,14 +1990,15 @@
     if (!hasGSAP || prefersReducedMotion) return;
 
     gsap.utils.toArray('.reveal').forEach((el) => {
-      // El GSAP toma el control de opacity/transform en este elemento;
+      // El GSAP toma el control de opacity/transform/filter en este elemento;
       // apaga la transition CSS de respaldo para que no compitan.
       el.style.transition = 'none';
       gsap.fromTo(el,
-        { autoAlpha: 0, y: 30 },
+        { autoAlpha: 0, y: 30, filter: 'blur(6px)' },
         {
           autoAlpha: 1,
           y: 0,
+          filter: 'blur(0px)',
           duration: 0.9,
           ease: 'power3.out',
           scrollTrigger: {
@@ -2023,7 +2006,7 @@
             start: 'top 85%',
             toggleActions: 'play none none reverse',
           },
-          onStart: () => { el.style.willChange = 'transform, opacity'; },
+          onStart: () => { el.style.willChange = 'transform, opacity, filter'; },
           onComplete: () => { el.style.willChange = 'auto'; },
         }
       );
