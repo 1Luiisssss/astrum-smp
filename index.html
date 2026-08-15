@@ -242,6 +242,19 @@
     .reveal { opacity: 1; transform: none; filter: none; transition: none; }
   }
 
+  /* ===================== TÍTULO ROTATIVO (texture packs) ===================== */
+  #texture-rotating-title {
+    transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+  }
+  #texture-rotating-title.swapping {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #texture-rotating-title { transition: none; }
+  }
+
   /* ===================== MARQUEE (cinta de texto continua) ===================== */
   .marquee-band {
     overflow: hidden;
@@ -526,17 +539,11 @@
   <!-- ===================== MENU OVERLAY ===================== -->
   <div id="menu-overlay" class="modal-overlay" style="align-items:flex-start; justify-content:flex-end; padding:0;">
     <nav class="glass h-full w-full sm:w-[360px] flex flex-col gap-0.5 p-8 pt-20 overflow-y-auto" style="transform:translateX(20px); opacity:0; transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease;">
-      <a href="#sobre-nosotros" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Sobre Nosotros</a>
-      <a href="#perfil" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
-      <a href="#stats" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Stats</a>
       <a href="#mods-section" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Mods</a>
-      <a href="#infraestructura" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Servidor Activo</a>
-      <a href="#optimized-vanilla" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Optimized Vanilla</a>
-      <a href="#blueprints" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Blueprints</a>
-      <a href="#coming-soon" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Coming Soon</a>
-      <a href="#roadmap" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Roadmap</a>
-      <a href="#conectarse" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Cómo Conectarse</a>
       <a href="#faqs" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">FAQs</a>
+      <a href="#redes-sociales" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Redes Sociales</a>
+      <a href="#optimized-vanilla" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Texturas</a>
+      <a href="#perfil" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
       <div class="h-px bg-white/10 my-4"></div>
       <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Instagram ↗</a>
       <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Modrinth ↗</a>
@@ -781,7 +788,7 @@
   <section id="optimized-vanilla" class="reveal relative px-6 py-28 border-t border-white/5">
     <div class="max-w-xl mx-auto text-center mb-12">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Texture Pack</span>
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Optimized Vanilla</h2>
+      <h2 id="texture-rotating-title" class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-4">Optimized Vanilla</h2>
       <p class="text-zinc-400">Mejora visual proyectada. Paquete de texturas oficial en desarrollo para mantener la esencia del juego rindiendo al máximo.</p>
     </div>
 
@@ -1093,7 +1100,7 @@
         </ul>
       </div>
 
-      <div>
+      <div id="redes-sociales">
         <h4 class="text-zinc-300 text-xs font-semibold mb-4">Redes</h4>
         <ul class="space-y-2 text-xs text-zinc-500">
           <li><a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="hover:text-white transition-colors">Discord</a></li>
@@ -1247,6 +1254,7 @@
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
           link.title = pack.title;
+          link.dataset.packSlug = pack.slug;
           link.className = 'group aspect-square rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden relative flex items-center justify-center hover:border-rose-500/40 transition-colors';
 
           const img = document.createElement('img');
@@ -1271,6 +1279,35 @@
           link.appendChild(labelBar);
           grid.appendChild(link);
         });
+
+        // Título rotativo: "Optimized Vanilla" -> "DurabilityTools" -> ...
+        // recorre en bucle los títulos reales de tus texture packs, con un
+        // pequeño fundido cada vez que cambia. Se detiene solo si prefieres
+        // menos movimiento (ahí queda fijo en el primero).
+        const titleEl = document.getElementById('texture-rotating-title');
+        if (titleEl && packs.length > 1) {
+          const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const cards = Array.from(grid.querySelectorAll('a[data-pack-slug]'));
+          let idx = 0;
+
+          const highlightCard = (slug) => {
+            cards.forEach((c) => c.classList.toggle('ring-2', c.dataset.packSlug === slug));
+            cards.forEach((c) => c.classList.toggle('ring-rose-500/60', c.dataset.packSlug === slug));
+          };
+          highlightCard(packs[0].slug);
+
+          if (!reduceMotion) {
+            setInterval(() => {
+              idx = (idx + 1) % packs.length;
+              titleEl.classList.add('swapping');
+              setTimeout(() => {
+                titleEl.textContent = packs[idx].title;
+                highlightCard(packs[idx].slug);
+                titleEl.classList.remove('swapping');
+              }, 400);
+            }, 3600);
+          }
+        }
       } catch (err) {
         console.warn('No se pudieron cargar los texture packs de Modrinth:', err);
         grid.innerHTML = '<p class="col-span-full text-zinc-600 text-sm">No se pudieron cargar los texture packs.</p>';
