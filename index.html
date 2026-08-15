@@ -15,7 +15,7 @@
   });
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/skin3d@latest/dist/skin3d.min.js"></script>
+<script src="https://unpkg.com/skinview3d@3.4.2/bundles/skinview3d.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
@@ -376,47 +376,20 @@
   }
   .astrum-word span {
     display: inline-block;
-    opacity: 0;
-    filter: blur(14px);
-    transform: translateY(50px) scale(0.55);
-    /* Relleno "cromado" tipo globo inflado: un degradado claro/oscuro
-       clippeado al texto, que se anima solo para simular un brillo
-       recorriendo la superficie. */
+    /* Relleno "cromado" estático: un degradado claro/oscuro clippeado al
+       texto. Antes esto arrancaba invisible y se animaba al cargar; ahora
+       se muestra directo, sin animación de entrada ni brillo en movimiento. */
     background: linear-gradient(100deg,
       #b8b8c2 0%, #ffffff 14%, #dcdce2 24%,
       #98989e 42%, #ffffff 54%, #c4c4cc 68%,
       #ffffff 82%, #d6d6dc 100%);
     background-size: 240% 100%;
+    background-position: 30% 50%;
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 6px 24px rgba(0,0,0,0.35);
-  }
-  .astrum-word.loaded span {
-    animation:
-      astrum-letter-in 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-      astrum-shine 7s ease-in-out 1s infinite;
-  }
-  @keyframes astrum-letter-in {
-    to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
-  }
-  @keyframes astrum-shine {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-  .astrum-word span:nth-child(1) { animation-delay: 0.05s, 1s; }
-  .astrum-word span:nth-child(2) { animation-delay: 0.11s, 1.15s; }
-  .astrum-word span:nth-child(3) { animation-delay: 0.17s, 1.3s; }
-  .astrum-word span:nth-child(4) { animation-delay: 0.23s, 1.45s; }
-  .astrum-word span:nth-child(5) { animation-delay: 0.29s, 1.6s; }
-  .astrum-word span:nth-child(6) { animation-delay: 0.35s, 1.75s; }
-  @media (prefers-reduced-motion: reduce) {
-    .astrum-word span {
-      animation: none !important;
-      opacity: 1; filter: none; transform: none;
-      background-position: 30% 50%;
-    }
   }
 
   /* Barra de progreso de scroll */
@@ -609,7 +582,7 @@
   </section>
 
   <!-- ===================== APP SHOWCASE ===================== -->
-  <section id="mods-section" class="reveal relative px-6 pb-24 overflow-hidden">
+  <section id="world-section" class="reveal relative px-6 pb-24 overflow-hidden">
     <div class="max-w-5xl mx-auto text-center mb-10">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ AstrumSMP</span>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3 mb-3">Explora nuestro mundo</h2>
@@ -651,7 +624,7 @@
     </div>
 
     <!-- Mods planeados (1.21.11) — íconos cargados en vivo desde la API de Modrinth (ver <script id="mod-icons-loader"> al final del body) -->
-    <div class="max-w-5xl mx-auto mt-16 text-center">
+    <div id="mods-section" class="max-w-5xl mx-auto mt-16 text-center scroll-mt-24">
       <span class="scramble text-xs font-medium text-rose-300 uppercase tracking-wider">✦ Roadmap</span>
       <h3 class="text-xl font-semibold text-white mt-3 mb-6">Mods planeados para 1.21.11</h3>
       <div id="mod-icon-grid" class="flex flex-wrap justify-center gap-4" data-stagger>
@@ -1645,65 +1618,6 @@
     }, { passive: true });
   </script>
 
-  <script>
-    // ASTRUM: revelado por letra al cargar + parallax ligado al scroll del hero
-    (function () {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const word = document.getElementById('astrum-word');
-      if (!word) return;
-
-      // Antes esto esperaba a "window.load", que no se dispara hasta que
-      // TODOS los recursos externos terminen (Tailwind CDN, skin3d, GSAP,
-      // Lenis, Google Fonts...). Si uno solo se bloquea o tarda (p. ej. un
-      // adblocker frenando unpkg.com), el título se quedaba invisible para
-      // siempre. Ahora se revela apenas el DOM está listo, sin depender de
-      // esos recursos externos.
-      const revealAstrum = () => requestAnimationFrame(() => word.classList.add('loaded'));
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', revealAstrum);
-      } else {
-        revealAstrum();
-      }
-
-      if (!reduceMotion) {
-        const heroSection = word.closest('section');
-        window.addEventListener('scroll', () => {
-          const heroHeight = heroSection.offsetHeight;
-          const progress = Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
-          word.style.setProperty('--astrum-scroll-scale', 1 - progress * 0.15);
-          word.style.setProperty('--astrum-scroll-y', (progress * -30) + 'px');
-          word.style.setProperty('--astrum-scroll-rx', (progress * 18) + 'deg');
-          word.style.opacity = String(1 - progress * 0.7);
-          applyAstrumTransform();
-        }, { passive: true });
-
-        // Inclinación 3D siguiendo el mouse — el efecto "globo/infografía 3D"
-        heroSection.addEventListener('mousemove', (e) => {
-          const r = heroSection.getBoundingClientRect();
-          const relX = (e.clientX - r.left) / r.width - 0.5;
-          const relY = (e.clientY - r.top) / r.height - 0.5;
-          word.style.setProperty('--astrum-mouse-rx', (relY * -10) + 'deg');
-          word.style.setProperty('--astrum-mouse-ry', (relX * 14) + 'deg');
-          applyAstrumTransform();
-        });
-        heroSection.addEventListener('mouseleave', () => {
-          word.style.setProperty('--astrum-mouse-rx', '0deg');
-          word.style.setProperty('--astrum-mouse-ry', '0deg');
-          applyAstrumTransform();
-        });
-
-        function applyAstrumTransform() {
-          const scale = word.style.getPropertyValue('--astrum-scroll-scale') || 1;
-          const ty = word.style.getPropertyValue('--astrum-scroll-y') || '0px';
-          const rx = parseFloat(word.style.getPropertyValue('--astrum-scroll-rx')) || 0;
-          const mrx = parseFloat(word.style.getPropertyValue('--astrum-mouse-rx')) || 0;
-          const mry = parseFloat(word.style.getPropertyValue('--astrum-mouse-ry')) || 0;
-          word.style.transform =
-            `scale(${scale}) translateY(${ty}) rotateX(${rx + mrx}deg) rotateY(${mry}deg)`;
-        }
-      }
-    })();
-  </script>
 
   <script>
     // Menú: overlay de navegación (esquina superior derecha)
@@ -1735,25 +1649,24 @@
   </script>
 
   <script id="skin-viewer-loader">
-    // Visor de skin 3D — usa skin3d (basado en skinview3d, pero con un build
-    // clásico que expone window.SkinViewer directo, sin la capa de ES Modules
-    // que estaba fallando en silencio).
+    // Visor de skin 3D — usa skinview3d (bs-community/skinview3d), la
+    // librería original y más mantenida en la que se basan forks como
+    // "skin3d". El build de unpkg.com/skin3d@latest/dist/skin3d.min.js que
+    // se usaba antes daba 404 (ese archivo no existe en ese paquete), así
+    // que nunca se definían ni "Render" ni "SkinViewer" y todo fallaba en
+    // silencio. skinview3d expone el namespace global "skinview3d" y trae
+    // controles de arrastre + auto-rotación integrados, así que ya no
+    // necesitamos simular la rotación a mano.
     // Cambia MC_USERNAME por tu IGN real de Minecraft si es distinto.
     (function () {
       const canvas = document.getElementById('skin-canvas');
       if (!canvas) return;
 
-      // skin3d renombró su clase principal de "SkinViewer" a "Render" en
-      // versiones recientes. Probamos ambos nombres para que esto no se
-      // rompa de nuevo si la vuelven a renombrar.
-      const ViewerClass = (typeof Render !== 'undefined') ? Render
-        : (typeof SkinViewer !== 'undefined') ? SkinViewer
-        : null;
-
-      if (!ViewerClass) {
-        console.error('AstrumSMP: la librería del visor de skin no expuso ni "Render" ni "SkinViewer" — revisa si cambió el CDN otra vez.');
+      if (typeof skinview3d === 'undefined' || !skinview3d.SkinViewer) {
+        console.error('AstrumSMP: no se pudo cargar la librería skinview3d — revisa si cambió el CDN otra vez.');
         return;
       }
+      const ViewerClass = skinview3d.SkinViewer;
 
       const MC_USERNAME = '1Luiissss'; // <- tu IGN real de Minecraft
 
@@ -1796,17 +1709,14 @@
             });
           }
 
-          // Rotación automática manual — funciona sin depender de clases de
-          // animación específicas de la librería, así que es más a prueba de fallos.
+          // skinview3d ya trae arrastre con el mouse (OrbitControls) de
+          // fábrica, así que solo activamos la auto-rotación cuando el
+          // usuario no la suelta al arrastrar — la librería la pausa sola
+          // mientras se interactúa con el modelo.
           const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           if (!reduceMotion) {
-            let dragging = false;
-            canvas.addEventListener('pointerdown', () => { dragging = true; });
-            window.addEventListener('pointerup', () => { dragging = false; });
-            (function spin() {
-              if (!dragging && viewer.playerObject) viewer.playerObject.rotation.y += 0.007;
-              requestAnimationFrame(spin);
-            })();
+            viewer.autoRotate = true;
+            viewer.autoRotateSpeed = 0.7;
           }
         } catch (err) {
           console.error('AstrumSMP: no se pudo inicializar el visor de skin 3D:', err);
