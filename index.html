@@ -1833,19 +1833,47 @@
         }
       }
 
+      // Fuente real y oficial: el sessionserver de Mojang (vía proxy con CORS),
+      // que es literalmente de donde el juego mismo lee qué skin/capa tienes
+      // equipada ahora. No depende de que Crafatar esté funcionando.
+      async function getMojangTextures(uuid) {
+        try {
+          const res = await fetch(`https://api.gapple.pw/cors/sessionserver/${uuid}`);
+          if (!res.ok) {
+            console.warn('[AstrumSMP/skin] sessionserver de Mojang respondió', res.status);
+            return null;
+          }
+          const data = await res.json();
+          const prop = (data.properties || []).find((p) => p.name === 'textures');
+          if (!prop) return null;
+          const decoded = JSON.parse(atob(prop.value));
+          return decoded.textures || null; // { SKIN: {url, metadata}, CAPE: {url} }
+        } catch (err) {
+          console.warn('[AstrumSMP/skin] No se pudo leer el sessionserver de Mojang:', err);
+          return null;
+        }
+      }
+
       (async () => {
         const uuid = await resolveUUID(MC_USERNAME);
         console.log('[AstrumSMP/skin] UUID resuelto para', MC_USERNAME, '->', uuid || '(no se resolvió, usando fallback por nombre)');
 
-        // Varias fuentes en cadena: si crafatar falla (lo vimos caído con 521),
-        // se reintenta automáticamente con minotar antes de rendirse.
-        const skinSources = uuid
-          ? [`https://crafatar.com/skins/${uuid}`, `https://minotar.net/skin/${MC_USERNAME}.png`]
-          : [`https://minotar.net/skin/${MC_USERNAME}.png`];
-        const capeUrl = uuid
-          ? `https://crafatar.com/capes/${uuid}`
-          : `https://crafatar.com/capes/${MC_USERNAME}`;
-        console.log('[AstrumSMP/skin] URL de capa que se va a intentar:', capeUrl);
+        const mojangTextures = uuid ? await getMojangTextures(uuid) : null;
+        console.log('[AstrumSMP/skin] Texturas desde el sessionserver de Mojang:', mojangTextures);
+
+        // Orden de prioridad para la skin: sessionserver de Mojang (la fuente
+        // real) -> Crafatar -> Minotar. Para la capa: SOLO el sessionserver
+        // manda — si ahí no aparece la propiedad CAPE, es porque Mojang dice
+        // que no hay ninguna equipada ahora mismo, así que no tiene sentido
+        // insistir con Crafatar en ese caso (además, ahora mismo Crafatar está
+        // devolviendo 500 de todos modos).
+        const skinSources = [];
+        if (mojangTextures?.SKIN?.url) skinSources.push(mojangTextures.SKIN.url);
+        if (uuid) skinSources.push(`https://crafatar.com/skins/${uuid}`);
+        skinSources.push(`https://minotar.net/skin/${MC_USERNAME}.png`);
+
+        const capeUrl = mojangTextures?.CAPE?.url || null;
+        console.log('[AstrumSMP/skin] URL de capa que se va a intentar:', capeUrl || '(el sessionserver no reporta ninguna capa equipada)');
 
         try {
           // La carga inicial va por la opción `skin` del constructor: es el
@@ -1865,11 +1893,11 @@
           viewer.fov = 45;
           viewer.zoom = 0.85;
 
-          // Si la fuente inicial falla (crafatar caído, CORS, etc.), la
-          // librería termina esa carga como una promesa sin capturar — la
-          // interceptamos acá para que no ensucie la consola, y aprovechamos
-          // para reintentar con la siguiente fuente de la lista.
-          let triedFallbackSkin = false;
+          // Si la fuente inicial falla, la librería termina esa carga como una
+          // promesa sin capturar — la interceptamos acá para que no ensucie
+          // la consola, y aprovechamos para reintentar con la siguiente
+          // fuente de la lista (puede haber más de un fallback en cola).
+          let nextSkinIndex = 1;
           window.addEventListener('unhandledrejection', function onSkinLoadRejection(ev) {
             const reason = ev.reason;
             const looksLikeImageLoadError = reason && (
@@ -1878,25 +1906,26 @@
             );
             if (!looksLikeImageLoadError) return;
             ev.preventDefault();
-            if (triedFallbackSkin || skinSources.length < 2) return;
-            triedFallbackSkin = true;
-            console.warn('AstrumSMP: la fuente principal de la skin falló, reintentando con', skinSources[1]);
-            const retry = viewer.loadSkin(skinSources[1]);
+            if (nextSkinIndex >= skinSources.length) return;
+            const nextUrl = skinSources[nextSkinIndex++];
+            console.warn('AstrumSMP: una fuente de la skin falló, reintentando con', nextUrl);
+            const retry = viewer.loadSkin(nextUrl);
             if (retry && typeof retry.catch === 'function') {
-              retry.catch(() => console.warn('AstrumSMP: tampoco se pudo cargar la skin desde la fuente alternativa.'));
+              retry.catch(() => console.warn('AstrumSMP: tampoco se pudo cargar la skin desde', nextUrl));
             }
           });
 
-          const capeResult = viewer.loadCape(capeUrl);
-          if (capeResult && typeof capeResult.then === 'function') {
-            capeResult
-              .then(() => console.log('[AstrumSMP/skin] Capa cargada correctamente desde', capeUrl))
-              .catch((err) => {
-                console.warn('[AstrumSMP/skin] Falló la carga de la capa desde', capeUrl, '-', err);
-                console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
-              });
+          if (capeUrl) {
+            const capeResult = viewer.loadCape(capeUrl);
+            if (capeResult && typeof capeResult.then === 'function') {
+              capeResult
+                .then(() => console.log('[AstrumSMP/skin] Capa cargada correctamente desde', capeUrl))
+                .catch((err) => console.warn('[AstrumSMP/skin] Falló la carga de la capa desde', capeUrl, '-', err));
+            } else {
+              console.warn('[AstrumSMP/skin] loadCape() no devolvió una promesa — no se puede confirmar si la capa cargó.');
+            }
           } else {
-            console.warn('[AstrumSMP/skin] loadCape() no devolvió una promesa — no se puede confirmar si la capa cargó.');
+            console.info('[AstrumSMP/skin] No hay capa que cargar (el sessionserver de Mojang no reportó ninguna equipada).');
           }
 
           // Rotación automática manual — funciona sin depender de clases de
