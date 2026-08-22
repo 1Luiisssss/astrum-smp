@@ -1262,36 +1262,20 @@
           link.className = 'group aspect-square rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden relative flex items-center justify-center hover:border-rose-500/40 transition-colors';
 
           const img = document.createElement('img');
-          // icon_url suele ser un thumbnail chico (a veces 64px) — si el pack
-          // tiene imágenes de galería (screenshots en resolución real), usamos
-          // la primera en vez del ícono, así se ve nítida en la tarjeta grande.
-          const galleryImg = Array.isArray(pack.gallery) && pack.gallery.length
-            ? (pack.gallery.find((g) => g.featured) || pack.gallery[0]).url
-            : null;
-          img.src = galleryImg || pack.icon_url || '';
+          img.src = pack.icon_url || '';
           img.alt = pack.title;
           img.loading = 'lazy';
           img.decoding = 'async';
-          img.className = 'w-full h-full object-cover';
-          img.style.imageRendering = 'auto';
+          // object-contain + padding en vez de cover: el ícono se ve a su
+          // tamaño natural sobre un fondo limpio, sin estirarlo para llenar
+          // la tarjeta (eso era lo que lo hacía ver pixelado).
+          img.className = 'w-full h-full object-contain p-5';
 
           const labelBar = document.createElement('span');
           labelBar.textContent = pack.title;
           labelBar.className = 'absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[11px] text-center py-1 px-1 truncate opacity-0 group-hover:opacity-100 transition-opacity';
 
           link.appendChild(img);
-
-          // Ícono real del pack (el que tú subiste como ícono de proyecto en
-          // Modrinth) como badge en la esquina, además de la captura grande.
-          if (pack.icon_url) {
-            const iconBadge = document.createElement('img');
-            iconBadge.src = pack.icon_url;
-            iconBadge.alt = '';
-            iconBadge.loading = 'lazy';
-            iconBadge.className = 'absolute top-2 left-2 w-7 h-7 rounded-md border border-white/20 bg-black/60 object-cover shadow-lg';
-            link.appendChild(iconBadge);
-          }
-
           link.appendChild(labelBar);
           grid.appendChild(link);
         });
@@ -1851,6 +1835,8 @@
 
       (async () => {
         const uuid = await resolveUUID(MC_USERNAME);
+        console.log('[AstrumSMP/skin] UUID resuelto para', MC_USERNAME, '->', uuid || '(no se resolvió, usando fallback por nombre)');
+
         // Varias fuentes en cadena: si crafatar falla (lo vimos caído con 521),
         // se reintenta automáticamente con minotar antes de rendirse.
         const skinSources = uuid
@@ -1859,6 +1845,7 @@
         const capeUrl = uuid
           ? `https://crafatar.com/capes/${uuid}`
           : `https://crafatar.com/capes/${MC_USERNAME}`;
+        console.log('[AstrumSMP/skin] URL de capa que se va a intentar:', capeUrl);
 
         try {
           // La carga inicial va por la opción `skin` del constructor: es el
@@ -1901,10 +1888,15 @@
           });
 
           const capeResult = viewer.loadCape(capeUrl);
-          if (capeResult && typeof capeResult.catch === 'function') {
-            capeResult.catch(() => {
-              console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
-            });
+          if (capeResult && typeof capeResult.then === 'function') {
+            capeResult
+              .then(() => console.log('[AstrumSMP/skin] Capa cargada correctamente desde', capeUrl))
+              .catch((err) => {
+                console.warn('[AstrumSMP/skin] Falló la carga de la capa desde', capeUrl, '-', err);
+                console.info('AstrumSMP: no se encontró capa para este usuario (o no tiene una equipada).');
+              });
+          } else {
+            console.warn('[AstrumSMP/skin] loadCape() no devolvió una promesa — no se puede confirmar si la capa cargó.');
           }
 
           // Rotación automática manual — funciona sin depender de clases de
