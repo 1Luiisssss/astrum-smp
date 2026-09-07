@@ -545,7 +545,7 @@
       <a href="#optimized-vanilla" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Texturas</a>
       <a href="#perfil" class="menu-link py-2 text-lg font-heading-astrum text-white hover:text-rose-300 transition-colors">Perfil</a>
       <div class="h-px bg-white/10 my-4"></div>
-      <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Instagram ↗</a>
+      <a href="https://www.instagram.com/1luiissssss/" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Instagram ↗</a>
       <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Modrinth ↗</a>
       <a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="menu-link py-2 text-sm text-zinc-400 hover:text-white transition-colors">Discord ↗</a>
       <button type="button" id="menu-close" class="absolute top-5 right-6 text-zinc-500 hover:text-white transition-colors" aria-label="Cerrar menú">✕</button>
@@ -619,7 +619,7 @@
         <h2 class="text-3xl font-bold text-white mt-3 mb-2">1Luiisssss</h2>
         <p class="text-zinc-400 text-sm mb-6">Creador &amp; administración de AstrumSMP. Arrastra el modelo para rotarlo.</p>
         <div class="flex items-center justify-center sm:justify-start gap-3 text-sm">
-          <a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
+          <a href="https://www.instagram.com/1luiissssss/" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Instagram</a>
           <a href="https://modrinth.com/user/1Luiiissss" target="_blank" rel="noopener noreferrer" class="glass px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-colors">Modrinth</a>
         </div>
         <p class="text-zinc-700 text-[11px] mt-4">Skin y capa se cargan por nombre de usuario — edita <code class="text-zinc-500">MC_USERNAME</code> en el script si tu IGN es distinto a tu usuario de GitHub. Si no tienes capa equipada, simplemente no se muestra.</p>
@@ -1017,11 +1017,15 @@
       <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-7">
         <h3 class="text-white font-semibold mb-1">Java Edition</h3>
         <p class="text-zinc-500 text-sm mb-6">Requisitos técnicos para unirte.</p>
-        <ul class="text-sm text-zinc-400 space-y-3 mb-8">
+        <ul class="text-sm text-zinc-400 space-y-3 mb-6">
           <li>✓ Versión actual: 1.12.2</li>
           <li>✓ Entorno Vanilla</li>
           <li>✓ Servidor Privado</li>
         </ul>
+        <button type="button" id="copy-ip-btn" data-ip="astrum.qzz.io" class="w-full flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-700 rounded-full py-2.5 px-4 mb-3 text-sm text-white hover:border-rose-500/60 transition-colors">
+          <span class="font-mono">astrum.qzz.io</span>
+          <span id="copy-ip-label" class="text-zinc-500 text-xs">Copiar</span>
+        </button>
         <button type="button" id="requirements-btn" class="block w-full text-center border border-zinc-700 text-white rounded-full py-2.5 text-sm hover:bg-zinc-900 transition-colors">Ver Requisitos</button>
       </div>
 
@@ -1108,7 +1112,7 @@
         <h4 class="text-zinc-300 text-xs font-semibold mb-4">Redes</h4>
         <ul class="space-y-2 text-xs text-zinc-500">
           <li><a href="https://discord.gg/QEz9dRVVag" target="_blank" rel="noopener" class="hover:text-white transition-colors">Discord</a></li>
-          <li><a href="https://www.instagram.com/ezrynnnnnnnn/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Instagram</a></li>
+          <li><a href="https://www.instagram.com/1luiissssss/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Instagram</a></li>
           <li><a href="https://www.youtube.com/@r4iinClips" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">YouTube</a></li>
         </ul>
       </div>
@@ -1148,6 +1152,30 @@
       <p class="text-zinc-400 text-sm">Todavía no hay ningún cambio registrado. El changelog se irá completando a medida que avance el desarrollo del servidor.</p>
     </div>
   </div>
+
+  <script id="copy-ip">
+    (function () {
+      const btn = document.getElementById('copy-ip-btn');
+      const label = document.getElementById('copy-ip-label');
+      if (!btn || !label) return;
+      const defaultLabel = label.textContent;
+      btn.addEventListener('click', async () => {
+        const ip = btn.dataset.ip;
+        try {
+          await navigator.clipboard.writeText(ip);
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = ip;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        label.textContent = '¡Copiado!';
+        setTimeout(() => { label.textContent = defaultLabel; }, 1800);
+      });
+    })();
+  </script>
 
   <script id="modrinth-cache-utils">
     // Cache compartida para las llamadas a la API de Modrinth (localStorage + TTL).
