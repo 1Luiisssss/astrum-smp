@@ -1468,36 +1468,79 @@
       const version = document.getElementById('server-status-version');
       const refreshBtn = document.getElementById('server-status-refresh');
 
+      // mcsrvstat.us a veces falla o cachea un "offline" viejo de su lado.
+      // Antes de mostrarle eso al usuario, se reintenta con mcstatus.io
+      // (otra API pública, sin auth) como respaldo.
+      async function fetchFromMcsrvstat() {
+        const res = await fetch(`https://api.mcsrvstat.us/3/${address}?_=${Date.now()}`);
+        if (!res.ok) throw new Error(`mcsrvstat.us respondió ${res.status}`);
+        const data = await res.json();
+        return {
+          online: !!data.online,
+          onlineCount: data.players?.online ?? 0,
+          maxCount: data.players?.max ?? '?',
+          version: data.version || '—',
+        };
+      }
+
+      async function fetchFromMcstatus() {
+        const res = await fetch(`https://api.mcstatus.io/v2/status/java/${address}?_=${Date.now()}`);
+        if (!res.ok) throw new Error(`mcstatus.io respondió ${res.status}`);
+        const data = await res.json();
+        return {
+          online: !!data.online,
+          onlineCount: data.players?.online ?? 0,
+          maxCount: data.players?.max ?? '?',
+          version: data.version?.name_clean || data.version?.name || '—',
+        };
+      }
+
       async function checkStatus() {
         text.textContent = 'Consultando estado…';
         dot.className = 'w-2.5 h-2.5 rounded-full bg-zinc-600 animate-pulse';
         if (refreshBtn) refreshBtn.disabled = true;
 
-        try {
-          const res = await fetch(`https://api.mcsrvstat.us/3/${address}?_=${Date.now()}`);
-          if (!res.ok) throw new Error(`mcsrvstat.us respondió ${res.status}`);
-          const data = await res.json();
+        let result = null;
+        let lastError = null;
 
-          if (data.online) {
+        try {
+          result = await fetchFromMcsrvstat();
+        } catch (err) {
+          lastError = err;
+        }
+
+        // Si mcsrvstat.us falló o dijo offline, se confirma con mcstatus.io
+        // antes de darlo por caído (evita falsos "Offline" por un hipo del
+        // servicio de consulta, no del servidor en sí).
+        if (!result || !result.online) {
+          try {
+            const backup = await fetchFromMcstatus();
+            if (backup.online) result = backup;
+            else if (!result) result = backup;
+          } catch (err) {
+            lastError = lastError || err;
+          }
+        }
+
+        if (result) {
+          if (result.online) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
             text.textContent = 'Servidor Online';
-            const onlineCount = data.players?.online ?? 0;
-            const maxCount = data.players?.max ?? '?';
-            players.textContent = `${onlineCount} / ${maxCount} jugadores`;
-            version.textContent = data.version || '—';
+            players.textContent = `${result.onlineCount} / ${result.maxCount} jugadores`;
+            version.textContent = result.version;
           } else {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-zinc-600';
             text.textContent = 'Servidor Offline';
             players.textContent = '— jugadores';
             version.textContent = '—';
           }
-        } catch (err) {
-          console.warn('No se pudo consultar el estado del servidor:', err);
+        } else {
+          console.warn('No se pudo consultar el estado del servidor:', lastError);
           dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
           text.textContent = 'Estado no disponible';
-        } finally {
-          if (refreshBtn) refreshBtn.disabled = false;
         }
+
+        if (refreshBtn) refreshBtn.disabled = false;
       }
 
       checkStatus();
