@@ -1,0 +1,1971 @@
+/* ==========================================================================
+   ASTRUMSMP — main.css
+   Lenguaje visual: brutalismo tipográfico sobre negro casi puro.
+   Sistema de escala fluida en rem (1rem = 1% del viewport, clampado).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. TOKENS
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Superficies */
+  --ink:        #08080a;
+  --ink-raised: #0e0e11;
+  --ink-card:   #121216;
+  --ink-hover:  #17171c;
+
+  /* Texto */
+  --fg:         #ededf0;
+  --fg-mute:    #9a9aa4;
+  /* --fg-faint se usa en texto pequeño: 4.78:1 sobre --ink, por encima del
+     4.5:1 que exige WCAG AA. No bajarlo más. */
+  --fg-faint:   #7b7b85;
+
+  /* Acento — rojo Minecraft */
+  --red:        #e8233c;
+  /* Versión aclarada SOLO para texto pequeño: #e8233c da 4.51:1, justo al
+     borde; #ff6b80 da 6.5:1 sobre fondo negro. */
+  --red-text:   #ff6b80;
+  --red-soft:   #ff4a5e;
+  --red-dim:    rgba(232, 35, 60, 0.14);
+
+  /* Líneas */
+  --line:       rgba(255, 255, 255, 0.07);
+  --line-hard:  rgba(255, 255, 255, 0.14);
+
+  /* Tipografía */
+  --font-mono:  "Geist Mono", "IBM Plex Mono", ui-monospace, "Cascadia Code",
+                "SF Mono", Menlo, Consolas, monospace;
+  --font-sans:  Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+                Roboto, sans-serif;
+
+  /* Ritmo — todo en rem, así el sitio entero escala como una unidad */
+  --gutter:  clamp(1.25rem, 3.2vw, 3.5rem);
+  --section-y: clamp(5rem, 11vw, 11rem);
+  --maxw: 110rem;
+  --nav-h: 4.25rem;
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io:  cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET
+   -------------------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+* { margin: 0; padding: 0; }
+
+html {
+  /* La clave de todo el sistema: 1rem escala con el viewport. */
+  font-size: clamp(15px, 0.55vw + 8.4px, 20px);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
+  min-height: 100vh;
+}
+
+/* Sin scrollbar visible, como en la referencia */
+body::-webkit-scrollbar,
+body ::-webkit-scrollbar { display: none; }
+body { -ms-overflow-style: none; }
+html { scrollbar-width: none; }
+
+img, svg, video, canvas { display: block; max-width: 100%; }
+img, video { height: auto; }
+
+a { color: inherit; text-decoration: none; }
+
+button, input { font: inherit; color: inherit; background: none; border: none; }
+button { cursor: pointer; }
+
+ul, ol { list-style: none; }
+
+::selection { background: var(--red); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   3. TIPOGRAFÍA
+   -------------------------------------------------------------------------- */
+
+.mono { font-family: var(--font-mono); }
+
+.display {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  line-height: 0.84;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.h1 { font-size: clamp(2.6rem, 7.5vw, 8rem); }
+.h2 { font-size: clamp(2rem, 5.2vw, 5.2rem); }
+.h3 { font-size: clamp(1.5rem, 3vw, 2.8rem); }
+.h4 { font-size: clamp(1.15rem, 1.7vw, 1.6rem); }
+
+.lead {
+  font-size: clamp(1.05rem, 1.55vw, 1.5rem);
+  line-height: 1.5;
+  color: var(--fg-mute);
+  max-width: 46ch;
+}
+
+.body-text { color: var(--fg-mute); max-width: 62ch; }
+
+/* Etiqueta pequeña: el "voz" del sitio */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--red-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.kicker::before { content: "◆"; font-size: 0.7em; }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+/* Un .label que además es enlace: necesita zona táctil de 24 px (WCAG 2.2).
+   El relleno es invisible, solo agranda el área pulsable. */
+a.label {
+  display: inline-block;
+  padding-block: 0.45rem;
+  transition: color 0.35s var(--ease-out);
+}
+a.label:hover { color: var(--fg); }
+
+.mono-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+.accent { color: var(--red); }
+
+/* --------------------------------------------------------------------------
+   4. LAYOUT
+   -------------------------------------------------------------------------- */
+
+.shell {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+.section--line { border-top: 1px solid var(--line); }
+
+/* Secciones cortas: el ritmo vertical completo (`--section-y`, hasta
+   158 px por lado) está pensado para bloques que ocupan la pantalla. En
+   una sección compacta como el perfil, ese aire la parte en dos y hace
+   que un bloque de 277 px ocupe 870. */
+.section--compact { padding-block: clamp(3.5rem, 7vw, 6.5rem); }
+
+.section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  margin-bottom: clamp(3rem, 6vw, 6rem);
+}
+
+.section-head .lead { text-align: center; }
+
+/* Cuadrícula base sin cards: solo líneas */
+.grid { display: grid; gap: 0; }
+.grid--2 { grid-template-columns: repeat(2, 1fr); }
+.grid--3 { grid-template-columns: repeat(3, 1fr); }
+.grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 62rem) {
+  .grid--3, .grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 40rem) {
+  .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; }
+}
+
+.stack { display: flex; flex-direction: column; }
+.row { display: flex; align-items: center; }
+.gap-xs { gap: 0.5rem; }
+.gap-s { gap: 0.85rem; }
+.gap-m { gap: 1.5rem; }
+.gap-l { gap: 2.5rem; }
+.wrap { flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.center { justify-content: center; }
+.items-end { align-items: flex-end; }
+.mt-m { margin-top: 1.5rem; }
+.mt-l { margin-top: 3rem; }
+.text-center { text-align: center; }
+.mx-auto { margin-inline: auto; }
+
+/* --------------------------------------------------------------------------
+   5. NAV
+   -------------------------------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 90;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  transition: background 0.5s var(--ease-out), border-color 0.5s var(--ease-out);
+  border-bottom: 1px solid transparent;
+}
+.nav.is-stuck {
+  background: rgba(8, 8, 10, 0.72);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom-color: var(--line);
+}
+
+.nav__inner {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap, 1.5rem);
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  /* Zona tactil: el texto mide 22 px de alto y WCAG 2.2 pide 24. El
+     relleno no se ve, pero el area pulsable crece. */
+  padding-block: 0.25rem;
+}
+.nav__mark { width: 0.85rem; height: 0.85rem; flex: none; color: var(--red); fill: currentColor; overflow: visible; }
+
+.nav__links { display: flex; align-items: center; gap: 2rem; }
+.nav__link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--fg-mute);
+  position: relative;
+  padding-block: 0.35rem;
+  transition: color 0.35s var(--ease-out);
+}
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-out);
+}
+.nav__link:hover { color: var(--fg); }
+.nav__link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+.nav__actions { display: flex; align-items: center; gap: 0.75rem; }
+
+@media (max-width: 68rem) {
+  .nav__links { display: none; }
+}
+
+/* Punto de estado en vivo */
+.pulse {
+  width: 0.45rem; height: 0.45rem;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  flex: none;
+  position: relative;
+}
+.pulse[data-state="online"] { background: #2ecc71; }
+.pulse[data-state="offline"] { background: #e74c3c; }
+.pulse[data-state="online"]::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: #2ecc71;
+  animation: pulse-ring 2s var(--ease-out) infinite;
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   6. BOTONES
+   -------------------------------------------------------------------------- */
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: var(--fg);
+  --btn-bd: var(--line-hard);
+  /* El relleno que sube al hover y el color del texto sobre ese relleno
+     van en variables APARTE del color en reposo. Antes el relleno usaba
+     --btn-fg y el texto en hover era fijo: en .btn--solid eso daba
+     relleno negro + texto negro (ilegible), y en .btn--red relleno
+     blanco + texto blanco (ilegible también). Cada variante declara su
+     pareja fondo/texto y el contraste queda garantizado. */
+  --btn-fill: var(--fg);
+  --btn-hover: var(--ink);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.72em 1.35em;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-bd);
+  border-radius: 100rem;
+  overflow: hidden;
+  isolation: isolate;
+  white-space: nowrap;
+  transition:
+    color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out),
+    transform 0.45s var(--ease-out),
+    box-shadow 0.45s var(--ease-out);
+}
+/* Relleno que sube desde abajo */
+.btn::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--btn-fill);
+  transform: translateY(101%);
+  transition: transform 0.55s var(--ease-out);
+  z-index: -1;
+}
+.btn:hover::before { transform: translateY(0); }
+/* Al hover el botón también se levanta un poco y coge sombra: el relleno
+   solo cambia el color, y sin el lift no se siente la elevación. */
+.btn:hover {
+  color: var(--btn-hover);
+  border-color: var(--btn-fill);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* --- El borde que se dibuja ----------------------------------------------
+   Un <rect> del tamaño exacto del botón, en rojo de marca, por encima del
+   relleno. Con el offset igual al perímetro la línea no se ve; al bajarlo
+   a 0 recorre el contorno entero. La medida y el perímetro los calcula
+   js/boton.js.
+
+   Va POR ENCIMA del relleno a propósito: si quedara debajo, el blanco del
+   relleno lo taparía a mitad de camino y se perdería la mitad del efecto. */
+.btn__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+.btn__ring rect {
+  fill: none;
+  stroke: var(--red);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--ease-out);
+}
+.btn:hover .btn__ring rect,
+.btn:focus-visible .btn__ring rect { stroke-dashoffset: 0; }
+
+/* El contenido del botón va por encima del trazo, o la línea roja le
+   cruza por encima y se ve atravesando las letras.
+
+   OJO: el `:not()` no es cosmético. El SVG del anillo es también hijo
+   directo, y sin excluirlo esta regla le pisa `position: absolute` a
+   `relative`. Con `width: 100%` dentro de un flex eso es un ciclo de
+   dimensionado: el botón crece para acomodar un hijo que mide el 100%
+   del botón, y se dispara hasta 396×218 px. */
+.btn > *:not(.btn__ring) { position: relative; z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin línea que recorra: el borde se pone entero. Y sin elevación: el
+     translateY del hover pegaría un salto en vez de animarse. */
+  .btn__ring rect { transition: none; stroke-dashoffset: 0; }
+  .btn:hover { transform: none; box-shadow: none; }
+}
+
+.btn--solid {
+  --btn-bg: var(--fg);
+  --btn-fg: var(--ink);
+  --btn-bd: var(--fg);
+  --btn-fill: var(--ink);
+  --btn-hover: var(--fg);
+}
+/* El rojo de marca (#e8233c) deja el texto blanco en 4.43:1, por debajo de
+   AA para texto pequeño. Sobre botones y cursor usamos un punto más
+   oscuro que sí llega a 5:1 sin cambiar apenas el tono. */
+.btn--red {
+  --btn-bg: #d81f34;
+  --btn-fg: #fff;
+  --btn-bd: #d81f34;
+  --btn-fill: #8f1226;
+  --btn-hover: #fff;
+}
+
+.btn--lg { font-size: 0.88rem; padding: 0.95em 1.9em; }
+.btn--block { width: 100%; justify-content: center; }
+
+.btn__arrow { transition: transform 0.5s var(--ease-out); }
+.btn:hover .btn__arrow { transform: translateX(0.3em); }
+
+/* --------------------------------------------------------------------------
+/* --------------------------------------------------------------------------
+/* --------------------------------------------------------------------------
+   7. PRELOADER — solo el logo, rellenándose de abajo arriba
+   --------------------------------------------------------------------------
+   Réplica de boceto_loader_solo_logo.html: una copia tenue de la silueta
+   al 13% y, encima, la misma forma recortada por un rectángulo que sube
+   desde el borde inferior. No hay contador ni barra: solo la marca.
+
+   La animación de @keyframes es el último recurso. Si el JS no arranca, o
+   falla, o el navegador congela el reloj, esto levanta la cortinilla
+   igualmente. Es la red que garantiza que nadie se queda en negro. */
+
+@keyframes preloader-salida {
+  0%, 90% { clip-path: inset(0 0 0 0); visibility: visible; }
+  100%    { clip-path: inset(0 0 100% 0); visibility: hidden; }
+}
+
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+  clip-path: inset(0 0 0 0);
+  animation: preloader-salida 9s forwards;
+}
+#preloader[data-gone] { animation: none; }
+
+/* --- El logo --- */
+.pre__logo {
+  width: clamp(9rem, 26vw, 15rem);
+  height: auto;
+  aspect-ratio: 304 / 252;
+  overflow: visible;
+  /* El logo es casi blanco, no el color de texto: lleva su propio color
+     para que el relleno y la guía se atenúen por separado. */
+  color: #ececee;
+  /* La transición de salida va aquí, no en .is-out: si se declarara solo en
+     el estado final, en el primer fotograma no habría nada que interpolar
+     y el logo se cortaría de golpe, que es justo lo que queremos evitar. */
+  transition:
+    opacity 0.42s ease,
+    transform 0.6s cubic-bezier(0.6, 0, 0.2, 1),
+    filter 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* La guía: la silueta entera, muy tenue. Se ve desde el primer frame, así
+   que la pantalla nunca está vacía. */
+.pre__logo-guia {
+  fill: currentColor;
+  opacity: 0.13;
+}
+
+/* El relleno: la misma forma, recortada. El rect del clipPath lo sube el
+   JS (o el @keyframes de abajo, si el JS no llega). */
+.pre__logo-llenado {
+  fill: currentColor;
+  opacity: 1;
+}
+
+/* Salida: cuando el logo ya está al 100% y toca irse, no desaparece de
+   golpe. Se desenfoca, crece un poco y se desvanece, todo dentro de la
+   misma transición de arriba.
+
+   El desenfoque va primero a propósito: al perder el foco, el logo se ve
+   todavía un momento antes de apagarse, y el ojo lo sigue. Sin eso el
+   corte se lee como un fallo de carga y no como el final de algo. */
+#preloader.is-out .pre__logo {
+  opacity: 0;
+  transform: scale(1.1);
+  filter: blur(18px);
+}
+
+/* El latido de "carga completa": al llegar al 100%, el logo respira una
+   vez —crece un poco con un brillo— y se queda un momento en su sitio
+   ANTES de irse. Sin este compás, la salida empieza en el mismo instante
+   en que termina el relleno y se lee como un corte, no como el final de
+   algo. Dura 0,75 s y el JS espera a que suene (LATIDO en main.js). */
+#preloader.is-full .pre__logo {
+  animation: pre-latido 0.75s var(--ease-out);
+}
+@keyframes pre-latido {
+  0%   { transform: scale(1);     filter: none; }
+  35%  { transform: scale(1.045);
+         filter: brightness(1.7) drop-shadow(0 0 22px rgba(236, 236, 238, 0.45)); }
+  100% { transform: scale(1);     filter: none; }
+}
+
+/* El flash: un destello blanco que cruza la pantalla justo al completar,
+   como el fogonazo de una foto. Es lo que marca el "ya está". Dura lo
+   mismo que el latido y se apaga solo; cuando empieza la salida ya no
+   queda nada de él. Un solo destello de menos de un segundo no es un
+   problema de fotosensibilidad (WCAG 2.3.1 habla de tres o más por
+   segundo), y con menos movimiento no existe (ver bloque reduce). */
+#preloader.is-full::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  animation: pre-flash 0.75s ease-out;
+}
+@keyframes pre-flash {
+  0%   { opacity: 0; }
+  18%  { opacity: 0.85; }
+  45%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* --- Respaldo sin JS ---
+   No hace falta nada aquí, y esa es la idea: el <rect> del clipPath
+   arranca con y="242" en el HTML, o sea, con el logo LLENO. Si el JS no
+   llegara a vaciarlo, el peor caso es que se vea el logo entero.
+
+   NO se intenta con CSS (`#pre-rect { y: 494 }`): este motor no soporta
+   `y` como propiedad geométrica de SVG, solo como atributo, así que la
+   regla no aplicaba y el logo se quedaba en la guía al 13%, que es
+   prácticamente una pantalla negra. El reset a 494 lo hace el script
+   inline del <head>, que corre antes del primer pintado. */
+
+@media (prefers-reduced-motion: reduce) {
+  #preloader { animation-duration: 1ms; }
+  .pre__logo { transition: none; }
+
+  /* Con menos movimiento la salida es solo un fundido corto de opacidad:
+     ni desenfoque, ni escala, ni cortinilla. Un fundido no marea (no hay
+     nada que seguir con la vista), y sin él el logo desaparecería de
+     golpe, que es justo lo que queremos evitar.
+
+     Hace falta el `!important` porque la regla global de este mismo
+     bloque pone `transition-duration: 0.01ms !important` en todo. La
+     especificidad de `#preloader.is-out .pre__logo` gana a la del `*`. */
+  #preloader.is-out .pre__logo {
+    opacity: 0;
+    transform: none;
+    filter: none;
+    transition: opacity 0.35s ease !important;
+  }
+  /* Y sin latido ni flash: el pulso y el destello sí son movimiento. */
+  #preloader.is-full .pre__logo { animation: none; }
+  #preloader.is-full::after { display: none; }
+}
+/* --------------------------------------------------------------------------
+   8. HERO
+   -------------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: var(--nav-h);
+  overflow: clip;
+}
+
+.hero__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.hero__canvas { width: 100%; height: 100%; }
+
+/* Velo sobre el 3D. Es lo que garantiza que el texto se lea venga como
+   venga el ángulo de los bloques: oscurece el centro (donde va el titular
+   y el párrafo) y deja respirar las esquinas. */
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(78% 62% at 50% 52%, rgba(8, 8, 10, 0.9) 0%, rgba(8, 8, 10, 0.62) 45%, transparent 78%),
+    linear-gradient(to bottom, rgba(8, 8, 10, 0.82) 0%, transparent 22%, transparent 52%, rgba(8, 8, 10, 0.72) 82%, var(--ink) 100%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-bottom: clamp(1.5rem, 3vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.hero__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+.hero__top p {
+  font-size: clamp(0.95rem, 1.15vw, 1.15rem);
+  line-height: 1.45;
+  max-width: 24ch;
+}
+.hero__top .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; }
+
+@media (max-width: 48rem) {
+  .hero__top { flex-direction: column; }
+}
+
+/* Logotipo gigante que sangra de borde a borde.
+   OJO: `fill: currentColor` es obligatorio. En SVG, `color` no pinta nada
+   para un <text> — el `fill` por defecto es negro, y sobre este fondo
+   el logotipo salía invisible. */
+.hero__logo {
+  width: 100%;
+  fill: currentColor;
+  color: var(--fg);
+  overflow: visible;
+}
+.hero__logo text { font-family: var(--font-mono); font-weight: 700; fill: currentColor; }
+
+/* Barra inferior: IP + estado + jugar */
+.hero__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.hero__facts { display: flex; align-items: center; gap: clamp(1.25rem, 3vw, 3rem); flex-wrap: wrap; }
+.hero__fact { display: flex; align-items: center; gap: 0.55rem; }
+.hero__fact b {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Copiar IP */
+.copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.6em 1.1em;
+  border: 1px solid var(--line-hard);
+  border-radius: 100rem;
+  transition: border-color 0.4s var(--ease-out), background 0.4s var(--ease-out);
+}
+.copy:hover { border-color: var(--fg); background: var(--fg); color: var(--ink); }
+.copy:hover .copy__icon { transform: rotate(-12deg); }
+.copy__icon { transition: transform 0.5s var(--ease-out); }
+.copy.is-done { background: #2ecc71; border-color: #2ecc71; color: #06210f; }
+
+/* --------------------------------------------------------------------------
+   9. MARQUEE
+   -------------------------------------------------------------------------- */
+
+.marquee {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  padding-block: 1.1rem;
+  border-block: 1px solid var(--line);
+  user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+/* El desplazamiento lo lleva GSAP (xPercent), no una animación CSS.
+   Motivo: cambiar `animation-duration` en marcha reinicia la animación y
+   produce saltos. Con GSAP solo se toca `timeScale`, que interpola de
+   forma continua. Ver bloque marquee en js/scroll.js. */
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  gap: 3rem;
+  padding-right: 3rem;
+  align-items: center;
+  will-change: transform;
+}
+/* Pausa al pasar el ratón: el tween de GSAP no se puede pausar con CSS,
+   así que scroll.js añade .is-paused y baja el timeScale a 0. */
+.marquee__track.is-paused { transition: none; }
+
+/* Vuelta atrás: si no hay animación, el marquee se mueve con CSS.
+   Se aplica con una clase que pone el JS, no por defecto, para que
+   nunca compitan los dos motores a la vez. */
+.marquee--css .marquee__track {
+  animation: marquee-css 34s linear infinite;
+}
+.marquee--css:hover .marquee__track { animation-play-state: paused; }
+@keyframes marquee-css { to { transform: translateX(-100%); } }
+
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+  white-space: nowrap;
+}
+.marquee__item[data-tone="red"] { color: var(--red); }
+.marquee__item[data-tone="bright"] { color: var(--fg); }
+.marquee__dot { width: 0.3rem; height: 0.3rem; background: currentColor; opacity: 0.5; }
+
+/* --------------------------------------------------------------------------
+   10. DECLARACIÓN (sección de texto grande)
+   -------------------------------------------------------------------------- */
+
+/* La caja se mide en rem, no en vw: asi el texto crece con el tamano de
+   fuente base y no depende de la ventana. */
+.statement { max-width: 68rem; margin-inline: auto; }
+
+.statement p {
+  font-family: var(--font-mono);
+  /* EL TOPE DE 2.3rem NO ES ESTETICO, ES UNA RESTRICCION DE ANCHO.
+
+     Cada linea del HTML esta partida a mano con <span data-line>, y la mas
+     larga --"Empezo en la 1.12.2 buscando estabilidad total", 46
+     caracteres-- mide 27.4em de ancho. La caja llega hasta 68rem, asi que
+     por encima de 2.3rem el texto no cabe: la linea se parte sola por la
+     mitad y la mascara, que es una caja de una sola linea, se queda
+     cortada. Empezaba a pasar a los ~1360 px de ventana.
+
+     Con 2.3rem la linea larga ocupa 27.4 x 2.3 = 63rem de los 68rem:
+     cabe con cinco rem de margen. */
+  font-size: clamp(1.05rem, 2.9vw, 2.3rem);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+/* El margen entre parrafos iba en un style="margin-top:2.5rem" metido en
+   el HTML. Aqui, para que tambien escale. */
+.statement p + p { margin-top: clamp(1.25rem, 2.4vw, 2.1rem); }
+
+.statement .dim { color: var(--fg-faint); }
+.statement .hot { color: var(--red); }
+
+/* Máscara de revelado por línea (la firma de la referencia) */
+.line-mask { display: block; overflow: hidden; }
+.line-mask > span { display: block; will-change: transform; }
+
+/* Por debajo de 48rem los saltos de linea ya no caben: 46 caracteres no
+   entran en un movil a ningun tamano legible. Ahi las lineas vuelven a
+   ser texto normal que fluye, y el revelado por linea se desactiva. Es
+   mejor un parrafo que se lee que una linea cortada a la mitad. */
+@media (max-width: 48rem) {
+  .line-mask { display: inline; overflow: visible; }
+  .line-mask::after { content: " "; }
+  .line-mask > span { display: inline; transform: none !important; will-change: auto; }
+}
+
+/* --------------------------------------------------------------------------
+   11. ESTADO EN VIVO
+   -------------------------------------------------------------------------- */
+
+.live {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+.live__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-raised);
+}
+.live__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 52rem) { .live__grid { grid-template-columns: repeat(2, 1fr); } }
+
+.live__cell {
+  padding: clamp(1.5rem, 2.6vw, 2.5rem) 1.25rem;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.live__cell:last-child { border-right: none; }
+@media (max-width: 52rem) {
+  .live__cell:nth-child(2n) { border-right: none; }
+  .live__cell:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+}
+
+.live__val {
+  font-family: var(--font-mono);
+  font-size: clamp(1.75rem, 3.4vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   12. TARJETAS SIN CAJA (la lista "works")
+   -------------------------------------------------------------------------- */
+
+.plate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1.75rem, 2.6vw, 2.75rem) 0;
+  border-top: 1px solid var(--line);
+  position: relative;
+  transition: padding-inline 0.55s var(--ease-out);
+}
+.plate::before {
+  content: "";
+  position: absolute;
+  inset: 0 -1.25rem;
+  background: var(--ink-card);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.5s var(--ease-out);
+}
+.plate:hover::before { opacity: 1; }
+.plate:hover { padding-inline: 1.25rem; }
+
+/* La etiqueta se queda pegada al borde derecho y el título fluye encima.
+   Si la alineamos por línea base, dos títulos cortos en columnas juntas
+   hacen que el rótulo de la derecha se pegue al título de al lado y ambos
+   parezcan la misma etiqueta. */
+.plate__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; }
+.plate__top > .tag { flex: none; margin-top: 0.4em; }
+/* Tarjeta de blueprint: necesita caja propia porque lleva etiqueta,
+   nombre de fichero y estado. No encaja en la lista de granjas. */
+.bp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: clamp(1.35rem, 2.1vw, 1.9rem);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--ink-card);
+  transition: border-color 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+}
+.bp:hover { border-color: var(--line-hard); transform: translateY(-0.2rem); }
+
+/* La etiqueta baja a su propia línea. Con el titulo al lado, un nombre
+   corto hacia que el rotulo de la derecha se lea como parte del titulo
+   de al lado. */
+.bp__head { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.bp__title {
+  font-family: var(--font-mono);
+  font-size: clamp(0.98rem, 1.4vw, 1.25rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+.bp__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line);
+}
+.bp__file {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--fg-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plate__title {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3.6vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  transition: color 0.4s var(--ease-out);
+}
+.plate:hover .plate__title { color: var(--red); }
+.plate__desc { color: var(--fg-mute); font-size: clamp(0.95rem, 1.1vw, 1.1rem); max-width: 44ch; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3em 0.75em;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--line-hard);
+  border-radius: 100rem;
+  color: var(--fg-mute);
+  white-space: nowrap;
+}
+/* Los tintes van bajitos a propósito: un fondo rojo saturado deja el texto
+   rojo en ~3.8:1, por debajo de AA. El color lo pone la letra, no el fondo. */
+.tag--red   { color: var(--red-text); border-color: rgba(232, 35, 60, 0.24); background: rgba(232, 35, 60, 0.07); }
+.tag--amber { color: #f0b429;      border-color: rgba(240, 180, 41, 0.2); background: rgba(240, 180, 41, 0.07); }
+.tag--green { color: #3ee08a;      border-color: rgba(46, 204, 113, 0.22); background: rgba(46, 204, 113, 0.07); }
+
+/* --------------------------------------------------------------------------
+   13. GALERÍA — túnel de scroll en profundidad
+   --------------------------------------------------------------------------
+   Las ocho capturas viven cada una a su distancia en el eje Z. El scroll
+   no las mueve: mueve la cámara, que las atraviesa. `perspective` en el
+   escenario y `preserve-3d` en el mundo; CSS hace el resto.
+
+   El escenario es `sticky` y la sección reserva la altura del recorrido.
+   Nada de pin de GSAP: un bucle propio con rAF. El ticker de GSAP va con
+   requestAnimationFrame, que el navegador congela en segundo plano; el
+   bucle propio tampoco corre entonces, pero un `scroll` con un solo frame
+   lo recoloca al volver. Pase lo que pase, las capturas se ven.
+
+   FALLO SEGURO: los marcos arrancan visibles, con opacidad 1. El JS solo
+   los atenúa cuando sabe que va a poder devolverlos. Nunca se empieza
+   ocultando algo a ciegas — que es como se ha roto esta página antes. */
+
+.tun-section { position: relative; border-top: 1px solid var(--line); }
+
+.tun {
+  position: relative;
+  /* La altura la fija el JS: 100vh + el recorrido. Sin esto la sección
+     mediría lo que mide el escenario y no habría scroll que consumir. */
+  height: 100vh;
+}
+
+.tun__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  display: grid;
+  place-items: center;
+}
+
+.tun__world {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* --- Un marco ------------------------------------------------------------
+   Centrado con márgenes negativos y no con `top/left: 50%` + translate,
+   porque el `transform` entero se lo lleva el JS en cada frame. */
+.tun__frame {
+  --fw: min(86vw, 52rem);
+  --fh: min(62vh, calc(var(--fw) * 0.62));
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--fw);
+  height: var(--fh);
+  margin-top: calc(var(--fh) / -2);
+  margin-left: calc(var(--fw) / -2);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--ink-raised);
+  border: 1px solid var(--line-hard);
+  backface-visibility: hidden;
+  opacity: 1;              /* estado de partida: visible */
+  will-change: transform, opacity;
+}
+.tun__frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* La viñeta: sin ella una captura al fondo del túnel se ve igual de
+   nítida que una delante y se pierde la sensación de distancia. */
+.tun__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(8, 8, 10, 0.55) 0%,
+    transparent 22%,
+    transparent 62%,
+    rgba(8, 8, 10, 0.88) 100%);
+  pointer-events: none;
+}
+
+.tun__meta {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: clamp(0.9rem, 2vw, 1.4rem);
+  font-family: var(--font-mono);
+}
+.tun__num {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.tun__cap {
+  font-size: clamp(0.78rem, 1.6vw, 0.95rem);
+  color: var(--fg);
+  text-shadow: 0 1px 12px rgba(8, 8, 10, 0.9);
+}
+
+/* --- HUD: profundidad y regla de progreso -------------------------------- */
+.tun__hud {
+  position: absolute;
+  left: clamp(1rem, 3.5vw, 2.5rem);
+  bottom: clamp(1.25rem, 4vw, 2.5rem);
+  z-index: 3;
+  pointer-events: none;
+}
+.tun__hud small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin-bottom: 0.3rem;
+}
+.tun__hud b {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.tun__track {
+  position: absolute;
+  right: clamp(1rem, 2.5vw, 1.75rem);
+  top: 22%;
+  bottom: 22%;
+  width: 2px;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(237, 237, 240, 0.16);
+}
+.tun__track i {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--p, 0) * 100%);
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+/* El aviso de "baja para entrar", que se apaga al empezar a bajar. */
+.tun__hint {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: clamp(1.5rem, 5vw, 3rem);
+  z-index: 3;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  pointer-events: none;
+}
+.tun__hint::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 1.75rem;
+  margin: 0.7rem auto 0;
+  background: linear-gradient(180deg, var(--fg-faint), transparent);
+}
+
+/* El encabezado, arriba del recorrido, que se apaga al entrar. */
+.tun-head {
+  position: absolute;
+  inset: clamp(4.5rem, 12vh, 7rem) 0 auto 0;
+  z-index: 2;
+  text-align: center;
+  padding-inline: 1.5rem;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out);
+}
+.tun-head .h2 { font-size: clamp(1.8rem, 4.5vw, 3.2rem); }
+.tun-head .lead { max-width: 44ch; margin-inline: auto; }
+
+/* --- Menos movimiento: sin túnel -----------------------------------------
+   Sin perspectiva ni scroll: las ocho capturas en columna, en orden.
+   Nada se oculta y nada depende de un reloj. */
+@media (prefers-reduced-motion: reduce) {
+  .tun { height: auto !important; }
+  .tun__stage { position: static; height: auto; perspective: none; overflow: visible; }
+  .tun__world { position: static; transform: none; }
+  .tun__frame {
+    position: static;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    margin: 0 0 1rem;
+    transform: none !important;
+    opacity: 1 !important;
+    will-change: auto;
+  }
+  .tun__hud, .tun__track, .tun__hint, .tun-head { display: none; }
+}
+/* --------------------------------------------------------------------------
+   14. SKIN 3D
+   -------------------------------------------------------------------------- */
+
+/* Perfil: compacto a proposito. Antes el visor ocupaba media pantalla y
+   la seccion empujaba el resto del documento varios cientos de px hacia
+   abajo. Ahora el escenario tiene ancho maximo fijo y la cuadricula no
+   crece con el viewport, asi que la seccion se lee como una tarjeta y no
+   como un bloque protagonista.
+
+   El limite va en la primera COLUMNA, no en un `max-width` del
+   escenario: si se limitara solo el escenario, el hueco sobrante
+   quedaria dentro de su columna y la cuadricula seguiria igual de ancha. */
+/* --- Cita del perfil ------------------------------------------------------
+   Una frase grande al frente y el resto como nota. La frase ES el h2 de la
+   seccion: asi el peso visual lo lleva la cita y no el nombre, y la
+   jerarquia de encabezados sigue siendo correcta (antes habia un h2 con
+   el nombre y un h3 "Creador & administracion" que ya no hace falta).
+
+   El tope de 5rem no es decorativo: la linea mas larga es "un proyecto.",
+   12 caracteres, unos 7,2em. A 5rem son 36rem, muy por debajo de los 68rem
+   de la caja, asi que no hay riesgo de que se parta. */
+.quote { margin: 0; }
+.quote__text {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+.quote__cite {
+  margin-top: clamp(0.9rem, 1.8vw, 1.4rem);
+  color: var(--fg-faint);
+}
+
+/* La nota: el detalle que acompana a la cita. Pequena y discreta, para
+   que la frase grande se lea primero. */
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+  color: var(--fg-mute);
+  max-width: 46ch;
+  margin: 0;
+}
+
+.skin {
+  display: grid;
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3.5vw, 3.25rem);
+  align-items: center;
+  max-width: 60rem;
+}
+@media (max-width: 56rem) {
+  .skin { grid-template-columns: 1fr; max-width: none; }
+  .skin__stage { max-width: 22rem; }
+}
+
+.skin__stage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-height: 17rem;
+  background:
+    radial-gradient(70% 55% at 50% 45%, rgba(232, 35, 60, 0.09), transparent 70%),
+    var(--ink-raised);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  cursor: grab;
+}
+.skin__stage:active { cursor: grabbing; }
+.skin__stage canvas { width: 100%; height: 100%; }
+.skin__hint {
+  position: absolute;
+  bottom: 1rem; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  pointer-events: none;
+}
+
+.identity__name {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.identity__links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+/* --------------------------------------------------------------------------
+   15. STATS
+   -------------------------------------------------------------------------- */
+
+.stat { display: flex; flex-direction: column; gap: 0.6rem; padding-block: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--line); }
+.stat__val {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.stat__val small { font-size: 0.4em; color: var(--fg-faint); margin-left: 0.2em; font-weight: 500; }
+
+/* --------------------------------------------------------------------------
+   16. MODS
+   -------------------------------------------------------------------------- */
+
+.mods { display: grid; grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr)); gap: 0.7rem; }
+.mod {
+  aspect-ratio: 1;
+  border-radius: 0.6rem;
+  background: var(--ink-card);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  transition: transform 0.4s var(--ease-out), border-color 0.4s;
+}
+.mod.is-ready { opacity: 1; }
+.mod:hover { transform: translateY(-0.3rem) scale(1.06); border-color: var(--line-hard); }
+.mod img { width: 100%; height: 100%; object-fit: cover; }
+/* Fallback cuando el proyecto no tiene icono en Modrinth. */
+.mod__init {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--fg-faint);
+}
+
+/* El icono va EN EL HTML, encima de la letra. Si el fichero no existe, el
+   onerror lo retira y la letra queda de respaldo. Al reves --letra debajo
+   e icono anadido despues-- se veia un cuadrado negro mientras cargaba. */
+.mod__icon {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mod:has(.mod__icon) .mod__init { display: none; }
+
+/* --- Glare effect: un reflejo de luz cruzando la superficie --------------
+   Dos pseudo-elementos, no uno, y es a proposito:
+
+     ::before  el barrido inicial, que cruza la fila en cascada
+     ::after   el barrido al pasar el puntero por encima
+
+   Con uno solo no podrian convivir: el `animation` del barrido inicial y
+   la `transition` del hover escriben las MISMAS propiedades (transform,
+   opacity), asi que el que empieza despues pisa al otro. Con
+   `fill-mode: both` el estado final de la animacion queda congelado
+   encima y el hover deja de funcionar. Separandolos, cada uno lleva lo
+   suyo. */
+
+.mod { position: relative; overflow: hidden; }
+
+.mod::before,
+.mod::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  bottom: -60%;
+  left: -70%;
+  width: 42%;
+  pointer-events: none;
+  background: linear-gradient(102deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 35%,
+    rgba(255, 255, 255, 0.26) 50%,
+    rgba(255, 255, 255, 0.06) 65%,
+    transparent 100%);
+  transform: translateX(-140%) rotate(14deg);
+}
+
+/* El barrido al pasar por encima. */
+.mod::after {
+  opacity: 0;
+  transition: transform 0.8s var(--ease-out), opacity 0.2s linear;
+}
+.mod:hover::after,
+.mod:focus-visible::after {
+  opacity: 1;
+  transform: translateX(360%) rotate(14deg);
+}
+
+/* El barrido inicial, en cascada segun `--i`. Sin `fill`, para que al
+   terminar no deje nada congelado encima de la transicion del hover. */
+.mods.is-glare .mod::before {
+  animation: glare-barrido 1.05s var(--ease-out);
+  animation-delay: calc(var(--i, 0) * 45ms + 250ms);
+}
+@keyframes glare-barrido {
+  0%   { opacity: 0;  transform: translateX(-140%) rotate(14deg); }
+  12%  { opacity: 1; }
+  100% { opacity: 0;  transform: translateX(360%) rotate(14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mods.is-glare .mod::before { animation: none; }
+  .mod::after { display: none; }
+}
+
+/* --- Rejilla de texture packs ---------------------------------------------
+   Tarjetas cuadradas con el icono del pack dentro de un marco. El marco va
+   con relleno para que se vea el borde: eso da el aire de "ficha" sin
+   tener que dibujar el borde dentro de la imagen. */
+/* --- Carrusel de texture packs ----------------------------------------------
+   Un icono a la vista, que cambia solo cada 5 segundos. Sin barra, sin
+   puntos y sin flechas: solo el título grande del encabezado (que sigue
+   al carrusel desde el JS) y el icono.
+
+   Las diapositivas van apiladas en la misma celda de una rejilla (no en
+   absolute): así el escenario mide lo que mide el icono y no hace falta
+   fijar ninguna altura a mano. */
+
+.tex-show {
+  display: grid;
+  max-width: 30rem;
+  margin-inline: auto;
+  background: var(--ink-card);
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  overflow: hidden;
+}
+
+.tex-slide {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 5vw, 3rem);
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  pointer-events: none;
+}
+.tex-slide.is-active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.tex-slide__frame {
+  display: block;
+  width: min(15rem, 56vw);
+  aspect-ratio: 1;
+  padding: 0.7rem;
+  background: var(--ink-raised);
+  border: 1px solid var(--line-hard);
+  border-radius: 1rem;
+  transition: border-color 0.4s var(--ease-out);
+}
+.tex-slide:hover .tex-slide__frame { border-color: var(--red); }
+
+.tex-slide__icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin rotación automática: la diapositiva que haya se queda puesta.
+     El cambio de texto del título tampoco se anima (ver syncTitle). */
+  .tex-slide { transition: none; }
+}
+
+/* --------------------------------------------------------------------------
+   17. ROADMAP
+   -------------------------------------------------------------------------- */
+
+.road { position: relative; padding-left: 3.5rem; }
+.road::before {
+  content: "";
+  position: absolute;
+  left: 0.55rem; top: 0.6rem; bottom: 0.6rem;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--red), var(--line) 22%, var(--line));
+}
+.road__item { position: relative; padding-bottom: clamp(2.5rem, 4.5vw, 4.5rem); }
+.road__item:last-child { padding-bottom: 0; }
+.road__dot {
+  position: absolute;
+  left: -3.5rem; top: 0.35rem;
+  width: 1.15rem; height: 1.15rem;
+  border-radius: 50%;
+  border: 1px solid var(--line-hard);
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+}
+.road__dot::after {
+  content: "";
+  width: 0.4rem; height: 0.4rem;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  transition: background 0.5s, box-shadow 0.5s;
+}
+.road__item[data-done="true"] .road__dot { border-color: var(--red); }
+.road__item[data-done="true"] .road__dot::after { background: var(--red); box-shadow: 0 0 0 0.2rem var(--red-dim); }
+.road__item[data-active="true"] .road__dot::after { background: var(--fg); animation: pulse-ring 2.2s var(--ease-out) infinite; }
+.road__title { font-family: var(--font-mono); font-size: clamp(1.15rem, 1.9vw, 1.7rem); font-weight: 600; letter-spacing: -0.02em; }
+.road__desc { color: var(--fg-mute); margin-top: 0.5rem; max-width: 56ch; }
+
+/* --------------------------------------------------------------------------
+   18. PASOS (cómo conectarse)
+   -------------------------------------------------------------------------- */
+
+.steps { counter-reset: step; }
+.step {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1.5rem;
+  padding-block: clamp(1.5rem, 2.6vw, 2.25rem);
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+.step::before {
+  counter-increment: step;
+  content: "0" counter(step);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--red);
+  padding-top: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.step__body { display: flex; flex-direction: column; gap: 0.6rem; }
+/* Los pasos pasaron de h4 a h3 (mismo motivo que en el pie). La clase
+   .step__title mantiene el aspecto independientemente del nivel. */
+.step h4,
+.step .step__title { font-family: var(--font-mono); font-size: clamp(1.05rem, 1.5vw, 1.35rem); font-weight: 600; }
+.step p { color: var(--fg-mute); max-width: 60ch; }
+
+.kbd {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.15em 0.5em;
+  border: 1px solid var(--line-hard);
+  border-bottom-width: 2px;
+  border-radius: 0.35rem;
+  background: var(--ink-card);
+  color: var(--fg);
+}
+
+/* --------------------------------------------------------------------------
+   19. FAQ (acordeón)
+   -------------------------------------------------------------------------- */
+
+.faq { border-top: 1px solid var(--line); }
+.faq__item { border-bottom: 1px solid var(--line); }
+.faq__q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1.6rem;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 0.35s;
+}
+.faq__q:hover { color: var(--red); }
+.faq__sign { position: relative; width: 0.85rem; height: 0.85rem; flex: none; }
+.faq__sign::before, .faq__sign::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  transition: transform 0.5s var(--ease-out), opacity 0.4s;
+}
+.faq__sign::before { top: 50%; left: 0; width: 100%; height: 1px; margin-top: -0.5px; }
+.faq__sign::after  { left: 50%; top: 0; height: 100%; width: 1px; margin-left: -0.5px; }
+.faq__item.is-open .faq__sign::after { transform: rotate(90deg); opacity: 0; }
+
+.faq__a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.6s var(--ease-out); }
+.faq__item.is-open .faq__a { grid-template-rows: 1fr; }
+.faq__a > div { overflow: hidden; }
+.faq__a p { color: var(--fg-mute); padding-bottom: 1.75rem; max-width: 62ch; }
+
+/* --------------------------------------------------------------------------
+/* --------------------------------------------------------------------------
+   20. DRAWER LATERAL
+   --------------------------------------------------------------------------
+   Entra desde el borde derecho. El velo y el panel se mueven por
+   separado: el velo se oscurece, el panel desliza. Si los dos fueran a
+   la vez parecerían una sola pieza y se pierde la sensación de cajón.  */
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  visibility: hidden;
+  pointer-events: none;
+  /* ESTO ES LO QUE ARREGLA EL CIERRE DE UN TIRON.
+
+     `visibility` no se anima con suavidad: salta de hidden a visible al
+     instante. Sin esto, al quitar `.is-open` el cajon entero se volvia
+     invisible en el MISMO instante, y la transicion de 0,58 s del panel
+     nunca llegaba a verse. De ahi que al pulsar la X desapareciera de
+     golpe, mientras que al abrir si se animaba.
+
+     La solucion es retrasar el hidden: `visibility` no cambia hasta que
+     pasa el retardo, asi el panel tiene tiempo de deslizarse fuera. Al
+     abrir el retardo es 0 y se ve enseguida. */
+  transition: visibility 0s linear 0.62s;
+}
+.drawer.is-open {
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s linear 0s;
+}
+
+/* --- Velo --- */
+.drawer__veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 4, 6, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.55s var(--ease-out);
+}
+.drawer.is-open .drawer__veil { opacity: 1; }
+
+/* --- Panel ---
+   OJO con la dirección de esto, que es al revés de lo habitual y a
+   propósito: la posición ABIERTA es la que no lleva transform, y la
+   cerrada la que se sale de pantalla.
+
+   Así, si la transición no llega a correr —porque el navegador tenga las
+   animaciones congeladas, o porque falte el motor— el panel se queda
+   igualmente en su sitio, visible. Fallo seguro por construcción.
+
+   Antes el estado abierto era `translateX(0)` sobre un `translateX(100%)`
+   base, y la animación la llevaba GSAP. En Firefox el ticker de GSAP va
+   con requestAnimationFrame, que se congela en segundo plano: el velo
+   (que anima CSS) se veía borroso y el panel se quedaba en
+   `xPercent: 100`, fuera de pantalla. De ahí el "solo se ve el blur".
+
+   Por eso ahora es todo CSS, sin GSAP: las transiciones las mueve el
+   compositor, no un rAF, así que no dependen de que el reloj siga vivo.
+   Y sin `will-change`, que en Firefox dejaba la capa promovida sin
+   pintar. */
+.drawer__panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(28rem, 88vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--ink-raised);
+  border-left: 1px solid var(--line-hard);
+  transform: translateX(100%);
+  transition: transform 0.58s var(--ease-out) 0.04s;
+}
+.drawer.is-open .drawer__panel { transform: none; }
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem var(--drawer-pad, 1.75rem);
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.drawer__close {
+  width: 2.1rem; height: 2.1rem;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-hard);
+  border-radius: 50%;
+  color: var(--fg-mute);
+  transition: color 0.35s, border-color 0.35s, transform 0.5s var(--ease-out);
+}
+.drawer__close:hover {
+  color: var(--ink);
+  background: var(--fg);
+  border-color: var(--fg);
+  transform: rotate(90deg);
+}
+
+/* --- Enlaces --- */
+.drawer__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem var(--drawer-pad, 1.75rem);
+  overflow-y: auto;
+}
+.drawer__link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  transition: color 0.35s var(--ease-out), padding-left 0.5s var(--ease-out);
+}
+.drawer__link i {
+  font-size: 0.3em;
+  font-style: normal;
+  color: var(--fg-faint);
+  flex: none;
+  transition: color 0.35s;
+}
+.drawer__link:hover { color: var(--red); padding-left: 0.4rem; }
+.drawer__link:hover i { color: var(--red); }
+
+/* Cascada. Cada enlace entra un poco después; el retardo sale de `--i`,
+   que pone el JS. Y otra vez al revés: abierto es `none` (su sitio) y
+   cerrado es el desplazamiento, para que si la cascada no corre los
+   enlaces sigan siendo visibles. */
+.drawer__link {
+  opacity: 0;
+  transform: translateX(1.5rem);
+  transition:
+    opacity 0.45s var(--ease-out) calc(var(--i, 0) * 50ms + 180ms),
+    transform 0.5s var(--ease-out) calc(var(--i, 0) * 50ms + 180ms),
+    color 0.35s var(--ease-out),
+    padding-left 0.5s var(--ease-out);
+}
+.drawer.is-open .drawer__link { opacity: 1; transform: none; }
+
+/* --- Pie --- */
+.drawer__foot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.35rem var(--drawer-pad, 1.75rem);
+  border-top: 1px solid var(--line);
+}
+.drawer__ip { align-self: flex-start; }
+.drawer__social { display: flex; flex-wrap: wrap; gap: 0.25rem 1.35rem; }
+.drawer__social a {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--fg-mute);
+  transition: color 0.35s;
+  /* Zona tactil: 18 px de alto no se tocan bien con el dedo. */
+  padding-block: 0.3rem;
+  display: inline-block;
+}
+.drawer__social a:hover { color: var(--red); }
+
+/* Sin JS el drawer no se puede abrir: que no estorbe ni bloquee. */
+.no-js .drawer { display: none; }
+
+/* El <svg> de definiciones del logo: se oculta pero sin display:none, que
+   lo sacaría del árbol de render y rompería la medición del trazo. */
+.astrum-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* --- Botón de menú ---
+   Cuatro puntitos que se convierten en X cuando el drawer está abierto:
+   los puntos se desvanecen y aparecen dos barras cruzadas. */
+
+.burger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.2rem;
+}
+.burger__label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-mute);
+  transition: color 0.35s;
+}
+.burger:hover .burger__label { color: var(--fg); }
+
+.burger__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.19rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  transition: transform 0.55s var(--ease-out), opacity 0.28s;
+}
+.burger__grid span {
+  width: 0.2rem; height: 0.2rem;
+  background: currentColor;
+  transition: background 0.35s;
+}
+.burger:hover .burger__grid span { background: var(--red); }
+
+/* Abierto: los puntos se van, la X aparece. */
+.burger[aria-expanded="true"] .burger__grid { transform: rotate(90deg); opacity: 0; }
+.burger[aria-expanded="true"]::before,
+.burger[aria-expanded="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 0.85rem;
+  height: 1.5px;
+  background: var(--red);
+  animation: burger-x 0.4s var(--ease-out) both;
+}
+.burger[aria-expanded="true"]::before { transform: rotate(45deg); }
+.burger[aria-expanded="true"]::after  { transform: rotate(-45deg); }
+@keyframes burger-x {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+/* --------------------------------------------------------------------------
+   21. GLITCH
+   -------------------------------------------------------------------------- */
+
+.glitch {
+  position: relative;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  overflow: hidden;
+  opacity: 0.85;
+}
+.glitch::before { color: #00e5ff; animation: glitch-a 3.4s infinite steps(2); }
+.glitch::after  { color: #ff005c; animation: glitch-b 2.7s infinite steps(2); }
+@keyframes glitch-a {
+  0%, 92%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  93% { clip-path: inset(12% 0 68% 0); transform: translate(-0.06em, -0.02em); }
+  96% { clip-path: inset(58% 0 22% 0); transform: translate(0.05em, 0.01em); }
+}
+@keyframes glitch-b {
+  0%, 90%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  91% { clip-path: inset(40% 0 40% 0); transform: translate(0.06em, 0.02em); }
+  95% { clip-path: inset(4% 0 82% 0); transform: translate(-0.04em, -0.01em); }
+}
+
+/* --------------------------------------------------------------------------
+   22. FOOTER
+   -------------------------------------------------------------------------- */
+
+.foot { border-top: 1px solid var(--line); padding-top: clamp(3rem, 5vw, 5rem); overflow: clip; }
+.foot__cols {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 2.5rem;
+  padding-bottom: clamp(3rem, 5vw, 5rem);
+}
+@media (max-width: 56rem) { .foot__cols { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 32rem) { .foot__cols { grid-template-columns: 1fr; } }
+
+/* Los títulos de columna del pie pasaron de h5 a h3 para no saltar de h2
+   a h5 en la jerarquía de encabezados. Se les da la clase .foot__title
+   para que el aspecto siga siendo el de antes, sea cual sea el nivel. */
+.foot__col h5,
+.foot__col .foot__title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin-bottom: 1.1rem;
+}
+.foot__col li + li { margin-top: 0.6rem; }
+.foot__col a {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--fg-mute);
+  transition: color 0.35s;
+}
+.foot__col a:hover { color: var(--red); }
+
+.foot__word {
+  width: 100%;
+  fill: currentColor;
+  color: var(--fg);
+  line-height: 0.8;
+}
+.foot__word text { font-family: var(--font-mono); font-weight: 700; fill: currentColor; }
+.foot__base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding-block: 1.5rem 2rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--fg-faint);
+}
+
+/* --------------------------------------------------------------------------
+   23. UTILIDADES
+   -------------------------------------------------------------------------- */
+
+.vh {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip {
+  position: absolute;
+  top: 0.5rem; left: 0.5rem;
+  z-index: 300;
+  padding: 0.7em 1.1em;
+  background: var(--fg);
+  color: var(--ink);
+  border-radius: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  transform: translateY(-200%);
+  transition: transform 0.3s;
+}
+.skip:focus { transform: translateY(0); }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
+.rel { position: relative; }
+
+/* Respeta a quien pidió menos movimiento.
+   Excepción deliberada: el marquee NO se congela. Es una franja de texto
+   informativo (versión, invite only) y sin movimiento parece una foto fija
+   a medio cortar. Tampoco hay transiciones de scroll, que es lo que
+   realmente molesta. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+  }
+  /* El retardo de `visibility` que hace posible la animación de CIERRE del
+     cajón (bloque 20) es de 0,62 s. Con las transiciones anuladas por la
+     regla de arriba, el panel se cierra de golpe pero el cajón seguiría
+     visible medio segundo y VACÍO. Se anula el retardo también. */
+  .drawer { transition: none !important; }
+
+  /* Solo lo que puede marear: el parallax del hero, el glitch y los
+     pulsos. El marquee se deja, y las imagenes de la galeria tambien:
+     son contenido, no efecto. */
+  .gal__frame img,
+  .pulse[data-state="online"]::after,
+  .glitch::before,
+  .glitch::after,
+  .mod__spin { animation: none !important; }
+  .glitch::before, .glitch::after { display: none; }
+  .gal__item:hover .gal__frame img { transform: none; }
+}
+
+/* Si no hay JS, nada se queda invisible. */
+.no-js [data-reveal],
+.no-js [data-fade],
+.no-js [data-line] { opacity: 1 !important; transform: none !important; }
+
+
+
+/* Rescate ejecutado por la red de seguridad del <head>. Los !important
+   ganan a los de .gsap-ready, que es justo lo que se busca. */
+.astrum-rescued [data-reveal],
+.astrum-rescued [data-fade],
+.astrum-rescued [data-line] { opacity: 1 !important; transform: none !important; }
+
+/* Y el caso de un elemento suelto, marcado a mano por el JS. */
+.astrum-visible { opacity: 1 !important; transform: none !important; }
+
+/* .no-anim: GSAP no pudo animar (ticker congelado, prefers-reduced-motion,
+   o el CDN no cargó). Estado por defecto: contenido visible, sin animación. */
+.no-anim [data-reveal],
+.no-anim [data-fade],
+.no-anim [data-line] { opacity: 1 !important; transform: none !important; }
