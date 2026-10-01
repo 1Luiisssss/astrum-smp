@@ -1,0 +1,30 @@
+/*
+  Cabeceras de seguridad y caché.
+  Cloudflare Pages y Netlify leen este archivo tal cual.
+  cámbialo al formato de tu hosting si no es uno de los dos.
+*/
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.modrinth.com https://mc-heads.net https://crafatar.com https://minotar.net; connect-src 'self' https://api.mcstatus.io https://api.modrinth.com https://astrumsmp-stats.up.railway.app; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/css/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate

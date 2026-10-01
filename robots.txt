@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /blueprints/
+
+Sitemap: https://zenithstudio.qzz.io/sitemap.xml

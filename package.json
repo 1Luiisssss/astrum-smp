@@ -1,0 +1,13 @@
+{
+  "name": "astrum-smp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio de AstrumSMP — servidor privado de Minecraft. Estatico, sin build.",
+  "scripts": {
+    "serve": "python tools/serve.py 8900",
+    "brand": "python tools/gen_brand.py",
+    "check": "python tools/check_text.py",
+    "publicar": "python tools/preparar_subida.py",
+    "extract": "python tools/extract_images.py \"C:/Users/Luis/Desktop/index/index(6).html\""
+  }
+}
